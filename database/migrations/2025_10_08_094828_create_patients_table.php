@@ -22,6 +22,7 @@ return new class extends Migration
             $table->string('blood_type')->nullable();
             $table->string('address')->nullable(); 
             $table->text('medical_history')->nullable(); 
+            $table->softDeletes();
             $table->timestamps();
         });
     }

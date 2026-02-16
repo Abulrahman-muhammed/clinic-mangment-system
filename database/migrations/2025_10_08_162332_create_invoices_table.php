@@ -34,7 +34,7 @@ return new class extends Migration
 
         // تاريخ الفاتورة
         $table->date('invoice_date')->default(now());
-
+        $table->softDeletes();
         $table->timestamps();
         });
     }

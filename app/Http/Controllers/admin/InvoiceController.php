@@ -10,11 +10,31 @@ class InvoiceController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $invoices = Invoice::with(['patient', 'doctor', 'services'])
-            ->latest()
-            ->paginate(10);
+        // 1. Start the query with eager loading to prevent N+1 issues
+        $query = Invoice::with(['patient', 'doctor.user', 'services']);
+    
+        // 2. Filter by Patient Name (Relationship search)
+        if ($request->filled('search')) {
+            $query->whereHas('patient', function ($q) use ($request) {
+                $q->where('name', 'like', '%' . $request->search . '%');
+            });
+        }
+    
+        // 3. Filter by Status (Exact match: paid/unpaid)
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+    
+        // 4. Filter by specific Invoice Date
+        if ($request->filled('date')) {
+            $query->whereDate('invoice_date', $request->date);
+        }
+    
+        // 5. Paginate and append query strings to maintain filters on page links
+        $invoices = $query->latest('invoice_date')->paginate(10);
+    
         return view('admin.invoices.index', compact('invoices'));
     }
 
@@ -23,7 +43,7 @@ class InvoiceController extends Controller
      */
     public function create()
     {
-        $doctors = \App\Models\Doctor::where('status', '1')->get();
+        $doctors = \App\Models\Doctor::get();
         $patients = \App\Models\Patient::all();
         $services = \App\Models\Service::all();
 
@@ -107,32 +127,14 @@ class InvoiceController extends Controller
     /**
      * Toggle the status of the specified resource.
      */
-        public function toggleStatus(Request $request, $id)
-        {
-            $invoice = Invoice::findOrFail($id);
 
-            // نسمح بس بالقيم دي
-            $allowed = ['paid', 'unpaid'];
+     public function toggleStatus(Invoice $invoice)
+     {
+         $invoice->status = $invoice->status === 'paid' ? 'unpaid' : 'paid';
+         $invoice->save();
+     
+         return redirect()->back()->with('success', 'Invoice status updated successfully.');
+     }
+     
 
-            // لو المرسل في البودي قيمة، ناخدها، وإلا نعمل toggle
-            $newStatus = $request->input('status') ?? ($invoice->status === 'paid' ? 'unpaid' : 'paid');
-            $newStatus = strtolower($newStatus);
-
-            if (!in_array($newStatus, $allowed)) {
-                return response()->json(['success' => false, 'message' => 'Invalid Status '], 422);
-            }
-
-            $invoice->status = $newStatus;
-            $invoice->save();
-
-            $message = $newStatus === 'paid' 
-                ? 'The invoice has been marked as Paid.' 
-                : 'The invoice has been marked as Unpaid.';
-
-            return response()->json([
-                'success' => true,
-                'status'  => $invoice->status,
-                'message' => $message,
-            ]);
-        }
 }

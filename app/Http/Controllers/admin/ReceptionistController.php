@@ -11,9 +11,28 @@ class ReceptionistController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $receptionists = Receptionist::paginate();
+        // 1. Start the query with the relationship
+        $query = Receptionist::with('user');
+    
+        // 2. Filter by Name or Email (Inside the User relationship)
+        if ($request->filled('search')) {
+            $query->whereHas('user', function ($q) use ($request) {
+                $q->where('name', 'like', '%' . $request->search . '%')
+                    ->orWhere('email', 'like', '%' . $request->search . '%');
+            });
+        }
+    
+        // 3. Filter by Shift (Directly on the Receptionist model)
+        // Use '==' or 'where' for exact matches on dropdowns instead of 'like'
+        if ($request->filled('shift')) {
+            $query->where('shift', $request->shift);
+        }
+    
+        // 4. Get results with pagination (Only once!)
+        $receptionists = $query->latest()->paginate(10);
+    
         return view('admin.receptionists.index', compact('receptionists'));
     }
 
@@ -38,7 +57,6 @@ class ReceptionistController extends Controller
             'address' => 'nullable|string|max:255',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'shift' => 'nullable|string|max:100',
-            'status' => 'nullable|in:active,inactive',
         ]); 
         $user = User::create([
             'name' => $request->name,
@@ -59,7 +77,6 @@ class ReceptionistController extends Controller
             'address' => $request->address,
             'image' => $imageName ?? null,
             'shift' => $request->shift,
-            'status' => $request->status,
         ]);
         return redirect()->route('admin.receptionist.index')->with('success', 'Receptionist created successfully.');
     }
@@ -95,7 +112,6 @@ class ReceptionistController extends Controller
             'address' => 'nullable|string|max:255',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'shift' => 'nullable|string|max:100',
-            'status' => 'nullable|in:active,inactive',
         ]);
         if($receptionist->user){
             $userData = [];
@@ -125,7 +141,6 @@ class ReceptionistController extends Controller
             'address' => $request->address ?? $receptionist->address,
             'image' => $imageName ?? $receptionist->image,
             'shift' => $request->shift ?? $receptionist->shift,
-            'status' => $request->status ?? $receptionist->status,
         ]);
         return redirect()->route('admin.receptionist.index')->with('success', 'Receptionist updated successfully.');
 

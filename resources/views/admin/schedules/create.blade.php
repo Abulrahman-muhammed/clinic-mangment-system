@@ -18,11 +18,11 @@
                             <div class="col-md-12 mb-3">
                                 <label for="doctor_id">Doctor</label>
                                 <select name="doctor_id" 
-                                        class="form-control @error('doctor_id') is-invalid @enderror">
+                                        class="form-control @error('doctor_id') is-invalid @enderror select2">
                                     <option value="">Select Doctor</option>
                                     @foreach ($doctors as $doctor)
                                         <option value="{{ $doctor->id }}" {{ old('doctor_id') == $doctor->id ? 'selected' : '' }}>
-                                            {{ $doctor->name }}
+                                            {{ $doctor->user->name }} ({{ $doctor->major?->title ?? 'No Department' }})
                                         </option>
                                     @endforeach
                                 </select>
@@ -86,6 +86,9 @@
                                 <button type="submit" class="btn btn-primary">
                                     <i class="fas fa-save"></i> Add Schedule
                                 </button>
+                                <a href="{{ route('admin.schedule.index') }}" class="btn btn-secondary">
+                                    <i class="fas fa-times"></i> Back
+                                </a>
                             </div>
                         </div>
 

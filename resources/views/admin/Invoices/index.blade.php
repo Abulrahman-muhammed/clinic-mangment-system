@@ -1,3 +1,9 @@
+@php
+$action = 'admin.invoice.index';
+if(auth()->user()->hasRole('doctor')){
+    $action = 'admin.doctor.myInvoices';
+}
+@endphp
 @extends('admin.master')
 
 @section('title', 'Invoices')
@@ -9,140 +15,205 @@
     <div class="row justify-content-center">
         <div class="col-12">
 
-            <!-- Page Title -->
-            <div class="page-title-box d-sm-flex align-items-center justify-content-between mb-3">
-                <h2 class="h5 page-title mb-0">Invoices</h2>
-
-                @can('create_invoices')
-                <div class="page-title-right">
-                    <a href="{{ route('admin.invoice.create') }}" class="btn btn-primary">
-                        <i class="fe fe-plus"></i> Add Invoice
-                    </a>
+            <div class="row align-items-center mb-4">
+                <div class="col">
+                    <h2 class="h3 mb-0 page-title">Invoices</h2>
+                    <p class="text-muted">Manage billing, payments, and service records</p>
                 </div>
-                @endcan
+                <div class="col-auto">
+                    @can('create_invoices')
+                    <a href="{{ route('admin.invoice.create') }}" class="btn btn-primary">
+                        <i class="fe fe-plus mr-1"></i> Add Invoice
+                    </a>
+                    @endcan
+                </div>
             </div>
 
-            <!-- Main Card -->
-            <div class="card shadow-sm border-0">
-                <div class="card-body">
+            <div class="card shadow mb-4">
+                <div class="card-header">
+                    <strong class="card-title">Search Filters</strong>
+                </div>
 
-                    <!-- Alerts -->
+                <div class="card-body">
+                    <form method="GET" action="{{ route($action) }}">
+                        <div class="form-row">
+                            <div class="form-group col-md-4">
+                                <label for="search">Patient Name</label>
+                                <input type="text" name="search" id="search" class="form-control" value="{{ request('search') }}" placeholder="Search by patient name...">
+                            </div>
+                            <div class="form-group col-md-3">
+                                <label for="status">Payment Status</label>
+                                <select name="status" id="status" class="form-control">
+                                    <option value="">All Statuses</option>
+                                    <option value="paid" {{ request('status') == 'paid' ? 'selected' : '' }}>Paid</option>
+                                    <option value="unpaid" {{ request('status') == 'unpaid' ? 'selected' : '' }}>Unpaid</option>
+                                </select>
+                            </div>
+                            <div class="form-group col-md-3">
+                                <label for="date">Invoice Date</label>
+                                <input type="date" name="date" id="date" class="form-control" value="{{ request('date') }}">
+                            </div>
+                            <div class="form-group col-md-2">
+                                <label>&nbsp;</label>
+                                <div class="btn-group w-100">
+                                    <button type="submit" class="btn btn-primary">Filter</button>
+                                    @role('doctor')
+                                    <a href="{{ route('admin.doctor.myInvoices') }}" class="btn btn-secondary">Reset</a>
+                                    @endrole
+                                    @role('admin')
+                                    <a href="{{ route('admin.invoice.index') }}" class="btn btn-secondary">Reset</a>
+                                    @endrole
+                                    @role('receptionist')
+                                    <a href="{{ route('admin.invoice.index') }}" class="btn btn-secondary">Reset</a>
+                                    @endrole
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card shadow border-0">
+                <div class="card-body p-0">
+                    
                     @if (session('success'))
-                        <div class="alert alert-success alert-dismissible fade show">
-                            {{ session('success') }}
+                        <div class="alert alert-success m-3 alert-dismissible fade show">
+                            <i class="fe fe-check-circle mr-2"></i>{{ session('success') }}
+                            <button type="button" class="close" data-dismiss="alert">&times;</button>
                         </div>
                     @endif
 
                     @if (session('error'))
-                        <div class="alert alert-danger alert-dismissible fade show">
-                            {{ session('error') }}
+                        <div class="alert alert-danger m-3 alert-dismissible fade show">
+                            <i class="fe fe-alert-circle mr-2"></i>{{ session('error') }}
+                            <button type="button" class="close" data-dismiss="alert">&times;</button>
                         </div>
                     @endif
 
-                    <!-- Table -->
                     <div class="table-responsive">
-                        <table class="table table-hover align-middle text-center mb-0">
+                        <table class="table table-hover align-middle mb-0">
                             <thead class="thead-light">
                                 <tr>
-                                    <th>#</th>
-                                    <th>Patient</th>
-                                    <th>Doctor</th>
-                                    <th>Services</th>
-                                    <th>Date</th>
-                                    <th>Total Amount</th>
-                                    <th>Status</th>
-                                    <th width="15%">Actions</th>
+                                    <th class="text-center">#</th>
+                                    <th>Patient & Doctor</th>
+                                    <th>Services Rendered</th>
+                                    <th class="text-center">Date</th>
+                                    <th class="text-right">Total Amount</th>
+                                    <th class="text-center">Status</th>
+                                    <th class="text-right">
+                                        @can('edit_invoices' || 'delete_invoices')
+                                            Actions
+                                        @endcan
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @forelse ($invoices as $index => $invoice)
+                                @forelse ($invoices as $invoice)
                                     <tr>
-                                        <td>{{ $invoices->firstItem() + $loop->index }}</td>
-                                        <td>{{ $invoice->patient->name ?? '-' }}</td>
-                                        <td>{{ $invoice->doctor->user->name ?? '-' }}</td>
-
+                                        <td class="text-center text-muted small">{{ $invoices->firstItem() + $loop->index }}</td>
+                                        <td>
+                                            <div class="font-weight-bold">{{ $invoice->patient->name ?? 'Deleted Patient' }}</div>
+                                            <small class="text-muted">Dr. {{ $invoice->doctor->user->name ?? 'N/A' }}</small>
+                                        </td>
                                         <td>
                                             @if($invoice->services->count() > 0)
-                                                <ul class="list-unstyled mb-0">
-                                                    @foreach($invoice->services as $service)
-                                                        <li>{{ $service->service_name }} - ${{ number_format($service->price, 2) }}</li>
+                                                <div class="small">
+                                                    @foreach($invoice->services->take(2) as $service)
+                                                        <span class="d-block text-truncate" style="max-width: 200px;">
+                                                            • {{ $service->service_name }}
+                                                        </span>
                                                     @endforeach
-                                                </ul>
+                                                    @if($invoice->services->count() > 2)
+                                                        <span class="text-primary">+{{ $invoice->services->count() - 2 }} more</span>
+                                                    @endif
+                                                </div>
                                             @else
-                                                <span class="text-muted">No Services</span>
+                                                <span class="text-muted italic small">No services listed</span>
                                             @endif
                                         </td>
-
-                                        <td>{{ $invoice->invoice_date }}</td>
-                                        <td>${{ number_format($invoice->amount, 2) }}</td>
-
-                                        <!-- Status -->
-                                        <td>
+                                        <td class="text-center">
+                                            <span class="small">{{ \Carbon\Carbon::parse($invoice->invoice_date)->format('d M, Y') }}</span>
+                                        </td>
+                                        <td class="text-right font-weight-bold text-dark">
+                                            ${{ number_format($invoice->amount, 2) }}
+                                        </td>
+                                        <td class="text-center">
                                             @can('edit_invoices')
-                                            <button type="button"
-                                                class="btn btn-sm status-toggle-btn {{ $invoice->status === 'paid' ? 'btn-success' : 'btn-warning' }}"
-                                                data-id="{{ $invoice->id }}"
-                                                data-status="{{ $invoice->status === 'paid' ? 'unpaid' : 'paid' }}">
-                                                @if ($invoice->status === 'paid')
-                                                    <i class="fe fe-check-circle"></i> Paid
-                                                @else
-                                                    <i class="fe fe-x-circle"></i> Unpaid
-                                                @endif
-                                            </button>
+                                            <form action="{{ route('admin.invoice.toggleStatus', $invoice->id) }}" 
+                                                  method="POST" 
+                                                  class="d-inline">
+                                                @csrf
+                                                @method('PATCH')
+                                        
+                                                <button type="submit"
+                                                    class="btn btn-sm rounded-pill 
+                                                    {{ $invoice->status === 'paid' ? 'btn-success' : 'btn-warning' }}">
+                                                    
+                                                    {{ $invoice->status === 'paid' ? 'Paid' : 'Unpaid' }}
+                                                </button>
+                                            </form>
                                             @else
-                                                <span class="badge {{ $invoice->status === 'paid' ? 'bg-success' : 'bg-warning text-dark' }}">
+                                                <span class="badge badge-{{ $invoice->status === 'paid' ? 'success' : 'warning' }}">
                                                     {{ ucfirst($invoice->status) }}
                                                 </span>
                                             @endcan
                                         </td>
+                                        
+                                        <td class="text-right">
+                                            <div class="btn-group">
+                                                @can('print_invoices')
+                                                    @if($invoice->status === 'paid')
+                                                        <a href="{{ route('admin.invoice.print', $invoice->id) }}"
+                                                            class="btn btn-sm btn-outline-info"
+                                                            title="Print Receipt" target="_blank">
+                                                            <i class="fe fe-printer"></i>
+                                                        </a>
+                                                    @else
+                                                        <button class="btn btn-sm btn-outline-secondary" 
+                                                                disabled 
+                                                                title="Only paid invoices can be printed">
+                                                            <i class="fe fe-printer"></i>
+                                                        </button>
+                                                    @endif
+                                                @endcan
 
-                                        <!-- Actions -->
-                                        <td>
-                                            @can('print_invoices')
-                                            <a href="{{ route('admin.invoice.print', $invoice->id) }}"
-                                                class="btn btn-sm btn-info print-btn {{ $invoice->status === 'paid' ? '' : 'd-none' }}"
-                                                title="Print" target="_blank">
-                                                <i class="fe fe-printer fa-2x"></i>
-                                            </a>
-                                            @endcan
-
-                                            @can('delete_invoices')
-                                            <form action="{{ route('admin.invoice.destroy', $invoice->id) }}"
-                                                method="POST" class="d-inline">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit"
-                                                    class="btn btn-sm btn-danger"
-                                                    onclick="return confirm('Are you sure you want to delete this invoice?')"
-                                                    title="Delete">
-                                                    <i class="fe fe-trash-2 fa-2x"></i>
-                                                </button>
-                                            </form>
-                                            @endcan
+                                                @can('delete_invoices')
+                                                <form action="{{ route('admin.invoice.destroy', $invoice->id) }}" method="POST" class="d-inline delete-form">
+                                                    @csrf @method('DELETE')
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger delete-btn" 
+                                                            title="Delete">
+                                                        <i class="fe fe-trash-2"></i>
+                                                    </button>
+                                                </form>
+                                                @endcan
+                                            </div>
                                         </td>
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="8" class="text-center text-muted py-4">
-                                            No Invoices found.
+                                        <td colspan="7" class="text-center py-5 text-muted">
+                                            <i class="fe fe-file-text fe-24 d-block mb-2"></i>
+                                            No Invoices found matching your criteria.
                                         </td>
                                     </tr>
                                 @endforelse
                             </tbody>
                         </table>
                     </div>
-
-                    <!-- Pagination -->
-                    <div class="mt-3">
-                        {{ $invoices->links('pagination::bootstrap-5') }}
-                    </div>
-
                 </div>
+                
+                @if($invoices->hasPages())
+                <div class="card-footer bg-transparent border-0">
+                    {{ $invoices->appends(request()->query())->links('pagination::bootstrap-4') }}
+                </div>
+                @endif
             </div>
 
         </div>
     </div>
 </div>
+
+
 @endcan
 
 @endsection

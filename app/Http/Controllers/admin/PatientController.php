@@ -3,16 +3,49 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\Patient;
+use Illuminate\Http\Request;
+use App\Models\User;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use App\Models\Booking;
+use App\Models\Invoice;
 class PatientController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+
+    public function index(Request $request)
     {
-        $patients = Patient::paginate();
+        // 1. Initialize the query
+        $query = Patient::query();
+    
+        // 2. Filter by Name, Email, or Phone (Search input)
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%")
+                  ->orWhere('phone', 'like', "%{$search}%");
+            });
+        }
+    
+        // 3. Filter by Gender (Dropdown)
+        if ($request->filled('gender')) {
+            $query->where('gender', $request->gender);
+        }
+    
+        // 4. Filter by Blood Type (Dropdown)
+        if ($request->filled('blood_type')) {
+            $query->where('blood_type', $request->blood_type);
+        }
+    
+        // 5. Execute with sorting and pagination
+        // latest() ensures newly registered patients appear first
+        $patients = $query->latest()->paginate(10);
+    
+        // 6. Return the view with the filtered patients
         return view('admin.patients.index', compact('patients'));
     }
 
@@ -57,10 +90,36 @@ class PatientController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
-    {
-        //
-    }
+public function show(Patient $patient)
+{
+    // Get patient's appointments
+    $appointments = Booking::where('phone', $patient->phone)
+                          ->with(['doctor.user', 'doctor.major'])
+                          ->latest()
+                          ->paginate(10);
+    
+    // Get patient's invoices
+    $invoices = Invoice::where('patient_id', $patient->id)
+                      ->with('doctor.user')
+                      ->latest()
+                      ->take(5)
+                      ->get();
+    
+    // Statistics
+    $stats = [
+        'total_appointments' => Booking::where('phone', $patient->phone)->count(),
+        'completed_appointments' => Booking::where('phone', $patient->phone)
+                                          ->where('status', 'completed')
+                                          ->count(),
+        'pending_appointments' => Booking::where('phone', $patient->phone)
+                                        ->where('status', 'pending')
+                                        ->count(),
+        'total_invoices' => Invoice::where('patient_id', $patient->id)->count(),
+        'total_amount' => Invoice::where('patient_id', $patient->id)->sum('amount'),
+    ];
+    
+    return view('admin.patients.show', compact('patient', 'appointments', 'invoices', 'stats'));
+}
 
     /**
      * Show the form for editing the specified resource.

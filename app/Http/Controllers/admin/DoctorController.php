@@ -17,13 +17,61 @@ class DoctorController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $doctors = Doctor::with('major')
-        ->orderBy('id', 'desc')
-        ->paginate('10');
-        return view('admin.doctors.index', compact('doctors'));
+        $query = Doctor::with('major', 'user');
+
+        // Filter by name
+        if ($request->filled('name')) {
+            $query->whereHas('user', function($q) use ($request) {
+                $q->where('name', 'like', '%' . $request->name . '%');
+            });
+        }
+
+        // Filter by department
+        if ($request->filled('department')) {
+            $query->where('major_id', $request->department);
+        }
+
+        // Filter by gender
+        if ($request->filled('gender')) {
+            $query->where('gender', $request->gender);
+        }
+
+        $doctors = $query->withoutTrashed()->orderBy('id', 'desc')->paginate(10);
+        $majors = Major::orderBy('title', 'asc')->get();
+
+        return view('admin.doctors.index', compact('doctors', 'majors'));
     }
+    public function trashed(Request $request)
+    {
+        $query = Doctor::onlyTrashed()->with(['major', 'user' => function($q) {
+            $q->withTrashed(); // يجلب الـ soft deleted users
+        }]);
+
+        // Filter by name
+        if ($request->filled('name')) {
+            $query->whereHas('user', function($q) use ($request) {
+                $q->where('name', 'like', '%' . $request->name . '%');
+            });
+        }
+
+        // Filter by department
+        if ($request->filled('department')) {
+            $query->where('major_id', $request->department);
+        }
+
+        // Filter by gender
+        if ($request->filled('gender')) {
+            $query->where('gender', $request->gender);
+        }
+
+        $doctors = $query->orderBy('id', 'desc')->paginate(10);
+        $majors = Major::orderBy('title', 'asc')->get();
+
+        return view('admin.doctors.trashed', compact('doctors', 'majors'));
+    }
+
 
     /**
      * Show the form for creating a new resource.
@@ -96,10 +144,8 @@ class DoctorController extends Controller
             'gender' => $request->gender,
             'consultation_fee' => $request->consultation_fee,
             'years_of_experience' => $request->years_of_experience,
-            'status' => $request->status,       
-
         ]);
-        if($doctor->user) {
+        if($doctor->user) {            
             $doctor->user->update([
                 'name' => $request->name,
                 'email' => $request->email,
@@ -122,21 +168,16 @@ class DoctorController extends Controller
      * Remove the specified resource from storage.
      */
     public function destroy(Doctor $doctor) {
-
-        // Delete old image
-       $this->deleteImage($doctor->image, Doctor::IMAGE_PATH);
-        // Delete doctor
         $doctor->delete();
         if($doctor->user){
             $doctor->user->delete();
         }
-
-        return redirect()->route('admin.doctor.index')->with('success', 'Doctor deleted successfully');
+        return redirect()->route('admin.doctor.index')->with('success', 'Doctor Archived successfully');
     }
     /**
      * Get doctor info by ID (for AJAX requests)
      */
-    public function getDoctorInfo($id)
+    public function info($id)
     {
         $doctor = Doctor::with('major')->find($id);
 
@@ -147,4 +188,14 @@ class DoctorController extends Controller
         ]);
     }
 
+    // restore doctor
+    public function restore($id)
+    {
+        $doctor = Doctor::withTrashed()->findOrFail($id);
+        $doctor->restore();
+        if($doctor->user()->withTrashed()->first()) {
+            $doctor->user()->withTrashed()->first()->restore();
+        }
+        return redirect()->route('admin.doctor.index')->with('success', 'Doctor restored successfully');
+    }
 }

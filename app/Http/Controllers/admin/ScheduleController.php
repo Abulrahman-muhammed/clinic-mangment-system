@@ -11,19 +11,29 @@ class ScheduleController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
-    {
-        $schedules = DoctorSchedule::with('doctor')->orderBy('id', 'desc')->paginate(10);
-        return view('admin.schedules.index', compact('schedules'));
+public function index(Request $request)
+{
+    $query = DoctorSchedule::with(['doctor.user']);
+    if ($request->filled('search')) {
+        $search = $request->search;
+        $query->whereHas('doctor.user', function($q) use ($search) {
+            $q->where('name', 'LIKE', "%{$search}%");
+        });
     }
+    if ($request->filled('day')) {
+        $query->where('day_of_week', $request->day);
+    }
+    $schedules = $query->orderBy('id', 'desc')->paginate(10);
 
+    // نمرر النتائج للـ View
+    return view('admin.schedules.index', compact('schedules'));
+}
     /**
      * Show the form for creating a new resource.
      */
     public function create()
     {
-        
-        $doctors=Doctor::where('status','=','1')->get();
+        $doctors = Doctor::with('user','major')->get();
         return view('admin.schedules.create',compact('doctors'));
     }
 
@@ -63,7 +73,7 @@ class ScheduleController extends Controller
      */
     public function edit(string $id)
     {
-        $doctors=Doctor::where('status','1')->get();
+        $doctors=Doctor::with('user','major')->get();
         $schedule=DoctorSchedule::findOrFail($id);
         return view('admin.schedules.edit',compact('doctors','schedule'));
     }
@@ -87,7 +97,9 @@ class ScheduleController extends Controller
             'start_time' => $request->start_time,
             'end_time' => $request->end_time,
         ]);
-
+        if (auth()->user()->hasRole('doctor')) {
+            return redirect()->route('admin.doctor.mySchedule')->with('success', 'Schedule updated successfully');
+        }
         return redirect()->route('admin.schedule.index')->with('success', 'Schedule updated successfully');
         // resources\views\admin\schedules\index.blade.php
     }

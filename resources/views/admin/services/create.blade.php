@@ -79,6 +79,9 @@
                                 <button type="submit" class="btn btn-primary">
                                     <i class="fas fa-save"></i> Create Service
                                 </button>
+                                <a href="{{ route('admin.service.index') }}" class="btn btn-secondary ms-2">
+                                    <i class="fas fa-arrow-left"></i> Back
+                                </a>
                             </div>
                         </div>
 

@@ -20,7 +20,7 @@ return new class extends Migration
             $table->enum('gender', ['male', 'female'])->nullable();
             $table->decimal('consultation_fee', 8, 2)->nullable();
             $table->integer('years_of_experience')->nullable(); // عدد سنين الخبرة
-            $table->enum('status', [0, 1])->default(1); // 1 = active, 0 = inactive
+            $table->softDeletes();
             $table->timestamps();
         });
     }

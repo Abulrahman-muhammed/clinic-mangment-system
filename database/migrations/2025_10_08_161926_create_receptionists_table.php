@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('address')->nullable();
             $table->string('image')->nullable(); // profile picture
             $table->string('shift')->nullable(); // صباحي / مسائي
-            $table->enum('status', ['active', 'inactive'])->default('active');
+            $table->softDeletes();
             $table->timestamps();
         });
     }

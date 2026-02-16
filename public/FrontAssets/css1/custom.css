@@ -1,0 +1,769 @@
+/* =========================================
+   ClickClinic Custom Premium Styles
+========================================= */
+
+/* Root Variables */
+:root {
+  --primary-color: #0d6efd;
+  --primary-dark: #0a58ca;
+  --secondary-color: #6c757d;
+  --accent-color: #00d2d3;
+  --success-color: #198754;
+  --warning-color: #ffc107;
+  --danger-color: #dc3545;
+  --light-bg: #f8f9fa;
+  --dark-text: #212529;
+  --light-text: #6c757d;
+  --border-radius-sm: 8px;
+  --border-radius-md: 12px;
+  --border-radius-lg: 20px;
+  --box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  --box-shadow-hover: 0 15px 40px rgba(0, 0, 0, 0.12);
+  --transition: all 0.3s ease;
+}
+
+/* Global */
+body {
+  margin: 0;
+  font-family: 'Public Sans', sans-serif;
+  color: var(--dark-text);
+  background-color: #fcfcfc;
+  /* تعويض ارتفاع الـ navbar الثابتة */
+  padding-top: 70px;
+}
+
+a {
+  text-decoration: none;
+  transition: var(--transition);
+}
+
+/* =========================================
+   Navbar (Fixed & Glass)
+========================================= */
+
+.navbar {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 1000;
+
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
+
+  padding: 10px 0;
+}
+
+.navbar-brand {
+  font-weight: 700;
+  font-size: 1.4rem;
+  line-height: 1;
+  color: var(--primary-color) !important;
+}
+
+.center-menu .nav-link,
+.nav-link {
+  font-weight: 500;
+  color: var(--dark-text) !important;
+  margin: 0 10px;
+  position: relative;
+}
+
+/* Hover underline */
+.center-menu .nav-link::after,
+.nav-link::after {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 2px;
+  bottom: -4px;
+  left: 50%;
+  background-color: var(--primary-color);
+  transition: var(--transition);
+  transform: translateX(-50%);
+}
+
+.center-menu .nav-link:hover::after,
+.nav-link:hover::after {
+  width: 100%;
+}
+
+.right-menu .nav-icon {
+  font-size: 1.2rem;
+  color: var(--dark-text);
+  margin-left: 15px;
+  position: relative;
+}
+
+.right-menu .nav-icon:hover {
+  color: var(--primary-color);
+}
+
+.badge-custom {
+  background-color: var(--danger-color);
+  font-size: 0.6rem;
+  padding: 3px 5px;
+  border-radius: 50%;
+}
+
+/* =========================================
+   Hero Slider
+========================================= */
+
+.hero-slider {
+  position: relative;
+  height: 100vh; /* Full screen */
+  overflow: hidden;
+  background-color: #f0f2f5;
+}
+
+/* Slide */
+.slide {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 1s ease-in-out;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-size: cover;
+  background-position: center;
+}
+
+.slide.active {
+  opacity: 1;
+  z-index: 1;
+}
+
+/* Slide Background Images */
+.slide-1 {
+  background: url('../images/slider/slider.jpg') center / cover no-repeat;
+}
+
+.slide-2 {
+  background: url('../images/slider/img-slide-2.jpg') center / cover no-repeat;
+}
+
+.slide-3 {
+  background: url('../images/slider/img-slide-3.jpg') center / cover no-repeat;
+}
+
+/* Overlay */
+.slide::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1;
+}
+
+/* Content */
+.slide-content {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  max-width: 800px;
+  padding: 20px;
+  animation: fadeInUp 1s ease;
+  background: transparent;
+  backdrop-filter: none;
+  box-shadow: none;
+}
+
+.slide-content h1 {
+  font-size: 3.5rem;
+  font-weight: 800;
+  color: #fff;
+  margin-bottom: 1.5rem;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.slide-content p {
+  font-size: 1.25rem;
+  color: #f8f9fa;
+  margin-bottom: 2rem;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.btn-hero {
+  display: inline-block;
+  padding: 12px 35px;
+  background: var(--primary-color);
+  color: #fff;
+  border-radius: 50px;
+  font-weight: 600;
+  font-size: 1.1rem;
+  box-shadow: 0 4px 15px rgba(13, 110, 253, 0.3);
+  transition: var(--transition);
+}
+
+.btn-hero:hover {
+  background: var(--primary-dark);
+  color: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(13, 110, 253, 0.4);
+}
+
+/* Slider Dots */
+.slider-controls {
+  position: absolute;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  display: flex;
+  gap: 10px;
+}
+
+.slider-dot {
+  width: 12px;
+  height: 12px;
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 50%;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.slider-dot.active {
+  background-color: var(--primary-color);
+  transform: scale(1.2);
+}
+
+/* Animation */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* =========================================
+   Features Section
+========================================= */
+
+.features {
+  background-color: #fff;
+}
+
+.feature-card {
+  background: #fff;
+  padding: 30px;
+  border-radius: var(--border-radius-md);
+  box-shadow: var(--box-shadow);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  transition: var(--transition);
+}
+
+.feature-card:hover {
+  transform: translateY(-10px);
+  box-shadow: var(--box-shadow-hover);
+}
+
+.feature-card i {
+  font-size: 3rem;
+  color: var(--primary-color);
+  margin-bottom: 1.5rem;
+}
+
+.feature-card h5 {
+  font-weight: 700;
+  font-size: 1.25rem;
+}
+
+.feature-card p {
+  color: var(--light-text);
+}
+
+.btn-premium {
+  color: var(--primary-color);
+  font-weight: 600;
+  border-bottom: 2px solid transparent;
+}
+
+.btn-premium:hover {
+  color: var(--primary-dark);
+  border-bottom-color: var(--primary-dark);
+}
+
+/* =========================================
+   Medicine Cards
+========================================= */
+
+.medicine-card {
+  background: #fff;
+  border-radius: var(--border-radius-md);
+  overflow: hidden;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+  transition: var(--transition);
+  border: 1px solid #eee;
+  display: flex;
+  flex-direction: column;
+}
+
+.medicine-card:hover {
+  box-shadow: var(--box-shadow-hover);
+  transform: translateY(-5px);
+}
+
+.card-img-container {
+  position: relative;
+  height: 200px;
+  overflow: hidden;
+  background: #f8f9fa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.card-img-container img {
+  max-height: 100%;
+  object-fit: contain;
+  transition: transform 0.5s ease;
+}
+
+.medicine-card:hover .card-img-container img {
+  transform: scale(1.05);
+}
+
+.category-badge {
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  background: rgba(255, 255, 255, 0.9);
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--dark-text);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.card-body {
+  padding: 20px;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.medicine-name {
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.medicine-name a {
+  color: var(--dark-text);
+}
+
+.medicine-name a:hover {
+  color: var(--primary-color);
+}
+
+.stock-badge {
+  display: inline-block;
+  font-size: 0.75rem;
+  padding: 4px 8px;
+  border-radius: 4px;
+  margin-bottom: 15px;
+}
+
+.in-stock {
+  background-color: rgba(25, 135, 84, 0.1);
+  color: var(--success-color);
+}
+
+.out-of-stock {
+  background-color: rgba(220, 53, 69, 0.1);
+  color: var(--danger-color);
+}
+
+.price-container {
+  margin-bottom: 15px;
+}
+
+.current-price {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--primary-color);
+  margin-right: 10px;
+}
+
+.original-price {
+  text-decoration: line-through;
+  color: var(--light-text);
+  font-size: 0.9rem;
+}
+
+.add-to-cart-btn {
+  width: 100%;
+  border-radius: 50px;
+  font-weight: 600;
+}
+
+/* =========================================
+   Doctor Cards
+========================================= */
+.doctor-card {
+    text-align: center;
+}
+
+.doctor-image-container {
+    display: flex;
+    justify-content: center;
+    padding-top: 25px;
+}
+
+.doctor-image {
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid var(--primary-color);
+}
+
+.doctor-card {
+  background: #fff;
+  border-radius: var(--border-radius-md);
+  overflow: hidden;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+  transition: var(--transition);
+  border: 1px solid #eee;
+}
+
+.doctor-card:hover {
+  box-shadow: var(--box-shadow-hover);
+  transform: translateY(-5px);
+}
+
+.doctor-image-container {
+  height: 250px;
+  overflow: hidden;
+}
+
+.doctor-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.doctor-card:hover .doctor-image {
+  transform: scale(1.05);
+}
+
+.doctor-card-body {
+  padding: 20px;
+  text-align: center;
+}
+
+.doctor-name {
+  font-weight: 700;
+  margin-bottom: 5px;
+}
+
+.doctor-name a {
+  color: var(--dark-text);
+}
+
+.doctor-contact {
+  color: var(--light-text);
+  margin-bottom: 10px;
+}
+
+.doctor-specialty {
+  display: block;
+  color: var(--primary-color);
+  font-weight: 600;
+  margin-bottom: 5px;
+}
+
+.consultation-price {
+  display: block;
+  font-weight: 700;
+  font-size: 0.9rem;
+  margin-bottom: 10px;
+  color: var(--success-color);
+}
+
+.doctor-bio {
+  color: var(--light-text);
+  margin-bottom: 15px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.btn-book,
+.btn-chat {
+  padding: 8px 16px;
+  border-radius: 50px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: var(--transition);
+}
+
+.btn-book {
+  background-color: var(--primary-color);
+  color: #fff;
+  border: 1px solid var(--primary-color);
+}
+
+.btn-book:hover {
+  background-color: var(--primary-dark);
+  color: #fff;
+}
+
+.btn-chat {
+  background-color: transparent;
+  color: var(--primary-color);
+  border: 1px solid var(--primary-color);
+}
+
+.btn-chat:hover {
+  background-color: var(--primary-color);
+  color: #fff;
+}
+
+/* =========================================
+   Footer
+========================================= */
+
+footer {
+  background-color: #0b1120;
+  color: #a0aec0;
+  padding: 80px 0 20px;
+  overflow: hidden;
+  position: relative;
+}
+
+.footer-floating {
+  position: absolute;
+  width: 300px;
+  height: 300px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(13, 110, 253, 0.1) 0%, rgba(0, 0, 0, 0) 70%);
+  top: -100px;
+  left: -100px;
+  z-index: 0;
+}
+
+.footer-floating:nth-child(2) {
+  top: auto;
+  bottom: -100px;
+  left: auto;
+  right: -100px;
+  background: radial-gradient(circle, rgba(13, 110, 253, 0.1) 0%, rgba(0, 0, 0, 0) 70%);
+}
+
+.footer-content {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 1fr;
+  gap: 40px;
+  position: relative;
+  z-index: 1;
+  margin-bottom: 50px;
+}
+
+.footer-brand .footer-logo {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #fff;
+  margin-bottom: 15px;
+}
+
+.footer-description {
+  line-height: 1.6;
+}
+
+.footer-column h4 {
+  color: #fff;
+  font-weight: 700;
+  margin-bottom: 25px;
+  font-size: 1.2rem;
+}
+
+.footer-links {
+  list-style: none;
+  padding: 0;
+}
+
+.footer-links li {
+  margin-bottom: 12px;
+}
+
+.footer-links a {
+  color: #a0aec0;
+  transition: var(--transition);
+}
+
+.footer-links a:hover {
+  color: var(--primary-color);
+  padding-left: 5px;
+}
+
+.footer-contact p {
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.footer-social {
+  display: flex;
+  gap: 15px;
+  margin-top: 25px;
+}
+
+.footer-social a {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.05);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  transition: var(--transition);
+}
+
+.footer-social a:hover {
+  background: var(--primary-color);
+  transform: translateY(-3px);
+}
+
+.footer-bottom {
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding-top: 25px;
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+/* =========================================
+   Buttons & Utilities
+========================================= */
+
+.see-more-btn {
+  display: block;
+  width: max-content;
+  margin: 30px auto;
+  color: var(--primary-color);
+  font-weight: 600;
+  border: 1px solid var(--primary-color);
+  padding: 10px 30px;
+  border-radius: 50px;
+}
+
+.see-more-btn:hover {
+  background: var(--primary-color);
+  color: #fff;
+}
+
+/* =========================================
+   Responsive
+========================================= */
+
+@media (max-width: 991px) {
+  .footer-content {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-slider {
+    height: 500px;
+  }
+
+  .slide-content h1 {
+    font-size: 2.3rem;
+  }
+
+  .slide-content p {
+    font-size: 1rem;
+  }
+}
+/* =========================
+   MEDICAL SERVICES
+========================= */
+.services-section {
+    background-color: #f4f8ff;
+    padding: 70px 0;
+}
+
+.services-section h2 {
+    font-weight: 800;
+    color: var(--primary-color);
+}
+
+.section-desc {
+    max-width: 600px;
+    margin: 10px auto 40px;
+    color: #6c757d;
+}
+
+/* Card */
+.service-card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 30px 20px;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0,0,0,.05);
+    transition: 0.3s;
+    height: 100%;
+}
+
+.service-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 15px 40px rgba(0,0,0,.1);
+}
+
+/* Icon */
+.service-icon {
+    width: 70px;
+    height: 70px;
+    margin: 0 auto 20px;
+    border-radius: 50%;
+    background: rgba(13,110,253,.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    color: #0d6efd;
+}
+
+/* Text */
+.service-card h5 {
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+.service-card p {
+    font-size: 14px;
+    color: #6c757d;
+    margin-bottom: 20px;
+}
+
+/* Button */
+.service-btn {
+    display: inline-block;
+    padding: 8px 22px;
+    border-radius: 50px;
+    font-size: 14px;
+    font-weight: 600;
+    background: #0d6efd;
+    color: #fff;
+    text-decoration: none;
+}
+
+.service-btn:hover {
+    background: #0b5ed7;
+    color: #fff;
+}

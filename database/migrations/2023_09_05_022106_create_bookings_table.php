@@ -18,6 +18,8 @@ return new class extends Migration
             $table->string('phone');
             $table->dateTime('date');
             $table->foreignId('doctor_id')->constrained()->onDelete('cascade');
+            $table->enum('status', ['pending', 'confirmed', 'completed', 'cancelled'])->default('pending');
+            $table->softDeletes();
             $table->timestamps();
         });
     }

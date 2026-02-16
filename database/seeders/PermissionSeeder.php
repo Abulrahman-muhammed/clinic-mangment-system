@@ -82,12 +82,9 @@ class PermissionSeeder extends Seeder
             'cancel_appointments',
             'view_services',
             'view_invoices',
-            'create_invoices',
             'view_notifications',
             'view_schedules',
-            'create_schedules',
             'edit_schedules',
-            'delete_schedules',
         ];
         $doctorRole->syncPermissions($doctorPermissions);
 
@@ -113,9 +110,7 @@ class PermissionSeeder extends Seeder
 
             'view_notifications',
             'view_schedules',
-            'create_schedules',
             'edit_schedules',
-            'delete_schedules',
         ];
         $receptionistRole->syncPermissions($receptionistPermissions);
     }

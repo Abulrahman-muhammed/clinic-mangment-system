@@ -18,7 +18,7 @@
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label for="patient_id">Select Patient</label>
-                                <select name="patient_id" class="form-control" required>
+                                <select name="patient_id" id="patient_id" class="form-control select2" required>
                                     <option value="">-- Choose Patient --</option>
                                     @foreach($patients as $patient)
                                         <option value="{{ $patient->id }}">{{ $patient->name }}</option>
@@ -28,10 +28,10 @@
 
                             <div class="col-md-6 mb-3">
                                 <label for="doctor_id">Select Doctor</label>
-                                <select name="doctor_id" id="doctor_id" class="form-control" required>
+                                <select name="doctor_id" id="doctor_id" class="form-control select2" required>
                                     <option value="">-- Choose Doctor --</option>
                                     @foreach($doctors as $doctor)
-                                        <option  value="{{ $doctor->id }}">{{$doctor->user->name}}</option>
+                                        <option value="{{ $doctor->id }}">{{$doctor->user->name}}</option>
                                     @endforeach
                                 </select>
                             </div>
@@ -54,7 +54,7 @@
                         <div class="row">
                             <div class="col-md-12 mb-3">
                                 <label for="service_id">Select Additional Service</label>
-                                <select id="service_id" class="form-control">
+                                <select id="service_id" class="form-control select2">
                                     <option value="">-- Choose Service --</option>
                                     @foreach($services as $service)
                                         <option value="{{ $service->id }}" 
@@ -133,69 +133,77 @@
 
 @section('scripts')
 <script>
-let consultationFee = 0;
-let serviceIndex = 0;
+$(document).ready(function() {
+    let consultationFee = 0;
+    let serviceIndex = 0;
 
-// Fetch doctor info
-document.getElementById('doctor_id').addEventListener('change', function () {
-    const doctorId = this.value;
-
-    if (!doctorId) {
-        document.getElementById('department').value = '';
-        document.getElementById('consultation_fee').value = '';
-        updateTotal();
-        return;
-    }
-
-    fetch(`/admin/doctors/${doctorId}/info`)
-        .then(res => res.json())
-        .then(data => {
-            document.getElementById('department').value = data.department_name ?? '';
-            consultationFee = parseFloat(data.consultation_fee ?? 0);
-            document.getElementById('consultation_fee').value = consultationFee.toFixed(2);
-            updateTotal();
-        })
-        .catch(err => console.error('Error fetching doctor info:', err));
-});
-
-// Add service
-document.getElementById('service_id').addEventListener('change', function () {
-    const selected = this.options[this.selectedIndex];
-    const serviceName = selected.dataset.name;
-    const servicePrice = parseFloat(selected.dataset.price || 0);
-
-    if (!serviceName || servicePrice <= 0) return;
-
-    const tbody = document.querySelector('#servicesTable tbody');
-    const row = document.createElement('tr');
-    row.innerHTML = `
-        <td>${serviceName}<input type="hidden" name="services[${serviceIndex}][name]" value="${serviceName}"></td>
-        <td>${servicePrice.toFixed(2)}<input type="hidden" name="services[${serviceIndex}][price]" value="${servicePrice}"></td>
-        <td><button type="button" class="btn btn-sm btn-danger remove-service">Remove</button></td>
-    `;
-    tbody.appendChild(row);
-    serviceIndex++;
-
-    updateTotal();
-    this.selectedIndex = 0;
-});
-
-// Remove service
-document.addEventListener('click', function (e) {
-    if (e.target.classList.contains('remove-service')) {
-        e.target.closest('tr').remove();
-        updateTotal();
-    }
-});
-
-// Calculate total
-function updateTotal() {
-    let total = consultationFee;
-    document.querySelectorAll('#servicesTable tbody tr').forEach(row => {
-        const priceInput = row.querySelector('input[name*="[price]"]');
-        total += parseFloat(priceInput.value || 0);
+    // Initialize Select2
+    $('.select2').select2({
+        theme: 'bootstrap4',
+        width: '100%'
     });
-    document.getElementById('total_amount').value = total.toFixed(2);
-}
+
+    // Fetch doctor info - مهم: استخدم change مع jQuery
+    $('#doctor_id').on('change', function () {
+        const doctorId = $(this).val();
+
+        if (!doctorId) {
+            $('#department').val('');
+            $('#consultation_fee').val('');
+            consultationFee = 0;
+            updateTotal();
+            return;
+        }
+
+    fetch(`/admin/doctors/info/${doctorId}`)
+            .then(res => res.json())
+            .then(data => {
+                $('#department').val(data.department_name ?? '');
+                consultationFee = parseFloat(data.consultation_fee ?? 0);
+                $('#consultation_fee').val(consultationFee.toFixed(2));
+                updateTotal();
+            })
+            .catch(err => console.error('Error fetching doctor info:', err));
+    });
+
+    // Add service
+    $('#service_id').on('change', function () {
+        const selected = $(this).find('option:selected');
+        const serviceName = selected.data('name');
+        const servicePrice = parseFloat(selected.data('price') || 0);
+
+        if (!serviceName || servicePrice <= 0) return;
+
+        const tbody = $('#servicesTable tbody');
+        const row = `
+            <tr>
+                <td>${serviceName}<input type="hidden" name="services[${serviceIndex}][name]" value="${serviceName}"></td>
+                <td>${servicePrice.toFixed(2)}<input type="hidden" name="services[${serviceIndex}][price]" value="${servicePrice}"></td>
+                <td><button type="button" class="btn btn-sm btn-danger remove-service">Remove</button></td>
+            </tr>
+        `;
+        tbody.append(row);
+        serviceIndex++;
+
+        updateTotal();
+        $(this).val('').trigger('change');
+    });
+
+    // Remove service
+    $(document).on('click', '.remove-service', function() {
+        $(this).closest('tr').remove();
+        updateTotal();
+    });
+
+    // Calculate total
+    function updateTotal() {
+        let total = consultationFee;
+        $('#servicesTable tbody tr').each(function() {
+            const priceInput = $(this).find('input[name*="[price]"]');
+            total += parseFloat(priceInput.val() || 0);
+        });
+        $('#total_amount').val(total.toFixed(2));
+    }
+});
 </script>
 @endsection

@@ -15,7 +15,8 @@ use App\Http\Controllers\admin\PatientController;
 use App\Http\Controllers\admin\ReceptionistController;
 use App\Http\Controllers\admin\InvoiceController;
 use App\Http\Controllers\admin\RoleController;
-
+use App\Http\Controllers\admin\profileController;
+use App\Http\Controllers\admin\DoctorDashboardController;
 
 Route::group([
     'prefix' => 'admin',
@@ -59,11 +60,21 @@ Route::group([
     Route::put('/doctors/update/{doctor}', [DoctorController::class, 'update'])->name('doctor.update');
     Route::get('/doctors/show/{doctor}', [DoctorController::class, 'show'])->name('doctor.show');
     Route::delete('/doctors/delete/{doctor}', [DoctorController::class, 'destroy'])->name('doctor.destroy');
-
+    Route::get('/doctors/trashed', [DoctorController::class, 'trashed'])->name('doctor.trashed');
+    Route::patch('/doctors/{doctor}/restore', [DoctorController::class, 'restore'])->name('doctor.restore');
+    // doctor info
+    Route::get('/doctors/info/{doctor}', [DoctorController::class, 'info'])->name('doctor.info');
+    // Doctor Dashboard Routes
+    Route::get('/doctors/my-schedule', [DoctorDashboardController::class, 'mySchedule'])->name('doctor.mySchedule'); 
+    Route::get('/doctors/my-bookings', [DoctorDashboardController::class, 'myBookings'])->name('doctor.myBookings'); 
+    Route::get('/doctors/my-patients', [DoctorDashboardController::class, 'myPatients'])->name('doctor.myPatients'); 
+    Route::get('/doctors/my-invoices', [DoctorDashboardController::class, 'myInvoices'])->name('doctor.myInvoices'); 
+    Route::get('/doctor/dashboard', [DoctorDashboardController::class, 'dashboard'])->name('doctor.dashboard');
     // Bookings
     Route::get('/bookings', [BookingController::class, 'index'])->name('booking.index');
     Route::delete('/bookings/delete/{booking}', [BookingController::class, 'destroy'])->name('booking.destroy');
-
+    Route::get('/booking/{id}/edit', [BookingController::class, 'edit'])->name('booking.edit');
+    Route::put('/booking/{id}/update', [BookingController::class, 'update'])->name('booking.update');
     // Users
     Route::get('/users', [UserController::class, 'index'])->name('user.index');
     Route::get('/users/create', [UserController::class, 'create'])->name('user.create');
@@ -71,6 +82,14 @@ Route::group([
     Route::get('/users/edit/{user}', [UserController::class, 'edit'])->name('user.edit');
     Route::put('/users/update/{user}', [UserController::class, 'update'])->name('user.update');
     Route::delete('/users/delete/{user}', [UserController::class, 'destroy'])->name('user.destroy');
+
+    // Profile
+    Route::get('/profile/admin', [profileController::class, 'adminProfile'])->name('profile.admin');
+    Route::put('/profile/admin', [profileController::class, 'updateAdminProfile'])->name('profile.updateAdmin');
+    Route::get('/profile/doctor', [profileController::class, 'doctorProfile'])->name('profile.doctor');
+    Route::put('/profile/doctor', [profileController::class, 'updateDoctorProfile'])->name('profile.updateDoctor');
+    Route::get('/profile/receptionist', [profileController::class, 'receptionistProfile'])->name('profile.receptionist');
+    Route::put('/profile/receptionist', [profileController::class, 'updateReceptionistProfile'])->name('profile.updateReceptionist');
 
     // contacts 
     Route::get('/contacts', [ContactController::class, 'index'])->name('contact.index');
@@ -89,8 +108,9 @@ Route::group([
     // Invoices
     Route::resource('invoice', InvoiceController::class);
     Route::get('invoice/{invoice}/print', [InvoiceController::class,'printInvoice'])->name('invoice.print');
-    Route::post('/invoices/{id}/toggle-status', [InvoiceController::class, 'toggleStatus'])->name('admin.invoice.toggleStatus');
-        Route::get('/doctors/{doctor}/info', [DoctorController::class, 'getDoctorInfo']);
+    Route::patch('invoices/{invoice}/toggle-status', 
+        [InvoiceController::class, 'toggleStatus']
+    )->name('invoice.toggleStatus');
 
      // Settings
      Route::get('/settings', [SettingController::class, 'edit'])->name('settings.edit');

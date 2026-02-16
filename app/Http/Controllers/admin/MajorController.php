@@ -7,7 +7,7 @@ use App\Http\Traits\UploadFile;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreMajorRequest;
 use App\Http\Requests\UpdateMajorRequest;
-
+use Illuminate\Http\Request;
 class MajorController extends Controller
 {
 
@@ -15,11 +15,23 @@ class MajorController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $majors = Major::orderBy('id', 'desc')
-        ->paginate();
-        return view('admin.majors.index', compact('majors'));
+$query = Major::query();
+
+    // تطبيق البحث إذا وجد نص في حقل البحث
+    if ($request->filled('search')) {
+        $search = $request->search;
+        $query->where(function($q) use ($search) {
+            $q->where('title', 'LIKE', "%{$search}%")
+              ->orWhere('description', 'LIKE', "%{$search}%");
+        });
+    }
+
+    // جلب البيانات مع الترتيب والترقيم مع الحفاظ على معاملات البحث في الروابط
+    $majors = $query->latest()->paginate(10)->withQueryString();
+
+    return view('admin.majors.index', compact('majors'));
     }
 
     /**

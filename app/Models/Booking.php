@@ -15,10 +15,40 @@ class Booking extends Model
         'email',
         'phone',
         'date',
-        'doctor_id'
+        'doctor_id',
+        'status'
     ];
 
-    public function doctor() {
+    protected $casts = [
+        'date' => 'date',
+    ];
+
+ public function doctor()
+    {
         return $this->belongsTo(Doctor::class);
+    }
+
+    /**
+     * العلاقة مع المريض - أضف دي
+     */
+    public function patient()
+    {
+        return $this->belongsTo(Patient::class);
+    }
+
+    /**
+     * العلاقة مع الـ User (لو المريض user)
+     */
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'patient_id');
+    }
+
+    /**
+     * العلاقة مع الـ Invoice
+     */
+    public function invoice()
+    {
+        return $this->hasOne(Invoice::class);
     }
 }

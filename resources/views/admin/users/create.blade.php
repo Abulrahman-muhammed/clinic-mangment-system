@@ -66,6 +66,7 @@
                         <div class="row">
                             <div class="col-md-12">
                                 <button type="submit" class="btn btn-primary">Add User</button>
+                                <a href="{{ route('admin.user.index') }}" class="btn btn-secondary"> Back</a>
                             </div>
                         </div>
 

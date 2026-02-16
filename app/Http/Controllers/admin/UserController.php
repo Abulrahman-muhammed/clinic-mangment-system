@@ -10,6 +10,7 @@ use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
 use Spatie\Permission\Models\Role;
 use App\Models\Receptionist;
+use  Illuminate\Support\Facades\DB;
 
 class UserController extends Controller
 {
@@ -20,14 +21,23 @@ class UserController extends Controller
     
 
 
-    public function index()
-    {
-        $users = User::where('role', '=', 'admin')
-        ->orderBy('id', 'desc')
-        ->paginate(10);
+public function index(Request $request)
+{
+    $query = User::where('role', '=', 'admin');
 
-        return view('admin.users.index', compact('users'));
+    if ($request->filled('search')) {
+        $search = $request->search;
+        $query->where(function($q) use ($search) {
+            $q->where('name', 'LIKE', "%{$search}%")
+              ->orWhere('email', 'LIKE', "%{$search}%")
+              ->orWhere('phone', 'LIKE', "%{$search}%");
+        });
     }
+
+    $users = $query->orderBy('id', 'desc')->paginate(10)->withQueryString();
+
+    return view('admin.users.index', compact('users'));
+}
 
     /**
      * Show the form for creating a new resource.
@@ -43,6 +53,8 @@ class UserController extends Controller
      */
     public function store(StoreUserRequest $request)
     {
+        DB::transaction(function () use ($request) {
+
         $user = User::create([
             'name'     => $request->name,
             'email'    => $request->email,
@@ -61,15 +73,14 @@ class UserController extends Controller
                 Doctor::create([
                     'user_id' => $user->id,
                     'major_id' => 1,
-                    'status' => 1,
                 ]);
             } elseif ($roleName === 'receptionist') {
                 Receptionist::create([
                     'user_id' => $user->id,
-                    'status' => 1,
                 ]);
             }
         }
+        });
 
         return redirect()->route('admin.user.index')
             ->with('success', ' User created successfully.');
@@ -123,12 +134,10 @@ class UserController extends Controller
                 Doctor::create([
                     'user_id' => $user->id,
                     'major_id' => 1,
-                    'status' => 1,
                 ]);
             } elseif ($roleName === 'receptionist' && !$user->receptionist) {
                 Receptionist::create([
                     'user_id' => $user->id,
-                    'status' => 1,
                 ]);
             }
         } else {

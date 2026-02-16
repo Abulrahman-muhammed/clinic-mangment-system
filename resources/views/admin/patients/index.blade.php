@@ -9,110 +9,192 @@
     <div class="row justify-content-center">
         <div class="col-12">
 
-            <!-- Page Title -->
-            <div class="page-title-box d-sm-flex align-items-center justify-content-between mb-3">
-                <h2 class="h5 page-title">Patients</h2>
-
-                @can('create_patients')
-                <div class="page-title-right">
-                    <a href="{{ route('admin.patient.create') }}" class="btn btn-primary">
-                        <i class="fas fa-plus"></i> Add Patient
-                    </a>
+            <div class="row align-items-center mb-4">
+                <div class="col">
+                    <h2 class="h3 mb-0 page-title">Patients Management</h2>
+                    <p class="text-muted">View and manage patient records and medical history</p>
                 </div>
-                @endcan
+                <div class="col-auto">
+                    @can('create_patients')
+                    <a href="{{ route('admin.patient.create') }}" class="btn btn-primary">
+                        <i class="fe fe-plus mr-1"></i> Add Patient
+                    </a>
+                    @endcan
+                </div>
             </div>
 
-            <!-- Main Card -->
-            <div class="card shadow">
+            @if(session('success'))
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="fe fe-check-circle mr-2"></i>
+                    {{ session('success') }}
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            @endif
+
+            <div class="card shadow mb-4">
+                <div class="card-header">
+                    <strong class="card-title">Filters</strong>
+                </div>
                 <div class="card-body">
-
-                    <!-- Success Alert -->
-                    @if(session('success'))
-                        <div class="alert alert-success">
-                            {{ session('success') }}
+                    @php
+                        $action = route('admin.patient.index');
+                        if(auth()->user()->hasRole('doctor')) {
+                            $action = route('admin.doctor.myPatients');
+                        }
+                    @endphp
+                    <form method="GET" action="{{ $action }}">
+                        <div class="form-row">
+                            <div class="form-group col-md-3">
+                                <label for="search">Patient Info</label>
+                                <input type="text" name="search" id="search" class="form-control" value="{{ request('search') }}" placeholder="Name, Email or Phone">
+                            </div>
+                            <div class="form-group col-md-2">
+                                <label for="gender">Gender</label>
+                                <select name="gender" id="gender" class="form-control">
+                                    <option value="">All Genders</option>
+                                    <option value="male" {{ request('gender') == 'male' ? 'selected' : '' }}>Male</option>
+                                    <option value="female" {{ request('gender') == 'female' ? 'selected' : '' }}>Female</option>
+                                </select>
+                            </div>
+                            <div class="form-group col-md-3">
+                                <label for="blood_type">Blood Type</label>
+                                <select name="blood_type" id="blood_type" class="form-control select2">
+                                    <option value="">All Types</option>
+                                    @foreach(['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'] as $type)
+                                        <option value="{{ $type }}" {{ request('blood_type') == $type ? 'selected' : '' }}>{{ $type }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="form-group col-md-2">
+                                <label>&nbsp;</label>
+                                <button type="submit" class="btn btn-primary btn-block">
+                                    <i class="fe fe-filter"></i> Filter
+                                </button>
+                            </div>
+                            <div class="form-group col-md-2">
+                                <label>&nbsp;</label>
+                                @role('doctor')
+                                <button type="button" class="btn btn-secondary btn-block" onclick="window.location.href='{{ route('admin.doctor.myPatients') }}'">
+                                    <i class="fe fe-rotate-ccw"></i> Reset
+                                </button>
+                                @else
+                                <button type="button" class="btn btn-secondary btn-block" onclick="window.location.href='{{ route('admin.patient.index') }}'">
+                                    <i class="fe fe-rotate-ccw"></i> Reset
+                                </button>
+                                @endrole
+                            </div>
                         </div>
-                    @endif
+                    </form>
+                </div>
+            </div>
 
-                    <!-- Table -->
-                    <table class="table table-hover align-middle">
-                        <thead class="thead-light">
-                            <tr>
-                                <th>#</th>
-                                <th>Name</th>
-                                <th>Email</th>
-                                <th>Phone</th>
-                                <th>Gender</th>
-                                <th>Blood Type</th>
-                                <th>Date of Birth</th>
-                                <th>Address</th>
-                                <th>Medical History</th>
-                                <th width="15%">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @if ($patients->count() > 0)
-                                @foreach ($patients as $index => $patient)
+            <div class="card shadow">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <strong class="card-title">Patients List</strong>
+                        <span class="badge badge-primary badge-pill px-3">{{ $patients->total() }} Records</span>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover table-borderless table-striped mb-0">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th class="text-center" style="width: 50px;">#</th>
+                                    <th>Patient</th>
+                                    <th>Contact</th>
+                                    <th>Info</th>
+                                    <th>Medical History</th>
+                                    <th class="text-center" style="width: 120px;">
+                                        @can('edit_patients'||'delete_patients')
+                                            Actions
+                                        @endcan
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse ($patients as $patient)
                                     <tr>
-                                        <td>{{ $patients->firstItem() + $loop->index }}</td>
-                                        <td>{{ $patient->name }}</td>
-                                        <td>{{ $patient->email }}</td>
-                                        <td>{{ $patient->phone }}</td>
-                                        <td>{{ ucfirst($patient->gender) }}</td>
-                                        <td>{{ $patient->blood_type ?? 'Unknown' }}</td>
+                                        <td class="text-center text-muted small">{{ $patients->firstItem() + $loop->index }}</td>
                                         <td>
-                                            {{ $patient->date_of_birth
-                                                ? \Carbon\Carbon::parse($patient->date_of_birth)->format('d-m-Y')
-                                                : '-' }}
+                                            <div class="d-flex align-items-center">
+                                                <div class="avatar avatar-sm mr-3">
+                                                    <div class="avatar-img rounded-circle bg-soft-primary d-flex align-items-center justify-content-center">
+                                                        <span class="h6 mb-0 text-primary">{{ substr($patient->name, 0, 1) }}</span>
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    <strong>{{ $patient->name }}</strong><br>
+                                                    <small class="text-muted">DOB: {{ $patient->date_of_birth ? \Carbon\Carbon::parse($patient->date_of_birth)->format('d M, Y') : 'N/A' }}</small>
+                                                </div>
+                                            </div>
                                         </td>
-                                        <td>{{ $patient->address ?? '-' }}</td>
                                         <td>
+                                            <div class="small"><i class="fe fe-mail mr-1 text-muted"></i> {{ $patient->email }}</div>
+                                            <div class="small"><i class="fe fe-phone mr-1 text-muted"></i> {{ $patient->phone }}</div>
+                                        </td>
+                                        <td>
+                                            <span class="badge badge-soft-{{ $patient->gender == 'male' ? 'info' : 'danger' }} px-2 mb-1">
+                                                {{ ucfirst($patient->gender) }}
+                                            </span><br>
+                                            <span class="text-muted small fw-bold">Type: <span class="text-dark">{{ $patient->blood_type ?? '??' }}</span></span>
+                                        </td>
+                                        <td style="max-width: 250px;">
                                             @if($patient->medical_history)
-                                                <span title="{{ $patient->medical_history }}">
-                                                    {{ \Illuminate\Support\Str::limit($patient->medical_history, 40) }}
-                                                </span>
+                                                <p class="small text-truncate mb-0" title="{{ $patient->medical_history }}">
+                                                    {{ $patient->medical_history }}
+                                                </p>
                                             @else
-                                                <span class="text-muted">No history</span>
+                                                <span class="text-muted small">No recorded history</span>
                                             @endif
+                                            <small class="d-block text-muted text-truncate italic"><i class="fe fe-map-pin mr-1"></i>{{ $patient->address ?? '-' }}</small>
                                         </td>
-                                        <td>
-                                            @can('edit_patients')
-                                            <a href="{{ route('admin.patient.edit', $patient) }}" 
-                                               class="btn btn-sm btn-success me-1">
-                                                <i class="fe fe-edit-2 fa-2x"></i>
-                                            </a>
-                                            @endcan
-
-                                            @can('delete_patients')
-                                            <form action="{{ route('admin.patient.destroy', $patient) }}" 
-                                                  method="POST" class="d-inline">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit"
-                                                        class="btn btn-sm btn-danger"
-                                                        onclick="return confirm('Are you sure you want to delete this patient?')">
-                                                    <i class="fe fe-trash-2 fa-2x"></i>
-                                                </button>
-                                            </form>
-                                            @endcan
+<td class="text-center">
+    <div class="btn-group">
+        @can('view_patients')
+        <a href="{{ route('admin.patient.show', $patient) }}" class="btn btn-sm btn-outline-info" data-toggle="tooltip" title="View">
+            <i class="fe fe-eye"></i>
+        </a>
+        @endcan
+        @can('edit_patients')
+        <a href="{{ route('admin.patient.edit', $patient) }}" class="btn btn-sm btn-outline-primary" data-toggle="tooltip" title="Edit">
+            <i class="fe fe-edit"></i>
+        </a>
+        @endcan
+        @can('delete_patients')
+        <form action="{{ route('admin.patient.destroy', $patient) }}" method="POST" class="d-inline" onsubmit="return confirm('Remove patient record for {{ $patient->name }}?')">
+            @csrf @method('DELETE')
+            <button type="submit" class="btn btn-sm btn-outline-danger" data-toggle="tooltip" title="Delete">
+                <i class="fe fe-trash-2"></i>
+            </button>
+        </form>
+        @endcan
+    </div>
+</td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="6" class="text-center py-5">
+                                            <i class="fe fe-folder-minus fe-24 text-muted mb-2"></i>
+                                            <p class="text-muted">No patient records found.</p>
                                         </td>
                                     </tr>
-                                @endforeach
-                            @else
-                                <tr>
-                                    <td colspan="10" class="text-center text-muted py-4">
-                                        No Patients found.
-                                    </td>
-                                </tr>
-                            @endif
-                        </tbody>
-                    </table>
-
-                    <!-- Pagination -->
-                    <div class="mt-3">
-                        {{ $patients->links('pagination::bootstrap-5') }}
+                                @endforelse
+                            </tbody>
+                        </table>
                     </div>
-
                 </div>
+
+                @if($patients->hasPages())
+                <div class="card-footer bg-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="text-muted small">Showing {{ $patients->firstItem() }} to {{ $patients->lastItem() }} of {{ $patients->total() }}</span>
+                        {{ $patients->appends(request()->query())->links('pagination::bootstrap-4') }}
+                    </div>
+                </div>
+                @endif
             </div>
 
         </div>
@@ -121,3 +203,14 @@
 @endcan
 
 @endsection
+
+@push('styles')
+<style>
+    .avatar-sm { width: 32px; height: 32px; }
+    .bg-soft-primary { background-color: rgba(27, 104, 255, 0.1); }
+    .badge-soft-info { color: #17a2b8; background-color: rgba(23, 162, 184, 0.1); }
+    .badge-soft-danger { color: #dc3545; background-color: rgba(220, 53, 69, 0.1); }
+    .text-truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    thead.thead-light th { text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.05em; }
+</style>
+@endpush

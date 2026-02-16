@@ -8,96 +8,133 @@
 <div class="container-fluid">
     <div class="row justify-content-center">
         <div class="col-12">
-
-            <!-- Page Title -->
-            <div class="page-title-box d-sm-flex align-items-center justify-content-between mb-3">
-                <h2 class="h5 page-title">Departments</h2>
-
-                @can('create_departments')
-                <div class="page-title-right">
-                    <a href="{{ route('admin.major.create') }}" class="btn btn-primary">
-                        <i class="fas fa-plus"></i> Add Department
-                    </a>
+            
+            <div class="row align-items-center mb-4">
+                <div class="col">
+                    <h2 class="h3 mb-0 page-title">Departments</h2>
+                    <p class="text-muted">Manage clinical departments and medical specializations.</p>
                 </div>
-                @endcan
+                <div class="col-auto">
+                    @can('create_departments')
+                    <a href="{{ route('admin.major.create') }}" class="btn btn-primary">
+                        <i class="fe fe-plus mr-1"></i> Add Department
+                    </a>
+                    @endcan
+                </div>
             </div>
 
-            <!-- Main Card -->
-            <div class="card shadow">
+            <div class="card shadow mb-4">
                 <div class="card-body">
+                    <form method="GET" action="{{ route('admin.major.index') }}">
+                        <div class="form-row align-items-end">
+                            <div class="col">
+                                <label for="search" class="sr-only">Search</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text bg-transparent border-right-0">
+                                            <i class="fe fe-search"></i>
+                                        </span>
+                                    </div>
+                                    <input type="text" name="search" id="search" class="form-control border-left-0" 
+                                           value="{{ request('search') }}" placeholder="Search by name or description...">
+                                </div>
+                            </div>
+                            <div class="col-auto">
+                                <button type="submit" class="btn btn-primary px-4">Search</button>
+                                <a href="{{ route('admin.major.index') }}" class="btn btn-secondary">Reset</a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
 
-                    <!-- Success Alert -->
+            <div class="card shadow">
+                <div class="card-body p-0">
+                    
                     @if(session('success'))
-                        <div class="alert alert-success">
+                        <div class="alert alert-success m-3">
                             {{ session('success') }}
                         </div>
                     @endif
 
-                    <!-- Table -->
-                    <table class="table table-hover align-middle">
-                        <thead class="thead-light">
-                            <tr>
-                                <th width="5%">#</th>
-                                <th>Name</th>
-                                <th>Description</th>
-                                <th>Image</th>
-                                <th width="15%">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @if ($majors->count() > 0)
-                                @foreach ($majors as $index => $major)
-                                    <tr>
-                                        <td>{{ $majors->firstItem() + $loop->index }}</td>
-                                        <td>{{ $major->title }}</td>
-                                        <td>{{ $major->description }}</td>
+                    <div class="table-responsive">
+                        <table class="table table-hover table-borderless table-striped mb-0">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th class="pl-4">#</th>
+                                    <th>Image</th>
+                                    <th>Department Name</th>
+                                    <th>Description</th>
+                                    <th class="text-right pr-4"> 
+                                        @can('delete_departments' || 'edit_departments')
+                                            Actions
+                                        @endcan
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse ($majors as $major)
+                                    <tr class="align-middle">
+                                        <td class="pl-4">{{ $majors->firstItem() + $loop->index }}</td>
                                         <td>
-                                            <img src="{{ asset('images/majors/' . $major->image) }}" 
-                                                 alt="Department image" width="60" height="60" 
-                                                 class="rounded object-fit-cover">
+                                            <div class="avatar avatar-md">
+                                                <img src="{{ asset('images/majors/' . $major->image) }}" 
+                                                     alt="{{ $major->title }}" 
+                                                     class="avatar-img rounded shadow-sm"
+                                                     style="width: 50px; height: 50px; object-fit: cover;">
+                                            </div>
                                         </td>
                                         <td>
-                                            @can('edit_departments')
-                                            <a href="{{ route('admin.major.edit', $major) }}" 
-                                               class="btn btn-sm btn-success">
-                                                <i class="fe fe-edit-2 fa-2x"></i>
-                                            </a>
-                                            @endcan
+                                            <span class="h6">{{ $major->title }}</span>
+                                        </td>
+                                        <td class="text-muted">
+                                            {{ Str::limit($major->description, 50) }}
+                                        </td>
+                                        <td class="text-right pr-4">
+                                            <div class="btn-group">
+                                                @can('edit_departments')
+                                                <a href="{{ route('admin.major.edit', $major) }}" class="btn btn-sm btn-outline-success mr-2">
+                                                    <i class="fe fe-edit"></i>
+                                                </a>
+                                                @endcan
 
-                                            @can('delete_departments')
-                                            <form action="{{ route('admin.major.destroy', $major) }}" 
-                                                  method="POST" class="d-inline">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" 
-                                                        class="btn btn-sm btn-danger"
-                                                        onclick="return confirm('Are you sure you want to delete this major?')">
-                                                    <i class="fe fe-trash-2 fa-2x"></i>
-                                                </button>
-                                            </form>
-                                            @endcan
+                                                @can('delete_departments')
+                                                <form action="{{ route('admin.major.destroy', $major) }}" method="POST" class="d-inline">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger" 
+                                                            onclick="return confirm('Are you sure you want to delete this department?')">
+                                                        <i class="fe fe-trash-2"></i>
+                                                    </button>
+                                                </form>
+                                                @endcan
+                                            </div>
                                         </td>
                                     </tr>
-                                @endforeach
-                            @else
-                                <tr>
-                                    <td colspan="4" class="text-center text-muted py-4">
-                                        No Department found.
-                                    </td>
-                                </tr>
-                            @endif
-                        </tbody>
-                    </table>
-
-                    <!-- Pagination -->
-                    <div class="mt-3">
+                                @empty
+                                    <tr>
+                                        <td colspan="5" class="text-center py-5">
+                                            <div class="text-muted">
+                                                <i class="fe fe-folder fe-32 mb-3"></i>
+                                                <p>No departments found matching your criteria.</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </div> @if($majors->hasPages())
+                <div class="card-footer bg-white border-top">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <small class="text-muted">
+                            Showing {{ $majors->firstItem() }} to {{ $majors->lastItem() }} of {{ $majors->total() }} departments
+                        </small>
                         {{ $majors->links('pagination::bootstrap-5') }}
                     </div>
-
                 </div>
-            </div>
-
-        </div>
+                @endif
+            </div> </div>
     </div>
 </div>
 @endcan

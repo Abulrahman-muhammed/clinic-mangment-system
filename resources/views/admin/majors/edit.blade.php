@@ -74,7 +74,12 @@
                         <!-- Submit Button -->
                         <div class="row">
                             <div class="col-md-12">
-                                <button type="submit" class="btn btn-primary">Update Department</button>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save"></i> Update Department
+                                </button>
+                                <a href="{{ route('admin.major.index') }}" class="btn btn-secondary">
+                                    <i class="fas fa-times"></i> Back
+                                </a>
                             </div>
                         </div>
 

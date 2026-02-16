@@ -15,7 +15,7 @@
     <div class="invoice-box bg-white p-5 shadow-sm rounded-3" style="width: 100%; border: 1px solid #ddd;">
         <!-- Header -->
         <div class="text-center mb-4">
-            <h2 class="fw-bold mb-1 text-primary">VCare Clinic</h2>
+            <h2 class="fw-bold mb-1 text-primary">{{ config('app.name') }}</h2>
             <p class="text-muted mb-0">Your Trusted Medical Partner</p>
             <hr style="border-top: 2px solid #0d6efd; width: 80px; margin: 10px auto;">
         </div>
@@ -34,7 +34,7 @@
             <div class="col-md-6 text-md-end">
                 <p><strong>Patient:</strong> {{ $invoice->patient->name }}</p>
                 <p><strong>Doctor:</strong> Dr. {{ $invoice->doctor->user->name }}</p>
-                <p><strong>Created By:</strong> {{ $invoice->user->name ?? 'Admin' }}</p>
+                <p><strong>Created By:</strong> {{ Auth::user()->name ?? 'Admin' }}</p>
             </div>
         </div>
 
@@ -80,7 +80,7 @@
         <!-- Footer -->
         <div class="text-center mt-5 small text-muted">
             <hr>
-            <p class="mb-1">Thank you for trusting <strong>VCare Clinic</strong>!</p>
+            <p class="mb-1">Thank you for trusting <strong>{{ config('app.name') }}</strong>!</p>
             <p>Phone: +20 123 456 789 | Address: Cairo, Egypt</p>
         </div>
     </div>

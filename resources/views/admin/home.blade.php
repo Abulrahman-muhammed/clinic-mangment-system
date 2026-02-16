@@ -1,551 +1,749 @@
 @extends('admin.master')
+@php
+    $title = 'Admin Dashboard';
+    if(auth()->user()->hasRole('admin')) {
+        $title = 'Admin ';
+    } elseif(auth()->user()->hasRole('doctor')) {
+        $title = 'Doctor ';
+    } elseif(auth()->user()->hasRole('receptionist')) {
+        $title = 'Receptionist ';
+    }
+@endphp
+@section('title', $title)
 @section('content')
-        <div class="container-fluid">
-          <div class="row justify-content-center">
-            <div class="col-12">
-              <div class="row align-items-center mb-2">
+
+@role('admin')
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-12">
+            <div class="row align-items-center mb-4">
                 <div class="col">
-                  <h2 class="h5 page-title">Welcome!</h2>
+                    <h2 class="h5 page-title">Admin Dashboard</h2>
+                    <p class="text-muted">Welcome back, {{ auth()->user()->name }}</p>
                 </div>
                 <div class="col-auto">
-                  <form class="form-inline">
-                    <div class="form-group d-none d-lg-inline">
-                      <label for="reportrange" class="sr-only">Date Ranges</label>
-                      <div id="reportrange" class="px-2 py-2 text-muted">
-                        <span class="small"></span>
-                      </div>
-                    </div>
-                    <div class="form-group">
-                      <button type="button" class="btn btn-sm"><span class="fe fe-refresh-ccw fe-16 text-muted"></span></button>
-                      <button type="button" class="btn btn-sm mr-2"><span class="fe fe-filter fe-16 text-muted"></span></button>
-                    </div>
-                  </form>
+                    <button class="btn btn-primary btn-sm" onclick="window.location.href='{{ route('admin.booking.index') }}'">
+                        <span class="fe fe-calendar mr-2"></span>View All Appointments
+                    </button>
                 </div>
-              </div>
-<!-- widgets -->
-<div class="row my-4">
+            </div>
 
-    <div class="col-md-3">
-      <div class="card shadow mb-4">
-        <div class="card-body">
-          <div class="row align-items-center">
-            <div class="col">
-              <small class="text-muted mb-1">Departments</small>
-              <h3 class="card-title mb-0">{{ $majors }}</h3>
-              <p class="small text-muted mb-0">
-                <span class="fe fe-arrow-up fe-12 text-success"></span>
-                <span>Compared to last week</span>
-              </p>
+            <!-- Main Stats Cards -->
+            <div class="row my-4">
+                <div class="col-md-3">
+                    <div class="card shadow border-0 mb-4">
+                        <div class="card-body">
+                            <div class="row align-items-center">
+                                <div class="col">
+                                    <small class="text-muted mb-1">Departments</small>
+                                    <h3 class="card-title mb-0">{{ $majors }}</h3>
+                                    <p class="small text-muted mb-0">
+                                        <span class="fe fe-briefcase fe-12 text-primary"></span>
+                                        <span>Total Specializations</span>
+                                    </p>
+                                </div>
+                                <div class="col-4 text-right">
+                                    <span class="fe fe-briefcase fe-32 text-primary"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="card shadow border-0 mb-4">
+                        <div class="card-body">
+                            <div class="row align-items-center">
+                                <div class="col">
+                                    <small class="text-muted mb-1">Doctors</small>
+                                    <h3 class="card-title mb-0">{{ $doctors }}</h3>
+                                    <p class="small text-muted mb-0">
+                                        <span class="fe fe-user-check fe-12 text-success"></span>
+                                        <span>Active Physicians</span>
+                                    </p>
+                                </div>
+                                <div class="col-4 text-right">
+                                    <span class="fe fe-user-check fe-32 text-success"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="card shadow border-0 mb-4">
+                        <div class="card-body">
+                            <div class="row align-items-center">
+                                <div class="col">
+                                    <small class="text-muted mb-1">Total Appointments</small>
+                                    <h3 class="card-title mb-0">{{ $bookings }}</h3>
+                                    <p class="small text-muted mb-0">
+                                        <span class="fe fe-calendar fe-12 text-info"></span>
+                                        <span>All Time</span>
+                                    </p>
+                                </div>
+                                <div class="col-4 text-right">
+                                    <span class="fe fe-calendar fe-32 text-info"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="card shadow border-0 mb-4">
+                        <div class="card-body">
+                            <div class="row align-items-center">
+                                <div class="col">
+                                    <small class="text-muted mb-1">Total Users</small>
+                                    <h3 class="card-title mb-0">{{ $users }}</h3>
+                                    <p class="small text-muted mb-0">
+                                        <span class="fe fe-users fe-12 text-warning"></span>
+                                        <span>Registered</span>
+                                    </p>
+                                </div>
+                                <div class="col-4 text-right">
+                                    <span class="fe fe-users fe-32 text-warning"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="col-4 text-right">
-              <span class="sparkline inlinebar"></span>
+
+            <!-- Secondary Stats -->
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="card shadow border-0 text-white bg-warning mb-4">
+                        <div class="card-body">
+                            <div class="row align-items-center">
+                                <div class="col">
+                                    <small class="text-white-50 mb-1">Pending Appointments</small>
+                                    <h3 class="card-title text-white mb-0">{{ $pendingBookings }}</h3>
+                                </div>
+                                <div class="col-4 text-right">
+                                    <span class="fe fe-clock fe-32"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card shadow border-0 text-white bg-info mb-4">
+                        <div class="card-body">
+                            <div class="row align-items-center">
+                                <div class="col">
+                                    <small class="text-white-50 mb-1">Today's Appointments</small>
+                                    <h3 class="card-title text-white mb-0">{{ $todayBookings }}</h3>
+                                </div>
+                                <div class="col-4 text-right">
+                                    <span class="fe fe-calendar fe-32"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card shadow border-0 text-white bg-success mb-4">
+                        <div class="card-body">
+                            <div class="row align-items-center">
+                                <div class="col">
+                                    <small class="text-white-50 mb-1">Completed</small>
+                                    <h3 class="card-title text-white mb-0">{{ $completedBookings }}</h3>
+                                </div>
+                                <div class="col-4 text-right">
+                                    <span class="fe fe-check-circle fe-32"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-          </div>
+
+            <!-- Recent Appointments & Top Doctors -->
+            <div class="row">
+                <!-- Recent Appointments -->
+                <div class="col-md-8">
+                    <div class="card shadow mb-4">
+                        <div class="card-header">
+                            <strong class="card-title">Recent Appointments</strong>
+                            <a class="float-right small text-primary" href="{{ route('admin.booking.index') }}">View all</a>
+                        </div>
+                        <div class="card-body p-0">
+                            @if($recentBookings->count() > 0)
+                                <div class="table-responsive">
+                                    <table class="table table-hover mb-0">
+                                        <thead>
+                                            <tr>
+                                                <th class="border-top-0">Patient</th>
+                                                <th class="border-top-0">Doctor</th>
+                                                <th class="border-top-0">Date & Time</th>
+                                                <th class="border-top-0">Status</th>
+                                                <th class="border-top-0">Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach($recentBookings as $booking)
+                                            <tr>
+                                                <td>
+                                                    <div class="d-flex align-items-center">
+  
+                                                        <div>
+                                                            <strong>{{ $booking->name ?? 'N/A' }}</strong><br>
+                                                            <small class="text-muted">{{ $booking->email }}</small>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <strong>Dr. {{ $booking->doctor->user->name ?? 'N/A' }}</strong><br>
+                                                    <small class="text-muted">{{ $booking->doctor->major->name ?? '' }}</small>
+                                                </td>
+                                                <td>
+                                                    <span class="text-muted">{{ \Carbon\Carbon::parse($booking->date)->format('M d, Y') }}</span><br>
+                                                    <small class="text-muted">{{ \Carbon\Carbon::parse($booking->date)->format('h:i A') }}</small>
+                                                </td>
+                                                <td>
+                                                    <span class="badge badge-{{ 
+                                                        $booking->status == 'completed' ? 'success' : 
+                                                        ($booking->status == 'pending' ? 'warning' : 
+                                                        ($booking->status == 'confirmed' ? 'info' : 'secondary')) 
+                                                    }}">
+                                                        {{ ucfirst($booking->status) }}
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <a href="{{ route('admin.booking.index') }}" class="btn btn-sm btn-outline-primary">
+                                                        <span class="fe fe-eye"></span>
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
+                            @else
+                                <div class="text-center py-5">
+                                    <span class="fe fe-calendar fe-48 text-muted mb-3 d-block"></span>
+                                    <p class="text-muted">No appointments yet</p>
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Top Doctors -->
+                <div class="col-md-4">
+                    <div class="card shadow mb-4">
+                        <div class="card-header">
+                            <strong class="card-title">Top Doctors</strong>
+                            <span class="badge badge-soft-primary float-right">Most Bookings</span>
+                        </div>
+                        <div class="card-body">
+                            @if($topDoctors->count() > 0)
+                                <div class="list-group list-group-flush my-n3">
+                                    @foreach($topDoctors as $doctor)
+                                    <div class="list-group-item px-0">
+                                        <div class="d-flex align-items-center">
+                                            <div class="flex-fill">
+                                                <strong class="d-block">Dr. {{ $doctor->user->name }}</strong>
+                                                <small class="text-muted">{{ $doctor->major->name ?? 'General' }}</small>
+                                            </div>
+                                            <div class="text-right">
+                                                <span class="badge badge-primary">{{ $doctor->bookings_count }}</span>
+                                                <small class="d-block text-muted">ِAppointments</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    @endforeach
+                                </div>
+                            @else
+                                <div class="text-center py-4">
+                                    <span class="fe fe-users fe-48 text-muted mb-3 d-block"></span>
+                                    <p class="text-muted">No data available</p>
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card shadow">
+                        <div class="card-header">
+                            <strong class="card-title">Quick Actions</strong>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-3 col-sm-6 mb-3">
+                                    <a href="{{ route('admin.booking.index') }}" class="btn btn-outline-primary btn-block py-3">
+                                        <span class="fe fe-calendar fe-24 mb-2 d-block"></span>
+                                        Manage Appointments
+                                    </a>
+                                </div>
+                                <div class="col-md-3 col-sm-6 mb-3">
+                                    <a href="{{ route('admin.doctor.index') }}" class="btn btn-outline-success btn-block py-3">
+                                        <span class="fe fe-user-check fe-24 mb-2 d-block"></span>
+                                        Manage Doctors
+                                    </a>
+                                </div>
+                                <div class="col-md-3 col-sm-6 mb-3">
+                                    <a href="{{ route('admin.major.index') }}" class="btn btn-outline-info btn-block py-3">
+                                        <span class="fe fe-briefcase fe-24 mb-2 d-block"></span>
+                                        Manage Departments
+                                    </a>
+                                </div>
+                                <div class="col-md-3 col-sm-6 mb-3">
+                                    <a href="{{ route('admin.user.index') }}" class="btn btn-outline-warning btn-block py-3">
+                                        <span class="fe fe-users fe-24 mb-2 d-block"></span>
+                                        Manage Users
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
     </div>
-
-    <div class="col-md-3">
-      <div class="card shadow mb-4">
-        <div class="card-body">
-          <div class="row align-items-center">
-            <div class="col">
-              <small class="text-muted mb-1">Doctors</small>
-              <h3 class="card-title mb-0">{{ $doctors }}</h3>
-              <p class="small text-muted mb-0">
-                <span class="fe fe-arrow-up fe-12 text-success"></span>
-                <span>Compared to last week</span>
-              </p>
-            </div>
-            <div class="col-4 text-right">
-              <span class="sparkline inlineline"></span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="col-md-3">
-      <div class="card shadow mb-4">
-        <div class="card-body">
-          <div class="row align-items-center">
-            <div class="col">
-              <small class="text-muted mb-1">Appointments</small>
-              <h3 class="card-title mb-0">{{ $bookings }}</h3>
-              <p class="small text-muted mb-0">
-                <span class="fe fe-arrow-up fe-12 text-success"></span>
-                <span>Compared to last week</span>
-              </p>
-            </div>
-            <div class="col-4 text-right">
-              <span class="sparkline inlinepie"></span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="col-md-3">
-      <div class="card shadow mb-4">
-        <div class="card-body">
-          <div class="row align-items-center">
-            <div class="col">
-              <small class="text-muted mb-1">Users</small>
-              <h3 class="card-title mb-0">{{ $users }}</h3>
-              <p class="small text-muted mb-0">
-                <span class="fe fe-arrow-up fe-12 text-success"></span>
-                <span>Compared to last week</span>
-              </p>
-            </div>
-            <div class="col-4 text-right">
-              <span class="sparkline inlinebar"></span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
 </div>
-<!-- end section -->
+@endrole
 
-              <!-- linechart -->
-              <div class="my-4">
-                <div id="lineChart"></div>
-              </div>
-              <div class="row">
-                <div class="col-md-6">
-                  <div class="card shadow mb-4">
-                    <div class="card-header">
-                      <strong>Goal</strong>
-                    </div>
-                    <div class="card-body px-4">
-                      <div class="row border-bottom">
-                        <div class="col-4 text-center mb-3">
-                          <p class="mb-1 small text-muted">Completions</p>
-                          <span class="h3">26</span><br />
-                          <span class="small text-muted">+20%</span>
-                          <span class="fe fe-arrow-up text-success fe-12"></span>
-                        </div>
-                        <div class="col-4 text-center mb-3">
-                          <p class="mb-1 small text-muted">Goal Value</p>
-                          <span class="h3">$260</span><br />
-                          <span class="small text-muted">+6%</span>
-                          <span class="fe fe-arrow-up text-success fe-12"></span>
-                        </div>
-                        <div class="col-4 text-center mb-3">
-                          <p class="mb-1 small text-muted">Conversion</p>
-                          <span class="h3">6%</span><br />
-                          <span class="small text-muted">-2%</span>
-                          <span class="fe fe-arrow-down text-danger fe-12"></span>
-                        </div>
-                      </div>
-                      <table class="table table-borderless mt-3 mb-1 mx-n1 table-sm">
-                        <thead>
-                          <tr>
-                            <th class="w-50">Goal</th>
-                            <th class="text-right">Conversion</th>
-                            <th class="text-right">Completions</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <tr>
-                            <td>Checkout</td>
-                            <td class="text-right">5%</td>
-                            <td class="text-right">260</td>
-                          </tr>
-                          <tr>
-                            <td>Add to Cart</td>
-                            <td class="text-right">55%</td>
-                            <td class="text-right">1260</td>
-                          </tr>
-                          <tr>
-                            <td>Contact</td>
-                            <td class="text-right">18%</td>
-                            <td class="text-right">460</td>
-                          </tr>
-                        </tbody>
-                      </table>
-                    </div> <!-- .card-body -->
-                  </div> <!-- .card -->
-                </div> <!-- .col -->
-                <div class="col-md-6">
-                  <div class="card shadow mb-4">
-                    <div class="card-header">
-                      <strong class="card-title">Top Selling</strong>
-                      <a class="float-right small text-muted" href="#!">View all</a>
-                    </div>
-                    <div class="card-body">
-                      <div class="list-group list-group-flush my-n3">
-                        <div class="list-group-item">
-                          <div class="row align-items-center">
-                            <div class="col-3 col-md-2">
-                              <img src="./assets/products/p1.jpg" alt="..." class="thumbnail-sm">
-                            </div>
-                            <div class="col">
-                              <strong>Fusion Backpack</strong>
-                              <div class="my-0 text-muted small">Gear, Bags</div>
-                            </div>
-                            <div class="col-auto">
-                              <strong>+85%</strong>
-                              <div class="progress mt-2" style="height: 4px;">
-                                <div class="progress-bar" role="progressbar" style="width: 85%" aria-valuenow="85" aria-valuemin="0" aria-valuemax="100"></div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                        <div class="list-group-item">
-                          <div class="row align-items-center">
-                            <div class="col-3 col-md-2">
-                              <img src="./assets/products/p2.jpg" alt="..." class="thumbnail-sm">
-                            </div>
-                            <div class="col">
-                              <strong>Luma hoodies</strong>
-                              <div class="my-0 text-muted small">Jackets, Men</div>
-                            </div>
-                            <div class="col-auto">
-                              <strong>+75%</strong>
-                              <div class="progress mt-2" style="height: 4px;">
-                                <div class="progress-bar" role="progressbar" style="width: 75%" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                        <div class="list-group-item">
-                          <div class="row align-items-center">
-                            <div class="col-3 col-md-2">
-                              <img src="./assets/products/p3.jpg" alt="..." class="thumbnail-sm">
-                            </div>
-                            <div class="col">
-                              <strong>Luma shorts</strong>
-                              <div class="my-0 text-muted small">Shorts, Men</div>
-                            </div>
-                            <div class="col-auto">
-                              <strong>+62%</strong>
-                              <div class="progress mt-2" style="height: 4px;">
-                                <div class="progress-bar" role="progressbar" style="width: 62%" aria-valuenow="62" aria-valuemin="0" aria-valuemax="100"></div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                        <div class="list-group-item">
-                          <div class="row align-items-center">
-                            <div class="col-3 col-md-2">
-                              <img src="./assets/products/p4.jpg" alt="..." class="thumbnail-sm">
-                            </div>
-                            <div class="col">
-                              <strong>Brown Trousers</strong>
-                              <div class="my-0 text-muted small">Trousers, Women</div>
-                            </div>
-                            <div class="col-auto">
-                              <strong>+24%</strong>
-                              <div class="progress mt-2" style="height: 4px;">
-                                <div class="progress-bar" role="progressbar" style="width: 24%" aria-valuenow="24" aria-valuemin="0" aria-valuemax="100"></div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div> <!-- / .list-group -->
-                    </div> <!-- / .card-body -->
-                  </div> <!-- .card -->
-                </div> <!-- .col -->
-              </div> <!-- .row -->
-              <div class="row">
-                <div class="col-md-4">
-                  <div class="card shadow eq-card  mb-4">
-                    <div class="card-header">
-                      <strong>Region</strong>
-                    </div>
-                    <div class="card-body">
-                      <div class="map-box my-5" style="position:relative; max-width: 320px; max-height: 200px; margin:0 auto;">
-                        <div id="dataMapUSA"></div>
-                      </div>
-                      <div class="row align-items-bottom my-2">
-                        <div class="col">
-                          <p class="mb-0">France</p>
-                          <span class="my-0 text-muted small">+10%</span>
-                        </div>
-                        <div class="col-auto text-right">
-                          <p class="mb-0">118</p>
-                          <div class="progress mt-2" style="height: 4px;">
-                            <div class="progress-bar" role="progressbar" style="width: 85%" aria-valuenow="85" aria-valuemin="0" aria-valuemax="100"></div>
-                          </div>
-                        </div>
-                      </div>
-                      <div class="row align-items-center my-2">
-                        <div class="col">
-                          <p class="mb-0">Netherlands</p>
-                          <span class="my-0 text-muted small">+0.6%</span>
-                        </div>
-                        <div class="col-auto text-right">
-                          <p class="mb-0">1008</p>
-                          <div class="progress mt-2" style="height: 4px;">
-                            <div class="progress-bar" role="progressbar" style="width: 85%" aria-valuenow="85" aria-valuemin="0" aria-valuemax="100"></div>
-                          </div>
-                        </div>
-                      </div>
-                      <div class="row align-items-center my-2">
-                        <div class="col">
-                          <p class="mb-0">Italy</p>
-                          <span class="my-0 text-muted small">+1.6%</span>
-                        </div>
-                        <div class="col-auto text-right">
-                          <p class="mb-0">67</p>
-                          <div class="progress mt-2" style="height: 4px;">
-                            <div class="progress-bar" role="progressbar" style="width: 85%" aria-valuenow="85" aria-valuemin="0" aria-valuemax="100"></div>
-                          </div>
-                        </div>
-                      </div>
-                      <div class="row align-items-center my-2">
-                        <div class="col">
-                          <p class="mb-0">Spain</p>
-                          <span class="my-0 text-muted small">+118%</span>
-                        </div>
-                        <div class="col-auto text-right">
-                          <p class="mb-0">186</p>
-                          <div class="progress mt-2" style="height: 4px;">
-                            <div class="progress-bar" role="progressbar" style="width: 85%" aria-valuenow="85" aria-valuemin="0" aria-valuemax="100"></div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div> <!-- .col -->
-                <div class="col-md-4">
-                  <div class="card shadow eq-card mb-4">
-                    <div class="card-header">
-                      <strong class="card-title">Traffic</strong>
-                      <a class="float-right small text-muted" href="#!">View all</a>
-                    </div>
-                    <div class="card-body">
-                      <div class="chart-box mb-3" style="min-height:180px;">
-                        <div id="customAngle"></div>
-                      </div> <!-- .col -->
-                      <div class="mx-auto">
-                        <div class="row align-items-center mb-2">
-                          <div class="col">
-                            <p class="mb-0">Direct</p>
-                            <span class="my-0 text-muted small">+10%</span>
-                          </div>
-                          <div class="col-auto text-right">
-                            <p class="mb-0">218</p>
-                            <span class="dot dot-md bg-success"></span>
-                          </div>
-                        </div>
-                        <div class="row align-items-center mb-2">
-                          <div class="col">
-                            <p class="mb-0">Organic Search</p>
-                            <span class="my-0 text-muted small">+0.6%</span>
-                          </div>
-                          <div class="col-auto text-right">
-                            <p class="mb-0">1002</p>
-                            <span class="dot dot-md bg-warning"></span>
-                          </div>
-                        </div>
-                        <div class="row align-items-center mb-2">
-                          <div class="col">
-                            <p class="mb-0">Referral</p>
-                            <span class="my-0 text-muted small">+1.6%</span>
-                          </div>
-                          <div class="col-auto text-right">
-                            <p class="mb-0">67</p>
-                            <span class="dot dot-md bg-primary"></span>
-                          </div>
-                        </div>
-                        <div class="row align-items-center">
-                          <div class="col">
-                            <p class="mb-0">Social</p>
-                            <span class="my-0 text-muted small">+118%</span>
-                          </div>
-                          <div class="col-auto text-right">
-                            <p class="mb-0">386</p>
-                            <span class="dot dot-md bg-secondary"></span>
-                          </div>
-                        </div>
-                      </div>
-                    </div> <!-- .card-body -->
-                  </div> <!-- .card -->
-                </div> <!-- .col-md -->
-                <div class="col-md-4">
-                  <div class="card shadow eq-card mb-4">
-                    <div class="card-header">
-                      <strong>Browsers</strong>
-                    </div>
-                    <div class="card-body">
-                      <div class="chart-box mt-3 mb-5">
-                        <div id="radarChartWidget"></div>
-                      </div> <!-- .col -->
-                      <div class="mx-auto">
-                        <div class="row align-items-center my-2">
-                          <div class="col-6 col-xl-3 my-3">
-                            <span class="mb-0">Safari</span>
-                            <div class="progress my-2" style="height: 4px;">
-                              <div class="progress-bar" role="progressbar" style="width: 10%" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100"></div>
-                            </div>
-                          </div>
-                          <div class="col-6 col-xl-3 my-3 text-right">
-                            <span>118</span><br />
-                            <span class="my-0 text-muted small">+10%</span>
-                          </div>
-                          <div class="col-6 col-xl-3 my-3">
-                            <span class="mb-0">Chrome</span>
-                            <div class="progress my-2" style="height: 4px;">
-                              <div class="progress-bar" role="progressbar" style="width: 36%" aria-valuenow="36" aria-valuemin="0" aria-valuemax="100"></div>
-                            </div>
-                          </div>
-                          <div class="col-6 col-xl-3 my-3 text-right">
-                            <span>1008</span><br />
-                            <span class="my-0 text-muted small">+36%</span>
-                          </div>
-                          <div class="col-6 col-xl-3 my-3">
-                            <span class="mb-0">Opera</span>
-                            <div class="progress my-2" style="height: 4px;">
-                              <div class="progress-bar" role="progressbar" style="width: 85%" aria-valuenow="85" aria-valuemin="0" aria-valuemax="100"></div>
-                            </div>
-                          </div>
-                          <div class="col-6 col-xl-3 my-3 text-right">
-                            <span>67</span><br />
-                            <span class="my-0 text-muted small">+1.6%</span>
-                          </div>
-                          <div class="col-6 col-xl-3 my-3">
-                            <span class="mb-0">Edge</span>
-                            <div class="progress my-2" style="height: 4px;">
-                              <div class="progress-bar" role="progressbar" style="width: 85%" aria-valuenow="85" aria-valuemin="0" aria-valuemax="100"></div>
-                            </div>
-                          </div>
-                          <div class="col-6 col-xl-3 my-3 text-right">
-                            <span>186</span><br />
-                            <span class="my-0 text-muted small">+118%</span>
-                          </div>
-                        </div>
-                      </div>
-                    </div> <!-- .card-body -->
-                  </div> <!-- .card -->
-                </div> <!-- .col -->
-              </div>
-            </div> <!-- /.col -->
-          </div> <!-- .row -->
-        </div> <!-- .container-fluid -->
-        <div class="modal fade modal-notif modal-slide" tabindex="-1" role="dialog" aria-labelledby="defaultModalLabel" aria-hidden="true">
-          <div class="modal-dialog modal-sm" role="document">
-            <div class="modal-content">
-              <div class="modal-header">
-                <h5 class="modal-title" id="defaultModalLabel">Notifications</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                  <span aria-hidden="true">&times;</span>
-                </button>
-              </div>
-              <div class="modal-body">
-                <div class="list-group list-group-flush my-n3">
-                  <div class="list-group-item bg-transparent">
-                    <div class="row align-items-center">
-                      <div class="col-auto">
-                        <span class="fe fe-box fe-24"></span>
-                      </div>
-                      <div class="col">
-                        <small><strong>Package has uploaded successfull</strong></small>
-                        <div class="my-0 text-muted small">Package is zipped and uploaded</div>
-                        <small class="badge badge-pill badge-light text-muted">1m ago</small>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="list-group-item bg-transparent">
-                    <div class="row align-items-center">
-                      <div class="col-auto">
-                        <span class="fe fe-download fe-24"></span>
-                      </div>
-                      <div class="col">
-                        <small><strong>Widgets are updated successfull</strong></small>
-                        <div class="my-0 text-muted small">Just create new layout Index, form, table</div>
-                        <small class="badge badge-pill badge-light text-muted">2m ago</small>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="list-group-item bg-transparent">
-                    <div class="row align-items-center">
-                      <div class="col-auto">
-                        <span class="fe fe-inbox fe-24"></span>
-                      </div>
-                      <div class="col">
-                        <small><strong>Notifications have been sent</strong></small>
-                        <div class="my-0 text-muted small">Fusce dapibus, tellus ac cursus commodo</div>
-                        <small class="badge badge-pill badge-light text-muted">30m ago</small>
-                      </div>
-                    </div> <!-- / .row -->
-                  </div>
-                  <div class="list-group-item bg-transparent">
-                    <div class="row align-items-center">
-                      <div class="col-auto">
-                        <span class="fe fe-link fe-24"></span>
-                      </div>
-                      <div class="col">
-                        <small><strong>Link was attached to menu</strong></small>
-                        <div class="my-0 text-muted small">New layout has been attached to the menu</div>
-                        <small class="badge badge-pill badge-light text-muted">1h ago</small>
-                      </div>
-                    </div>
-                  </div> <!-- / .row -->
-                </div> <!-- / .list-group -->
-              </div>
-              <div class="modal-footer">
-                <button type="button" class="btn btn-secondary btn-block" data-dismiss="modal">Clear All</button>
-              </div>
+@role('doctor')
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-12">
+            <div class="row align-items-center mb-4">
+                <div class="col">
+                    <h2 class="h5 page-title">Doctor Dashboard</h2>
+                    <p class="text-muted">Welcome back, Dr. {{ auth()->user()->name }}</p>
+                </div>
             </div>
-          </div>
-        </div>
-        <div class="modal fade modal-shortcut modal-slide" tabindex="-1" role="dialog" aria-labelledby="defaultModalLabel" aria-hidden="true">
-          <div class="modal-dialog" role="document">
-            <div class="modal-content">
-              <div class="modal-header">
-                <h5 class="modal-title" id="defaultModalLabel">Shortcuts</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                  <span aria-hidden="true">&times;</span>
-                </button>
-              </div>
-              <div class="modal-body px-5">
-                <div class="row align-items-center">
-                  <div class="col-6 text-center">
-                    <div class="squircle bg-success justify-content-center">
-                      <i class="fe fe-cpu fe-32 align-self-center text-white"></i>
+
+            <!-- Stats Cards -->
+            <div class="row my-4">
+                <div class="col-md-3">
+                    <div class="card shadow border-0 text-white bg-primary mb-4">
+                        <div class="card-body">
+                            <div class="row align-items-center">
+                                <div class="col">
+                                    <small class="text-white-50 mb-1">Total Appointments</small>
+                                    <h3 class="card-title text-white mb-0">{{ $data['bookings_count'] }}</h3>
+                                </div>
+                                <div class="col-4 text-right">
+                                    <span class="fe fe-calendar fe-32"></span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <p>Control area</p>
-                  </div>
-                  <div class="col-6 text-center">
-                    <div class="squircle bg-primary justify-content-center">
-                      <i class="fe fe-activity fe-32 align-self-center text-white"></i>
-                    </div>
-                    <p>Activity</p>
-                  </div>
                 </div>
-                <div class="row align-items-center">
-                  <div class="col-6 text-center">
-                    <div class="squircle bg-primary justify-content-center">
-                      <i class="fe fe-droplet fe-32 align-self-center text-white"></i>
+
+                <div class="col-md-3">
+                    <div class="card shadow border-0 mb-4">
+                        <div class="card-body">
+                            <div class="row align-items-center">
+                                <div class="col">
+                                    <small class="text-muted mb-1">My Patients</small>
+                                    <h3 class="card-title mb-0">{{ $data['patients_count'] }}</h3>
+                                </div>
+                                <div class="col-4 text-right">
+                                    <span class="fe fe-users fe-32 text-success"></span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <p>Droplet</p>
-                  </div>
-                  <div class="col-6 text-center">
-                    <div class="squircle bg-primary justify-content-center">
-                      <i class="fe fe-upload-cloud fe-32 align-self-center text-white"></i>
-                    </div>
-                    <p>Upload</p>
-                  </div>
                 </div>
-                <div class="row align-items-center">
-                  <div class="col-6 text-center">
-                    <div class="squircle bg-primary justify-content-center">
-                      <i class="fe fe-users fe-32 align-self-center text-white"></i>
+
+                <div class="col-md-3">
+                    <div class="card shadow border-0 mb-4">
+                        <div class="card-body">
+                            <div class="row align-items-center">
+                                <div class="col">
+                                    <small class="text-muted mb-1">Working Days</small>
+                                    <h3 class="card-title mb-0">{{ $data['schedules_count'] }}</h3>
+                                </div>
+                                <div class="col-4 text-right">
+                                    <span class="fe fe-clock fe-32 text-warning"></span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <p>Users</p>
-                  </div>
-                  <div class="col-6 text-center">
-                    <div class="squircle bg-primary justify-content-center">
-                      <i class="fe fe-settings fe-32 align-self-center text-white"></i>
-                    </div>
-                    <p>Settings</p>
-                  </div>
                 </div>
-              </div>
+
+                <div class="col-md-3">
+                    <div class="card shadow border-0 mb-4">
+                        <div class="card-body">
+                            <div class="row align-items-center">
+                                <div class="col">
+                                    <small class="text-muted mb-1">Total Invoices</small>
+                                    <h3 class="card-title mb-0">{{ $data['invoices_count'] }}</h3>
+                                </div>
+                                <div class="col-4 text-right">
+                                    <span class="fe fe-file-text fe-32 text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-          </div>
+
+            <!-- Tables Row -->
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card shadow mb-4">
+                        <div class="card-header">
+                            <strong class="card-title">Recent Appointments</strong>
+                            <a class="float-right small text-primary" href="{{ route('admin.doctor.myBookings') }}">View all</a>
+                        </div>
+                        <div class="card-body p-0">
+                            @if($data['recent_bookings']->count() > 0)
+                                <table class="table table-hover mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th class="border-top-0">Patient</th>
+                                            <th class="border-top-0">Date</th>
+                                            <th class="border-top-0">Status</th>
+                                            <th class="border-top-0">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach($data['recent_bookings'] as $booking)
+                                        <tr>
+                                            <td>
+                                                <strong>{{ $booking->name ?? 'N/A' }}</strong>
+                                            </td>
+                                            <td>
+                                                <span class="text-muted">{{ \Carbon\Carbon::parse($booking->date)->format('M d, Y') }}</span><br>
+                                                <small class="text-muted">{{ \Carbon\Carbon::parse($booking->date)->format('h:i A') }}</small>
+                                            </td>
+                                            <td>
+                                                <span class="badge badge-{{ $booking->status == 'completed' ? 'success' : ($booking->status == 'pending' ? 'warning' : 'info') }}">
+                                                    {{ ucfirst($booking->status) }}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <a href="{{ route('admin.doctor.myBookings') }}" class="btn btn-sm btn-outline-primary">
+                                                    <span class="fe fe-eye"></span>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            @else
+                                <div class="text-center py-5">
+                                    <span class="fe fe-calendar fe-48 text-muted mb-3"></span>
+                                    <p class="text-muted">No recent appointments</p>
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="card shadow mb-4">
+                        <div class="card-header">
+                            <strong class="card-title">Recent Patients</strong>
+                            <a class="float-right small text-primary" href="{{ route('admin.doctor.myPatients') }}">View all</a>
+                        </div>
+                        <div class="card-body p-0">
+                            @if(isset($data['recent_patients']) && $data['recent_patients']->count() > 0)
+                                <table class="table table-hover mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th class="border-top-0">Patient Name</th>
+                                            <th class="border-top-0">Last Visit</th>
+                                            <th class="border-top-0">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach($data['recent_patients'] as $patient)
+                                        <tr>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <div>
+                                                        <strong>{{ $patient->patient->name ?? 'N/A' }}</strong><br>
+                                                        <small class="text-muted">ID: #{{ $patient->patient_id }}</small>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <span class="text-muted">{{ \Carbon\Carbon::parse($patient->last_visit)->format('M d, Y') }}</span><br>
+                                                <small class="text-muted">{{ \Carbon\Carbon::parse($patient->last_visit)->diffForHumans() }}</small>
+                                            </td>
+                                            <td>
+                                                  <a href="{{ route('admin.patient.show', $patient->patient_id) }}" class="btn btn-sm btn-outline-primary">
+                                                    <span class="fe fe-eye"></span>
+                                                  </a>
+                                            </td>
+                                        </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            @else
+                                <div class="text-center py-5">
+                                    <span class="fe fe-users fe-48 text-muted mb-3"></span>
+                                    <p class="text-muted">No patients yet</p>
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Schedule Card -->
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card shadow mb-4">
+                        <div class="card-header">
+                            <strong class="card-title">Weekly Schedule</strong>
+                            <a class="float-right small text-primary" href="{{ route('admin.doctor.mySchedule') }}">Manage Schedule</a>
+                        </div>
+                        <div class="card-body">
+                            @if($data['schedules']->count() > 0)
+                                <div class="row">
+                                    @foreach($data['schedules']->take(7) as $sched)
+                                    <div class="col-md-3 col-sm-6 mb-3">
+                                        <div class="card bg-light border-0">
+                                            <div class="card-body text-center py-3">
+                                                <h6 class="mb-1">{{ $sched->day_of_week }}</h6>
+                                                <span class="badge badge-primary">{{ $sched->start_time }} - {{ $sched->end_time }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    @endforeach
+                                </div>
+                            @else
+                                <div class="text-center py-4">
+                                    <span class="fe fe-clock fe-48 text-muted mb-3"></span>
+                                    <p class="text-muted">No schedule set</p>
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
+    </div>
+</div>
+@endrole
+
+@role('receptionist')
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-12">
+            <div class="row align-items-center mb-4">
+                <div class="col">
+                    <h2 class="h5 page-title">Receptionist Dashboard</h2>
+                    <p class="text-muted">Welcome back, {{ auth()->user()->name }}</p>
+                </div>
+
+            </div>
+
+            <!-- Stats Cards -->
+            <div class="row my-4">
+                <div class="col-md-3">
+                    <div class="card shadow border-0 text-white bg-info mb-4">
+                        <div class="card-body">
+                            <div class="row align-items-center">
+                                <div class="col">
+                                    <small class="text-white-50 mb-1">Today's Appointments</small>
+                                    <h3 class="card-title text-white mb-0">{{ $todayBookings }}</h3>
+                                </div>
+                                <div class="col-4 text-right">
+                                    <span class="fe fe-calendar fe-32"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="card shadow border-0 text-white bg-warning mb-4">
+                        <div class="card-body">
+                            <div class="row align-items-center">
+                                <div class="col">
+                                    <small class="text-white-50 mb-1">Pending</small>
+                                    <h3 class="card-title text-white mb-0">{{ $pendingBookings }}</h3>
+                                </div>
+                                <div class="col-4 text-right">
+                                    <span class="fe fe-clock fe-32"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="card shadow border-0 text-white bg-success mb-4">
+                        <div class="card-body">
+                            <div class="row align-items-center">
+                                <div class="col">
+                                    <small class="text-white-50 mb-1">Completed Today</small>
+                                    <h3 class="card-title text-white mb-0">{{ $completedToday }}</h3>
+                                </div>
+                                <div class="col-4 text-right">
+                                    <span class="fe fe-check-circle fe-32"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="card shadow border-0 mb-4">
+                        <div class="card-body">
+                            <div class="row align-items-center">
+                                <div class="col">
+                                    <small class="text-muted mb-1">Total Patients</small>
+                                    <h3 class="card-title mb-0">{{ $totalPatients }}</h3>
+                                </div>
+                                <div class="col-4 text-right">
+                                    <span class="fe fe-users fe-32 text-primary"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Today's Appointments Table -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="card shadow mb-4">
+                        <div class="card-header">
+                            <strong class="card-title">Today's Appointments</strong>
+                            <span class="badge badge-primary float-right">{{ \Carbon\Carbon::today()->format('l, M d, Y') }}</span>
+                        </div>
+                        <div class="card-body p-0">
+                            @if($todayAppointments->count() > 0)
+                                <div class="table-responsive">
+                                    <table class="table table-hover mb-0">
+                                        <thead>
+                                            <tr>
+                                                <th class="border-top-0">#</th>
+                                                <th class="border-top-0">Patient</th>
+                                                <th class="border-top-0">Doctor</th>
+                                                <th class="border-top-0">Time</th>
+                                                <th class="border-top-0">Status</th>
+                                                <th class="border-top-0 text-right">Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach($todayAppointments as $index => $appointment)
+                                            <tr>
+                                                <td>{{ $index + 1 }}</td>
+                                                <td>
+                                                    <div class="d-flex align-items-center">
+                                                        <div>
+                                                            <strong>{{ $appointment->name ?? 'N/A' }}</strong><br>
+                                                            <small class="text-muted">{{ $appointment->phone ?? 'No phone' }}</small>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <strong>Dr. {{ $appointment->doctor->user->name ?? 'N/A' }}</strong><br>
+                                                    <small class="text-muted">{{ $appointment->doctor->major->name ?? 'General' }}</small>
+                                                </td>
+                                                <td>
+                                                    <span class="fe fe-clock text-muted mr-1"></span>
+                                                    {{ \Carbon\Carbon::parse($appointment->date)->format('h:i A') }}
+                                                </td>
+                                                <td>
+                                                    <span class="badge badge-{{ 
+                                                        $appointment->status == 'completed' ? 'success' : 
+                                                        ($appointment->status == 'pending' ? 'warning' : 
+                                                        ($appointment->status == 'confirmed' ? 'info' : 'secondary')) 
+                                                    }}">
+                                                        {{ ucfirst($appointment->status) }}
+                                                    </span>
+                                                </td>
+                                                <td class="text-right">
+                                                    <a href="{{ route('admin.booking.index') }}" class="btn btn-sm btn-outline-primary" title="View Details">
+                                                        <span class="fe fe-eye"></span>
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
+                            @else
+                                <div class="text-center py-5">
+                                    <span class="fe fe-calendar fe-48 text-muted mb-3 d-block"></span>
+                                    <p class="text-muted mb-3">No appointments scheduled for today</p>
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card shadow">
+                        <div class="card-header">
+                            <strong class="card-title">Quick Actions</strong>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-4 col-sm-6 mb-3">
+                                    <a href="{{ route('admin.patient.create') }}" class="btn btn-outline-info btn-block py-3">
+                                        <span class="fe fe-user-plus fe-24 mb-2 d-block"></span>
+                                        Register Patient
+                                    </a>
+                                </div>
+                                <div class="col-md-4 col-sm-6 mb-3">
+                                    <a href="{{ route('admin.booking.index') }}" class="btn btn-outline-success btn-block py-3">
+                                        <span class="fe fe-search fe-24 mb-2 d-block"></span>
+                                        Search Records
+                                    </a>
+                                </div>
+                                <div class="col-md-4 col-sm-6 mb-3">
+                                    <a href="{{ route('admin.invoice.create') }}" class="btn btn-outline-warning btn-block py-3">
+                                        <span class="fe fe-file-text fe-24 mb-2 d-block"></span>
+                                        Generate Invoice
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@endrole
+
 @endsection
+
+@push('styles')
+<style>
+.badge-soft-primary { 
+    background-color: rgba(60, 114, 252, 0.1); 
+    color: #3c72fc; 
+}
+.avatar-sm { 
+    width: 32px; 
+    height: 32px; 
+    line-height: 32px; 
+    font-size: 12px; 
+}
+.avatar-md { 
+    width: 40px; 
+    height: 40px; 
+    line-height: 40px; 
+    font-size: 14px; 
+}
+.bg-primary-light {
+    background-color: rgba(60, 114, 252, 0.1);
+}
+.bg-success-light {
+    background-color: rgba(40, 167, 69, 0.1);
+}
+</style>
+@endpush

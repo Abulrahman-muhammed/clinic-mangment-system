@@ -17,6 +17,7 @@ return new class extends Migration
             $table->decimal('price', 8, 2)->nullable();
             $table->text('description')->nullable();
             $table->string('image')->nullable(); // صورة أو أيقونة الخدمة
+            $table->softDeletes();
             $table->timestamps();
         });
     }

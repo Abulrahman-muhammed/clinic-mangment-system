@@ -5,6 +5,7 @@ namespace App\Http\Controllers\user;
 use App\Http\Controllers\Controller;
 use App\Models\Doctor;
 use App\Models\Major;
+use App\Models\Service;
 use Illuminate\Http\Request;
 
 class HomeController extends Controller
@@ -20,6 +21,10 @@ class HomeController extends Controller
         ->limit(8)
         ->get();
 
-        return view('front.pages.home', compact('majors', 'doctors'));
+        $services = Service::orderBy('id', 'desc')
+        ->limit(8)
+        ->get();
+
+        return view('front.pages.home', compact('majors', 'doctors', 'services'));
     }
 }

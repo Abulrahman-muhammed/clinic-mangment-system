@@ -16,17 +16,22 @@
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label for="doctor_id">Doctor</label>
-                                <select name="doctor_id" class="form-control @error('doctor_id') is-invalid @enderror">
+                                @role('doctor')
+                                    <input type="text" class="form-control" value="{{ auth()->user()->name }}" readonly disabled>
+                                    <input type="hidden" name="doctor_id" value="{{ $schedule->doctor_id }}">
+                                @else
+                                <select name="doctor_id" class="form-control @error('doctor_id') is-invalid @enderror select2">
                                     <option value="">-- Select Doctor --</option>
                                     @foreach($doctors as $doctor)
                                         <option value="{{ $doctor->id }}" {{ $schedule->doctor_id == $doctor->id ? 'selected' : '' }}>
-                                            {{ $doctor->name }}
+                                            {{ $doctor->user->name }}
                                         </option>
                                     @endforeach
                                 </select>
                                 @error('doctor_id')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
+                                @endrole
                             </div>
 
                             <div class="col-md-6 mb-3">
@@ -67,6 +72,15 @@
                         <button type="submit" class="btn btn-success">
                             <i class="fe fe-save"></i> Update Schedule
                         </button>
+                        @role('doctor')
+                        <a href="{{ route('admin.doctor.mySchedule') }}" class="btn btn-secondary">
+                            <i class="fas fa-times"></i> Back
+                        </a>
+                        @else
+                        <a href="{{ route('admin.schedule.index') }}" class="btn btn-secondary">
+                            <i class="fas fa-times"></i> Back
+                        </a>
+                        @endrole
 
                     </form>
                 </div>

@@ -10,9 +10,24 @@ class ServiceController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+
+    public function index(Request $request)
     {
-        $services = Service::paginate();
+        // Start the query
+        $query = Service::query();
+    
+        // Apply search filter if the user typed something
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'LIKE', "%{$search}%")
+                    ->orWhere('description', 'LIKE', "%{$search}%");
+            });
+        }
+    
+        // Get paginated results while keeping the search query in the links
+        $services = $query->latest()->paginate(10);
+    
         return view('admin.services.index', compact('services'));
     }
 
@@ -79,27 +94,25 @@ class ServiceController extends Controller
             'name' => 'required|string|max:255',
             'price' => 'nullable|numeric',
             'description' => 'nullable|string',
-            'image' => 'nullable|image|max:2048', // 2MB Max
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
-
+    
         $service = Service::findOrFail($id);
-
-        $service->name = $request->name;
-        $service->price = $request->price;
-        $service->description = $request->description;
-
+        $data = $request->only(['name', 'price', 'description']);
+    
         if ($request->hasFile('image')) {
-            if ($service->image && file_exists(public_path('storage/services/' . $service->image))) {
-                unlink(public_path('storage/services/' . $service->image));
+            // Delete old image using Storage facade
+            if ($service->image) {
+                \Storage::disk('public')->delete('services/' . $service->image);
             }
-
-            $imageName = time() . '_' . uniqid() . '.' . $request->file('image')->getClientOriginalExtension();
+    
+            $imageName = time() . '_' . uniqid() . '.' . $request->file('image')->extension();
             $request->file('image')->storeAs('services', $imageName, 'public');
-            $service->image = $imageName;
+            $data['image'] = $imageName;
         }
-
-        $service->save();
-
+    
+        $service->update($data);
+    
         return redirect()->route('admin.service.index')->with('success', 'Service updated successfully.');
     }
 

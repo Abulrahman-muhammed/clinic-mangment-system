@@ -28,6 +28,7 @@ return new class extends Migration
             $table->time('start_time'); // بداية المواعيد
             $table->time('end_time');   // نهاية المواعيد
 
+            $table->softDeletes();
             $table->timestamps();
         });
     }

@@ -1,112 +1,220 @@
 @extends('front.inc.master')
-
-@section('title')
-  VCare - Home page
-@endsection
-
+@section('title', 'Home Page')
 @section('content')
 
-<div class="container-fluid bg-blue text-white pt-3">
-    <div class="container pb-5">
-        <div class="row gap-2">
-            <div class="col-sm order-sm-2">
-                <img src="{{ 'images/settings/' . settings('hero_image') }}" class="img-fluid banner-img banner-img" alt="banner-image"
-                    height="200">
+<!-- Hero Slider -->
+<div class="hero-slider">
+    <!-- Slide 1: Medicines -->
+    <div class="slide slide-1 active">
+        <div class="slide-content">
+            <h1>Your Medicines Way</h1>
+            <p>
+                Browse our extensive catalog of medicines and healthcare
+                products with detailed information and competitive prices.
+            </p>
+            <a href="/medicines" class="btn-hero">Buy Now</a>
+        </div>
+    </div>
+
+    <!-- Slide 2: Doctor Consultation -->
+    <div class="slide slide-2">
+        <div class="slide-content">
+            <h1>Consult with Expert Doctors</h1>
+            <p>
+                Get professional medical advice from certified doctors and specialists
+                through secure online consultations.
+            </p>
+            <a href="/doctors" class="btn-hero">Book Appointment</a>
+        </div>
+    </div>
+
+    <!-- Slide 3: AI Assistant -->
+    <div class="slide slide-3">
+        <div class="slide-content">
+            <h1>AI-Powered Medical Assistant</h1>
+            <p>
+                Chat with our intelligent AI assistant to get instant answers
+                to your health-related questions anytime.
+            </p>
+            <a href="/ai" class="btn-hero">Talk To AI</a>
+        </div>
+    </div>
+
+    <div class="slider-controls">
+        <div class="slider-dot active" data-slide="0"></div>
+        <div class="slider-dot" data-slide="1"></div>
+        <div class="slider-dot" data-slide="2"></div>
+    </div>
+</div>
+
+<!-- Features Section -->
+<section class="features py-5" id="features">
+    <div class="container">
+        <div class="row justify-content-center mb-5">
+            <div class="col-lg-8">
+                <h2 class="text-center">Our Premium Features</h2>
             </div>
-            <div class="col-sm order-sm-1">
-                <h1 class="h1">{{ settings('hero_title') }}</h1>
-                <p>{{ settings('hero_description') }}</p>
+        </div>
+        <div class="row g-4">
+            <div class="col-lg-4 col-md-6">
+                <div class="feature-card h-100 d-flex flex-column align-items-center text-center">
+                    <i class="fa-solid fa-pills mb-3"></i>
+                    <h5 class="mb-3">Services</h5>
+                    <p class="flex-grow-1">
+                        Discover our range of in-clinic medical services designed to monitor your health
+                        and support early diagnosis and prevention.
+                    </p>
+                    <a href="/services" class="btn-premium mt-auto">Explore Services</a>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="feature-card h-100 d-flex flex-column align-items-center text-center">
+                    <i class="fa-solid fa-user-md mb-3"></i>
+                    <h5 class="mb-3">Doctor Consultation</h5>
+                    <p class="flex-grow-1">
+                        Get professional medical advice from certified doctors and specialists
+                        through secure online consultations.
+                    </p>
+                    <a href="/doctors" class="btn-premium mt-auto">Find Doctors</a>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="feature-card h-100 d-flex flex-column align-items-center text-center">
+                    <i class="fa-solid fa-robot mb-3"></i>
+                    <h5 class="mb-3">AI Assistant</h5>
+                    <p class="flex-grow-1">
+                        Chat with our intelligent AI assistant to get instant answers to your
+                        health-related questions.
+                    </p>
+                    <button class="btn-premium mt-auto">Talk to AI</button>
+                </div>
             </div>
         </div>
     </div>
-</div>
-<div class="container">
-    {{-- majors --}}
-    <h2 class="h1 fw-bold text-center my-4">Majors</h2>
-    <div class="d-flex flex-wrap gap-4 justify-content-center">
+</section>
 
-        @foreach ( $majors as $major )
-        <div class="card p-2" style="width: 18rem;">
-            <img src="{{ asset('images/majors/' . $major->image)  }}" class="card-img-top rounded-circle card-image-circle"
-                alt="major">
-            <div class="card-body d-flex flex-column gap-1 justify-content-center">
-                <h4 class="card-title fw-bold text-center">{{ $major->title }}</h4>
-                <a href="./doctors/index.html" class="btn btn-outline-primary card-button">Browse Doctors</a>
-            </div>
-        </div>           
-        @endforeach
-  
+
+
+<div class="container mt-5 mb-5">
+    <!-- Page Header -->
+    <div class="page-header text-center mb-5">
+        <h2>CLINIC MEDICAL SERVICES</h2>
+        <p>
+            Discover our range of in-clinic medical services designed to monitor your health
+            and support early diagnosis and prevention.
+        </p>
     </div>
 
-    <h2 class="h1 fw-bold text-center my-4">doctors</h2>
-    <section class="splide home__slider__doctors mb-5">
-        <div class="splide__track ">
-            <ul class="splide__list">
+<div class="container mt-5 mb-5">
 
-                @foreach ($doctors as $doctor)
-                <li class="splide__slide">
-                    <div class="card p-2" style="width: 18rem;">
-                        <img src="{{ asset('images/doctors/' . $doctor->image)  }}" class="card-img-top rounded-circle card-image-circle"
-                            alt="major">
-                        <div class="card-body d-flex flex-column gap-1 justify-content-center">
-                            <h4 class="card-title fw-bold text-center">{{ $doctor->name }}</h4>
-                            <h6 class="card-title fw-bold text-center">{{ $doctor->major->title }}</h6>
-                            <a href="{{ route('front.booking', $doctor) }}" class="btn btn-outline-primary card-button">Book an
-                                appointment</a>
+    <div class="row g-4">
+        @foreach ($services as $s)
+            <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12">
+                <div class="doctor-card h-100">
+                    <div class="doctor-image-container">
+                        <img src="{{ asset('images/services/' . $s->image) }}"
+                             alt="{{ $s->name }}" class="doctor-image" loading="lazy">
+                    </div>
+
+                    <div class="doctor-card-body">
+                        <h5 class="doctor-name">
+                            <a href="#">
+                                {{ $s->name }}
+                            </a>
+                        </h5>
+
+                        <span class="consultation-price">Appointment: ${{ $s->price }}</span>
+
+                        <p class="doctor-bio small">
+                            {{ $s->description }}
+                        </p>
+
+
+                        <div class="action-buttons">
+                            <a href="#" class="btn-book">
+                                <i class="fa-solid fa-calendar-check me-1"></i> Book Service
+                            </a>
                         </div>
                     </div>
-                </li>                    
-                @endforeach
-                
-            </ul>
-        </div>
-    </section>
-</div>
-<div class="banner container d-block d-lg-grid d-md-block d-sm-block">
-    <div class="info">
-        <div class="info__details">
-            <img src="{{ 'images/settings/' . settings('service_image_1') }}" alt="" width="50" height="50">
-            <h4 class="title m-0">{{ settings('service_title_1') }}</h4>
-            <p class="content">{{ settings('service_description_1') }}</p>
-        </div>
-    </div>
-    <div class="info">
-        <div class="info__details">
-            <img src="{{ 'images/settings/' . settings('service_image_2') }}" alt="" width="50" height="50">
-            <h4 class="title m-0">{{ settings('service_title_2') }}</h4>
-            <p class="content">{{ settings('service_description_2') }}</p>
-        </div>
-    </div>
-    <div class="info">
-        <div class="info__details">
-            <img src="{{ 'images/settings/' . settings('service_image_3') }}" alt="" width="50" height="50">
-            <h4 class="title m-0">{{ settings('service_title_3') }}</h4>
-            <p class="content">{{ settings('service_description_3') }}</p>
-        </div>
-    </div>
-    <div class="info">
-        <div class="info__details">
-            <img src="{{ 'images/settings/' . settings('service_image_4') }}" alt="" width="50" height="50">
-            <h4 class="title m-0">{{ settings('service_title_4') }}</h4>
-            <p class="content">{{ settings('service_description_4') }}</p>
-        </div>
+                </div>
+            </div>
+        @endforeach
     </div>
 
-    <div class="bottom--left bottom--content bg-blue text-white">
-        <h4 class="title">{{ settings('app_title') }}</h4>
-        <p>{{ settings('app_description') }}</p>
-        <div class="app-group">
-            <div class="app"><img
-                    src="https://d1aovdz1i2nnak.cloudfront.net/vezeeta-web-reactjs/55619/_next/static/images/google-play-logo.svg"
-                    alt="">Google Play</div>
-            <div class="app"><img
-                    src="https://d1aovdz1i2nnak.cloudfront.net/vezeeta-web-reactjs/55619/_next/static/images/apple-logo.svg"
-                    alt="">App Store</div>
-        </div>
-    </div>
-    <div class="bottom--right bg-blue text-white">
-        <img src="{{ 'images/settings/' . settings('app_image') }}" class="img-fluid banner-img">
-    </div>
+    <a href="#" class="see-more-btn">See More Services</a>
 </div>
+
+
+
+
+<div class="container mt-5 mb-5">
+    <input type="hidden" id="currentUserId" value="" />
+
+    <div class="page-header text-center mb-5">
+        <h2>DOCTORS</h2>
+        <p>
+            Connect with our team of highly qualified medical professionals for personalized consultations
+            and expert care.
+        </p>
+    </div>
+
+    <div class="row g-4">
+        @foreach ($doctors as $d)
+            <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12">
+                <div class="doctor-card h-100">
+                    <div class="doctor-image-container">
+                        <img src="{{ asset('assets/images/user/avatar-1.jpg') }}"
+                             alt="{{ $d->fullName }}" class="doctor-image" loading="lazy">
+                    </div>
+
+                    <div class="doctor-card-body">
+                        <h5 class="doctor-name">
+                            <a href="#">
+                                {{ $d->fullName }}
+                            </a>
+                        </h5>
+
+                        <div class="doctor-contact small">
+                            <div><i class="fas fa-envelope me-2"></i> {{ $d->email }}</div>
+                            <div><i class="fas fa-phone me-2"></i> 01002211345</div>
+                        </div>
+
+                        <span class="doctor-specialty">{{ $d->specialty }}</span>
+
+                        <span class="consultation-price">Appointment: $10</span>
+
+                        <p class="doctor-bio small">
+                            {{ $d->bio }}
+                        </p>
+
+                        <div class="rating">
+                            @for ($i = 1; $i <= 5; $i++)
+                                @if ($i <= 4)
+                                    <i class="fa-solid fa-star text-warning"></i>
+                                @else
+                                    <i class="fa-solid fa-star text-warning" style="opacity:0.3;"></i>
+                                @endif
+                            @endfor
+                        </div>
+
+                        <div class="action-buttons">
+                            <a href="#" class="btn-book">
+                                <i class="fa-solid fa-calendar-check me-1"></i> Book
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endforeach
+    </div>
+
+    <a href="#" class="see-more-btn">See More Doctors</a>
+</div>
+
+<meta name="csrf-token" content="{{ csrf_token() }}">
+
+
 
 @endsection
+
+
