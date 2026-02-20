@@ -107,10 +107,69 @@ public function index(Request $request)
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
-    {
-        $schedule = DoctorSchedule::findOrFail($id);
-        $schedule->delete();
-        return redirect()->route('admin.schedule.index')->with('success', 'Schedule deleted successfully');
+   /**
+ * Soft delete a schedule
+ */
+public function destroy(string $id)
+{
+    $schedule = DoctorSchedule::with(['doctor.user'])->findOrFail($id);
+    $doctorName = $schedule->doctor->user->name ?? 'Doctor';
+    $day = $schedule->day_of_week;
+    
+    $schedule->delete();
+    
+    return redirect()->route('admin.schedule.index')
+        ->with('success', "Schedule for Dr. {$doctorName} on {$day} has been moved to archives!");
+}
+
+/**
+ * Display trashed schedules
+ */
+public function trashed(Request $request)
+{
+    // ✅ onlyTrashed أول حاجة
+    $query = DoctorSchedule::onlyTrashed()->with([
+        'doctor' => fn($q) => $q->withTrashed(),
+        'doctor.user' => fn($q) => $q->withTrashed()
+    ]);
+
+    // Filter by doctor name
+    if ($request->filled('search')) {
+        $search = $request->search;
+        $query->whereHas('doctor.user', function($q) use ($search) {
+            $q->withTrashed()->where('name', 'LIKE', "%{$search}%");
+            //  ↑ لازم withTrashed هنا كمان
+        });
     }
+
+    // Filter by day
+    if ($request->filled('day')) {
+        $query->where('day_of_week', $request->day);
+    }
+
+    $schedules = $query->latest('deleted_at')->paginate(10);
+
+    return view('admin.schedules.trashed', compact('schedules'));
+}
+
+/**
+ * Restore a trashed schedule
+ */
+public function restore($id)
+{
+    $schedule = DoctorSchedule::onlyTrashed()->with([
+        'doctor' => fn($q) => $q->withTrashed(),
+        'doctor.user' => fn($q) => $q->withTrashed()
+    ])->findOrFail($id);
+    
+    $doctorName = $schedule->doctor?->user?->name ?? 'Doctor';
+    $day = $schedule->day_of_week;
+    
+    $schedule->restore();
+
+    return redirect()->route('admin.schedule.trashed')
+        ->with('success', "Schedule for Dr. {$doctorName} on {$day} has been restored successfully!");
+}
+
+
 }

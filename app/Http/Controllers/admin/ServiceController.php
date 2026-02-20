@@ -24,8 +24,16 @@ class ServiceController extends Controller
                     ->orWhere('description', 'LIKE', "%{$search}%");
             });
         }
-    
-        // Get paginated results while keeping the search query in the links
+        // filter by price range
+        if ($request->filled('price_range')) {
+            match ($request->price_range) {
+                'free'   => $query->whereNull('price')->orWhere('price', 0),
+                'low'    => $query->where('price', '>', 0)->where('price', '<', 500),
+                'medium' => $query->whereBetween('price', [500, 2000]),
+                'high'   => $query->where('price', '>', 2000),
+                default  => null,
+            };
+        }
         $services = $query->latest()->paginate(10);
     
         return view('admin.services.index', compact('services'));
@@ -122,13 +130,41 @@ class ServiceController extends Controller
     public function destroy(string $id)
     {
         $service = Service::findOrFail($id);
-
-        if ($service->image && \Storage::disk('public')->exists('services/' . $service->image)) {
-            \Storage::disk('public')->delete('services/' . $service->image);
-        }
-
         $service->delete();
 
         return redirect()->route('admin.service.index')->with('success', 'Service deleted successfully.');
     }
+    // trashed
+    public function trashed(Request $request)
+    {
+        // Start the query
+        $query = Service::onlyTrashed();
+            if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('name',        'like', "%{$search}%")
+                  ->orWhere('description', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->filled('price_range')) {
+            match ($request->price_range) {
+                'free'   => $query->whereNull('price')->orWhere('price', 0),
+                'low'    => $query->where('price', '>', 0)->where('price', '<', 500),
+                'medium' => $query->whereBetween('price', [500, 2000]),
+                'high'   => $query->where('price', '>', 2000),
+                default  => null,
+            };
+        }
+        $services = $query->paginate(10);
+    
+        return view('admin.services.trashed', compact('services'));
+    }
+    public function restore(string $id)
+    {
+        $service = Service::withTrashed()->findOrFail($id);
+        $service->restore();
+        return redirect()->route('admin.service.index')->with('success', 'Service restored successfully.');
+    }
+
 }

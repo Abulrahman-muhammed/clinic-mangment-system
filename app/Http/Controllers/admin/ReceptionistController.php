@@ -149,19 +149,68 @@ class ReceptionistController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+   public function destroy(string $id)
     {
-        $receptionist = Receptionist::findOrFail($id);
-        if($receptionist->image){
-            $imagePath = public_path('images/receptionists/' . $receptionist->image);
-            if (file_exists($imagePath)) {
-                unlink($imagePath);
-            }
-        }
-        if($receptionist->user){
-            $receptionist->user->delete();
-        }
+        $receptionist = Receptionist::with('user')->findOrFail($id);
+        $name = $receptionist->user->name ?? 'Receptionist';
+
+        // Soft delete the User so they can no longer log in
+        $receptionist->user?->delete();
+
+        // Soft delete the Receptionist record
         $receptionist->delete();
-        return redirect()->route('admin.receptionist.index')->with('success', 'Receptionist deleted successfully.');
+
+        return redirect()->route('admin.receptionist.index')
+            ->with('success', "{$name} has been moved to archives!");
+    }
+
+    /**
+     * Display archived/trashed receptionists
+     */
+    public function trashed(Request $request)
+    {
+        // Need withTrashed() on the user relationship because the user
+        // is also soft-deleted — a normal with('user') would return null
+        $query = Receptionist::onlyTrashed()->with(['user' => function ($q) {
+            $q->withTrashed();
+        }]);
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->whereHas('user', function ($q) use ($search) {
+                $q->withTrashed()
+                  ->where('name',  'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->filled('shift')) {
+            $query->where('shift', $request->shift);
+        }
+
+        $receptionists = $query->latest('deleted_at')->paginate(10);
+
+        return view('admin.receptionists.trashed', compact('receptionists'));
+    }
+
+    /**
+     * Restore receptionist AND their user account together
+     */
+    public function restore($id)
+    {
+        $receptionist = Receptionist::onlyTrashed()->with(['user' => function ($q) {
+            $q->withTrashed();
+        }])->findOrFail($id);
+
+        // Restore the User so they can log in again
+        $receptionist->user?->restore();
+
+        // Restore the Receptionist record
+        $receptionist->restore();
+
+        $name = $receptionist->user->name ?? 'Receptionist';
+
+        return redirect()->route('admin.receptionist.trashed')
+            ->with('success', "{$name} has been restored successfully!");
     }
 }

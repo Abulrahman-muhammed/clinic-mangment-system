@@ -108,11 +108,39 @@ $query = Major::query();
      */
     public function destroy(Major $major)
     {
-        $this->deleteImage($major->image, Major::IMAGE_PATH);
         $major->delete();
 
         return redirect()
         ->back()
         ->with('success','Major is deleted successfully');
     }
+
+    public function trashed(Request $request)
+    {
+        $query = Major::onlyTrashed()->withCount('doctors');
+
+        // Search filter
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                  ->orWhere('description', 'like', "%{$search}%");
+            });
+        }
+
+        $majors = $query->latest('deleted_at')->paginate(15);
+
+        return view('admin.majors.trashed', compact('majors'));
+    }
+
+    public function restore($id)
+    {
+        $major = Major::onlyTrashed()->findOrFail($id);
+        $major->restore();
+
+        return redirect()
+        ->route('admin.major.index')
+        ->with('success','Major restored successfully');
+    }
 }
+

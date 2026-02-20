@@ -29,8 +29,10 @@ class DatabaseSeeder extends Seeder
         // Assign admin role
         $this->call([
             PermissionSeeder::class,
-        //     DoctorSeeder::class,
-        //     SettingSeeder::class
+            MajorSeeder::class,
+            DoctorSeeder::class,
+            PatientSeeder::class,
+            SettingSeeder::class
         ]);
         $user->assignRole('admin');
 

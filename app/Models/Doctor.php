@@ -33,12 +33,11 @@ class Doctor extends Model
         'gender' =>'nullable|in:male,female',
         'consultation_fee' =>'nullable|numeric|min:0',
         'years_of_experience' =>'nullable|integer|min:0',
-        'status' =>'nullable|in:0,1',
         'user_id' => 'nullable|exists:users,id'
     ];
 
     public function major() {
-        return $this->belongsTo(Major::class);
+        return $this->belongsTo(Major::class)->withTrashed();
     }
 
     public function bookings() {
@@ -47,7 +46,11 @@ class Doctor extends Model
     public function schedules() {
         return $this->hasMany(DoctorSchedule::class);
     }
+    // invoices
+    public function invoices() {
+        return $this->hasMany(Invoice::class);
+    }
     public function user() {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class)->withTrashed();
     }
 }

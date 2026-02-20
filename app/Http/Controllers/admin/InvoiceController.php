@@ -105,12 +105,6 @@ class InvoiceController extends Controller
                 return redirect()->route('admin.invoice.index')
                     ->with('error', 'Cannot delete   unpaid invoice.');
             }
-
-            // حذف الخدمات المرتبطة بالفاتورة
-            if ($invoice->services->isNotEmpty()) {
-                $invoice->services()->delete();
-            }
-
             // حذف الفاتورة نفسها
             $invoice->delete();
 
@@ -136,5 +130,41 @@ class InvoiceController extends Controller
          return redirect()->back()->with('success', 'Invoice status updated successfully.');
      }
      
+    //  trashed 
+    public function trashed(Request $request)
+    {
+        $query = Invoice::onlyTrashed();
+    
+        // 1. Filter by Patient Name (Relationship search)
+        if ($request->filled('search')) {
+            $query->whereHas('patient', function ($q) use ($request) {
+                $q->where('name', 'like', '%' . $request->search . '%');
+            });
+        }
+    
+        // 2. Filter by Status (Exact match: paid/unpaid)
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+    
+        // 3. Filter by specific Invoice Date
+        if ($request->filled('date')) {
+            $query->whereDate('invoice_date', $request->date);
+        }
+    
+        // 4. Paginate and append query strings to maintain filters on page links
+        $invoices = $query->latest('invoice_date')->paginate(10);
+    
+        return view('admin.invoices.trashed', compact('invoices'));
+    }
 
+
+     public function restore(string $id)
+     {
+         $invoice = Invoice::withTrashed()->findOrFail($id);
+         $invoice->restore();
+     
+         return redirect()->route('admin.invoice.index')
+             ->with('success', 'Invoice restored successfully.');
+     }
 }

@@ -76,4 +76,40 @@ public function updateStatus(Request $request, $id) {
             return redirect()->route('admin.booking.index')->with('success', 'Booking status updated successfully');
         }
     }
+    public function trashed(Request $request) {
+        // Start query with doctor relationship to avoid N+1
+        $query = Booking::onlyTrashed();
+
+        // Filter by Search (Name, Email, or Phone)
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'LIKE', "%{$search}%")
+                  ->orWhere('phone', 'LIKE', "%{$search}%")
+                  ->orWhere('email', 'LIKE', "%{$search}%");
+            });
+        }
+
+        // Filter by Specific Doctor
+        if ($request->filled('doctor_id')) {
+            $query->where('doctor_id', $request->doctor_id);
+        }
+
+        // Filter by Date
+        if ($request->filled('date')) {
+            $query->whereDate('date', $request->date);
+        }
+
+        $bookings = $query->latest('date')->paginate(10)->withQueryString();
+        
+        // Get list of doctors for the filter dropdown
+        $doctors = \App\Models\Doctor::all(); 
+
+        return view('admin.bookings.trashed', compact('bookings', 'doctors'));
+    }
+    public function restore($id) {
+        $booking = Booking::withTrashed()->findOrFail($id);
+        $booking->restore();
+        return redirect()->route('admin.booking.index')->with('success', 'Booking restored successfully');
+    }
 }

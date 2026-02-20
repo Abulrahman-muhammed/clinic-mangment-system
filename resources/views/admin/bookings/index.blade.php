@@ -9,23 +9,55 @@
     <div class="row justify-content-center">
         <div class="col-12">
 
+            <!-- Page Header -->
             <div class="row align-items-center mb-4">
                 <div class="col">
-                    <h2 class="h3 mb-0 page-title">Appointments</h2>
-                    <p class="text-muted">Review and manage patient bookings and schedules.</p>
+                    <h2 class="h3 mb-0 page-title">Appointments Management</h2>
+                    <p class="text-muted">Review and manage patient bookings and schedules</p>
+                </div>
+                <div class="col-auto">
+                    @can('delete_appointments')
+                    <a href="{{ route('admin.booking.trashed') }}" class="btn btn-outline-secondary mr-2">
+                        <i class="fe fe-archive mr-1"></i> Archived Appointments
+                    </a>
+                    @endcan
+
                 </div>
             </div>
 
+            <!-- Success Message -->
+            @if(session('success'))
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="fe fe-check-circle mr-2"></i>
+                    {{ session('success') }}
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            @endif
+
+            <!-- Error Message -->
+            @if(session('error'))
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="fe fe-alert-circle mr-2"></i>
+                    {{ session('error') }}
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            @endif
+
+            <!-- Filters Card -->
             <div class="card shadow mb-4">
                 <div class="card-header">
                     <strong class="card-title">Filter Appointments</strong>
                 </div>
                 <div class="card-body">
-                    <form method="GET" action="{{ route('admin.booking.index') }}">
+                    <form method="GET" action="{{ route('admin.booking.index') }}" id="filter-form">
                         <div class="form-row">
-                            <div class="form-group col-md-4">
+                            <div class="form-group col-md-3">
                                 <label for="search">Patient Info</label>
-                                <input type="text" name="search" id="search" class="form-control" 
+                                <input type="text" name="search" id="search" class="form-control"
                                        value="{{ request('search') }}" placeholder="Name, Email or Phone">
                             </div>
 
@@ -43,59 +75,77 @@
                             </div>
                             @endif
 
-                            <div class="form-group col-md-3">
+
+                            <div class="form-group col-md-2">
                                 <label for="date">Appointment Date</label>
                                 <input type="date" name="date" id="date" class="form-control" value="{{ request('date') }}">
                             </div>
 
                             <div class="form-group col-md-2">
                                 <label>&nbsp;</label>
-                                <div class="btn-group w-100">
-                                    <button type="submit" class="btn btn-primary">Filter</button>
-                                    <a href="{{ route('admin.booking.index') }}" class="btn btn-secondary">Reset</a>
-                                </div>
+                                <button type="submit" class="btn btn-primary btn-block">
+                                    <i class="fe fe-filter"></i> Filter
+                                </button>
+                            </div>
+                            <div class="form-group col-md-2">
+                                <label>&nbsp;</label>
+                                <a href="{{ route('admin.booking.index') }}" class="btn btn-secondary btn-block">
+                                    <i class="fe fe-rotate-ccw"></i> Clear Filters
+                                </a>
                             </div>
                         </div>
                     </form>
                 </div>
             </div>
 
+            <!-- Appointments Table Card -->
             <div class="card shadow">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <strong class="card-title">Appointments List</strong>
+                        <span class="badge badge-primary badge-pill">{{ $bookings->total() }} Total</span>
+                    </div>
+                </div>
                 <div class="card-body p-0">
-                    
-                    @if(session('success'))
-                        <div class="alert alert-success m-3">
-                            {{ session('success') }}
-                        </div>
-                    @endif
-
                     <div class="table-responsive">
                         <table class="table table-hover table-borderless table-striped mb-0">
                             <thead class="thead-light">
                                 <tr>
-                                    <th class="pl-4">#</th>
+                                    <th class="text-center" style="width: 50px;">#</th>
                                     <th>Patient</th>
                                     <th>Contact Info</th>
                                     <th>Date & Time</th>
                                     @if(auth()->user()->hasRole('admin') || auth()->user()->hasRole('receptionist'))
-                                    <th>Assigned Doctor</th>
+                                    <th>Doctor</th>
                                     @endif
                                     <th>Status</th>
-                                    <th class="text-right pr-4">Actions</th>
+                                    <th class="text-center" style="width: 120px;">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @forelse ($bookings as $booking)
-                                    <tr class="align-middle">
-                                        <td class="pl-4 text-muted">{{ $bookings->firstItem() + $loop->index }}</td>
+                                    <tr>
+                                        <td class="text-center text-muted small">{{ $bookings->firstItem() + $loop->index }}</td>
+
                                         <td>
-                                            <div class="font-weight-bold text-dark">{{ $booking->name }}</div>
-                                            <small class="text-muted">ID: #{{ $booking->id }}</small>
+                                            <div class="d-flex align-items-center">
+                                                <div class="avatar avatar-sm mr-3">
+                                                    <div class="avatar-img rounded-circle bg-soft-primary d-flex align-items-center justify-content-center">
+                                                        <span class="h6 mb-0 text-primary">{{ strtoupper(substr($booking->name, 0, 1)) }}</span>
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    <strong>{{ $booking->name }}</strong>
+                                                    <br><small class="text-muted">#{{ $booking->id }}</small>
+                                                </div>
+                                            </div>
                                         </td>
+
                                         <td>
-                                            <div class="small"><i class="fe fe-mail mr-1"></i> {{ $booking->email }}</div>
-                                            <div class="small"><i class="fe fe-phone mr-1"></i> {{ $booking->phone }}</div>
+                                            <div class="small"><i class="fe fe-mail mr-1 text-muted"></i>{{ $booking->email }}</div>
+                                            <div class="small"><i class="fe fe-phone mr-1 text-muted"></i>{{ $booking->phone }}</div>
                                         </td>
+
                                         <td>
                                             <span class="badge badge-soft-primary px-2 py-1">
                                                 <i class="fe fe-calendar mr-1"></i>
@@ -106,51 +156,87 @@
                                                 {{ \Carbon\Carbon::parse($booking->date)->format('h:i A') }}
                                             </div>
                                         </td>
+
                                         @if(auth()->user()->hasRole('admin') || auth()->user()->hasRole('receptionist'))
                                         <td>
                                             <div class="d-flex align-items-center">
-                                                <div class="avatar avatar-xs mr-2">
-                                                    <span class="avatar-title rounded-circle bg-light text-primary small">
-                                                        {{ strtoupper(substr($booking->doctor->user->name, 0, 1)) }}
-                                                    </span>
+                                                <div class="avatar avatar-sm mr-2">
+                                                    @if($booking->doctor && $booking->doctor->image)
+                                                        <img src="{{ asset('images/doctors/' . $booking->doctor->image) }}"
+                                                             alt="{{ $booking->doctor->user->name }}"
+                                                             class="avatar-img rounded-circle"
+                                                             >
+                                                    @else
+                                                        <div class="avatar-img rounded-circle bg-soft-info d-flex align-items-center justify-content-center">
+                                                            <span class="small text-info font-weight-bold">
+                                                                {{ strtoupper(substr($booking->doctor->user->name ?? 'D', 0, 1)) }}
+                                                            </span>
+                                                        </div>
+                                                    @endif
                                                 </div>
-                                                <span>{{ $booking->doctor->user->name }}</span>
+                                                <div>
+                                                    <span class="small font-weight-bold">{{ $booking->doctor->user->name ?? 'N/A' }}</span>
+                                                    @if($booking->doctor && $booking->doctor->major)
+                                                        <br><span class="badge badge-soft-primary" style="font-size: 0.65rem;">{{ $booking->doctor->major->title }}</span>
+                                                    @endif
+                                                </div>
                                             </div>
                                         </td>
                                         @endif
-                                        <td class="align-middle">
-                                            <span class="badge booking-status-{{ $booking->id }} {{ 
-                                                $booking->status == 'pending' ? 'badge-warning' : 
-                                                ($booking->status == 'confirmed' ? 'badge-primary' : 
-                                                ($booking->status == 'completed' ? 'badge-success' : 'badge-danger')) 
-                                            }}">
+
+                                        <td>
+                                            @php
+                                                $statusConfig = [
+                                                    'pending'   => ['class' => 'badge-warning',  'icon' => 'fe-clock'],
+                                                    'confirmed' => ['class' => 'badge-primary',  'icon' => 'fe-check'],
+                                                    'completed' => ['class' => 'badge-success',  'icon' => 'fe-check-circle'],
+                                                    'cancelled' => ['class' => 'badge-danger',   'icon' => 'fe-x-circle'],
+                                                ];
+                                                $config = $statusConfig[$booking->status] ?? ['class' => 'badge-secondary', 'icon' => 'fe-help-circle'];
+                                            @endphp
+                                            <span class="badge {{ $config['class'] }} px-2 py-1">
+                                                <i class="fe {{ $config['icon'] }} mr-1"></i>
                                                 {{ ucfirst($booking->status) }}
                                             </span>
                                         </td>
-                                        <td class="text-right pr-4">
-                                            @can('edit_appointments')
-                                            <a href="{{ route('admin.booking.edit', $booking->id) }}" class="btn btn-sm btn-outline-primary">
-                                                <i class="fe fe-edit"></i>
-                                            </a>
-                                            @endcan
-                                            
-                                            @can('delete_appointments')
-                                            <form action="{{ route('admin.booking.destroy', $booking) }}" method="POST" class="d-inline">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="btn btn-sm btn-outline-danger" 
-                                                        onclick="return confirm('Remove this appointment?')">
-                                                    <i class="fe fe-trash-2"></i>
-                                                </button>
-                                            </form>
-                                            @endcan
+
+                                        <td class="text-center">
+                                            <div class="btn-group" role="group">
+
+
+                                                @can('edit_appointments')
+                                                <a href="{{ route('admin.booking.edit', $booking->id) }}"
+                                                   class="btn btn-sm btn-outline-primary"
+                                                   data-toggle="tooltip" title="Edit">
+                                                    <i class="fe fe-edit"></i>
+                                                </a>
+                                                @endcan
+
+                                                @can('delete_appointments')
+                                                <form action="{{ route('admin.booking.destroy', $booking->id) }}"
+                                                      method="POST"
+                                                      id="delete-form-{{ $booking->id }}"
+                                                      class="d-inline">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="button"
+                                                            onclick="confirmDelete({{ $booking->id }}, '{{ addslashes($booking->name) }}', '{{ \Carbon\Carbon::parse($booking->date)->format('d M, Y') }}')"
+                                                            class="btn btn-sm btn-outline-danger"
+                                                            data-toggle="tooltip" title="Archive">
+                                                        <i class="fe fe-trash-2"></i>
+                                                    </button>
+                                                </form>
+                                                @endcan
+                                            </div>
                                         </td>
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="7" class="text-center py-5 text-muted">
-                                            <i class="fe fe-calendar fe-32 mb-3"></i>
-                                            <p>No appointments found for the selected filters.</p>
+                                        <td colspan="{{ auth()->user()->hasRole('admin') || auth()->user()->hasRole('receptionist') ? '7' : '6' }}" class="text-center py-5">
+                                            <div class="text-muted">
+                                                <i class="fe fe-calendar fe-24 mb-3"></i>
+                                                <p class="mb-0">No appointments found for the selected filters.</p>
+                                            </div>
                                         </td>
                                     </tr>
                                 @endforelse
@@ -160,10 +246,12 @@
                 </div>
 
                 @if($bookings->hasPages())
-                <div class="card-footer bg-white border-top">
+                <div class="card-footer bg-white">
                     <div class="d-flex justify-content-between align-items-center">
-                        <small class="text-muted">Showing {{ $bookings->firstItem() }} to {{ $bookings->lastItem() }} of {{ $bookings->total() }} records</small>
-                        {{ $bookings->links('pagination::bootstrap-5') }}
+                        <small class="text-muted">
+                            Showing {{ $bookings->firstItem() }} to {{ $bookings->lastItem() }} of {{ $bookings->total() }} records
+                        </small>
+                        {{ $bookings->appends(request()->except('page'))->links('pagination::bootstrap-4') }}
                     </div>
                 </div>
                 @endif
@@ -172,15 +260,64 @@
         </div>
     </div>
 </div>
+@else
+    <div class="alert alert-warning text-center">
+        <i class="fe fe-alert-triangle mr-2"></i>
+        You don't have permission to view appointments.
+    </div>
 @endcan
 
 @endsection
 
 @push('styles')
 <style>
-    .badge-soft-primary { background-color: rgba(60, 114, 252, 0.1); color: #3c72fc; }
-    .avatar-xs { width: 24px; height: 24px; line-height: 24px; font-size: 10px; }
-    .badge { padding: 0.5em 0.75em; text-transform: capitalize; }
+    .avatar-sm { width: 36px; height: 36px; }
+    .avatar-img { width: 100%; height: 100%; object-fit: cover; }
+    .bg-soft-primary { background-color: rgba(27, 104, 255, 0.1); }
+    .bg-soft-info    { background-color: rgba(23, 162, 184, 0.1); }
+    .badge-soft-primary { color: #1b68ff; background-color: rgba(27, 104, 255, 0.1); }
+    .table-hover tbody tr:hover { background-color: rgba(0, 0, 0, 0.02); }
+    thead.thead-light th {
+        color: #6c757d;
+        font-weight: 600;
+        border-bottom: 2px solid #dee2e6;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 0.5px;
+    }
 </style>
 @endpush
 
+@push('scripts')
+<script>
+    $(function () {
+        $('[data-toggle="tooltip"]').tooltip();
+
+        if ($.fn.select2) {
+            $('.select2').select2({ theme: 'bootstrap4', allowClear: true });
+        }
+    });
+
+    function confirmDelete(id, patientName, date) {
+        Swal.fire({
+            title: 'Archive Appointment?',
+            html:  "Appointment will be moved to archives!<br><br>" +
+                   "<strong>Patient:</strong> " + patientName + "<br>" +
+                   "<strong>Date:</strong> " + date,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#6e7881',
+            confirmButtonText: 'Yes, Archive it!',
+            cancelButtonText: 'Cancel',
+            reverseButtons: true
+        }).then((result) => {
+            if (result.isConfirmed) {
+                document.getElementById('delete-form-' + id).submit();
+            }
+        });
+    }
+
+    setTimeout(function () { $('.alert').fadeOut('slow'); }, 5000);
+</script>
+@endpush

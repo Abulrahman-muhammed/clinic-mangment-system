@@ -30,8 +30,8 @@
     <script src='{{ asset('admin-assets') }}/js/dropzone.min.js'></script>
     <script src='{{ asset('admin-assets') }}/js/uppy.min.js'></script>
     <script src='{{ asset('admin-assets') }}/js/quill.min.js'></script>
-
-    @yield('scripts')
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    @stack('scripts')
 
     <script>
         $('.select2').select2({

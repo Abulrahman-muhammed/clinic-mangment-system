@@ -24,7 +24,7 @@ class MajorController extends Controller
         ->orderBy('id', 'desc')
         ->paginate(12);
 
-        return view('front.majors.show', compact('doctors', 'major'));
+        return view('front.majors.doctors', compact('doctors', 'major'));
     }
 
 }

@@ -1,0 +1,163 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Segoe UI', Tahoma, sans-serif;
+}
+
+.auth-page {
+  background-image: url(/frontend/assets/images/registerBack.png); /* الخلفية من الصور */
+  background-size: cover;
+  background-position: center;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+.back-home {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  text-decoration: none;
+  color: #00a8e8; /* لون متناسق مع اللوجو */
+  font-weight: 600;
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  z-index: 10; /* عشان يظهر فوق الـ Overlay */
+  transition: 0.3s;
+  background: rgba(255, 255, 255, 0.8); /* خلفية خفيفة عشان يبان فوق أي صورة */
+  padding: 8px 15px;
+  border-radius: 50px;
+}
+
+.back-home:hover {
+  color: #2dd4bf; /* اللون التيال بتاعك */
+  transform: translateX(-5px); /* حركة انيميشن بسيطة لورا */
+  background: #fff;
+}
+
+.auth-card {
+  background: #ffffff;
+  width: 100%;
+  max-width: 480px;
+  padding: 45px;
+  border-radius: 25px;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.05);
+  text-align: center;
+}
+
+h2 {
+  color: #00a8e8;
+  font-size: 28px;
+  margin-bottom: 8px;
+}
+.subtitle {
+  color: #64748b;
+  font-size: 14px;
+  margin-bottom: 25px;
+}
+
+.create-link {
+  text-decoration: none;
+  color: #00a8e8;
+  font-weight: 500;
+  display: inline-block;
+  margin-bottom: 25px;
+}
+
+.input-group {
+  display: flex;
+  align-items: center;
+  border-bottom: 1.5px solid #e2e8f0;
+  padding: 12px 5px;
+  margin-bottom: 20px;
+}
+
+.input-group i:not(.toggle-pass) {
+  color: #94a3b8;
+  width: 30px;
+  font-size: 18px;
+}
+
+.input-group input,
+.input-group select {
+  border: none;
+  outline: none;
+  width: 100%;
+  font-size: 15px;
+  color: #1e293b;
+  background: transparent;
+}
+
+.toggle-pass {
+  cursor: pointer;
+  color: #94a3b8;
+  transition: 0.3s;
+}
+.toggle-pass:hover {
+  color: #00a8e8;
+}
+
+.extra-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+  color: #64748b;
+  margin-bottom: 25px;
+}
+
+.forgot-link {
+  text-decoration: none;
+  color: #00a8e8;
+}
+
+.auth-btn {
+  width: 100%;
+  padding: 15px;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(90deg, #3b82f6, #2dd4bf);
+  color: white;
+  font-weight: bold;
+  font-size: 16px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.auth-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(59, 130, 246, 0.3);
+}
+
+.switch-text {
+  margin-top: 25px;
+  font-size: 14px;
+  color: #64748b;
+}
+.switch-text a {
+  color: #00a8e8;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+.terms {
+  font-size: 12px;
+  color: #94a3b8;
+  margin-top: 20px;
+  line-height: 1.5;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .auth-card {
+    padding: 30px 20px;
+  }
+  h2 {
+    font-size: 24px;
+  }
+}

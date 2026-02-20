@@ -80,7 +80,7 @@
 
           <div class="form-group">
             <label for="inputEmail" class="sr-only">Email address</label>
-            <input type="email" id="inputEmail" name="email" class="form-control form-control-lg" placeholder="Email address" required autofocus value="{{ old('email') }}">
+            <input type="email" id="inputEmail" name="email" class="form-control form-control-lg" placeholder="Email address" required value="{{ old('email') }}">
           </div>
 
           <div class="form-group">

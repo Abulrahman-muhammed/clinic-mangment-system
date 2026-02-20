@@ -7,14 +7,13 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreBookingRequest;
 use App\Models\Booking;
-
+use App\Models\Major;
 class DoctorController extends Controller
 {
     public function index() {
-        $doctors = Doctor::with('major')
-        ->orderBy('id', 'desc')
-        ->paginate(12);
-        return view('front.doctors.index', compact('doctors'));
+    $doctors    = Doctor::with(['user', 'major'])->paginate(12);
+    $specialties = Major::all();
+        return view('front.doctors.doctor', compact('doctors', 'specialties'));
     }
 
     public function bookingPage(Doctor $doctor) {
@@ -36,4 +35,9 @@ class DoctorController extends Controller
         return redirect()->back()->with('success', 'Your appointment has been booked successfully');
         
     }
+
+public function show(Doctor $doctor) {
+    $doctor->load(['user', 'major', 'schedules']);
+    return view('front.doctors.show', compact('doctor'));
+}
 }

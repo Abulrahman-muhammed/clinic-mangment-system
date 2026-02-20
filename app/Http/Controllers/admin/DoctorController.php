@@ -109,7 +109,6 @@ class DoctorController extends Controller
             'gender' => $request->gender,
             'consultation_fee' => $request->consultation_fee,
             'years_of_experience' => $request->years_of_experience,
-            'status' => $request->status,       
         ]);
 
         return redirect()->route('admin.doctor.index')->with('success', 'Doctor added successfully');
@@ -179,8 +178,7 @@ class DoctorController extends Controller
      */
     public function info($id)
     {
-        $doctor = Doctor::with('major')->find($id);
-
+        $doctor = Doctor::with('major')->findOrFail($id);
 
         return response()->json([
             'department_name' => $doctor->major->title ?? 'N/A',
@@ -195,6 +193,7 @@ class DoctorController extends Controller
         $doctor->restore();
         if($doctor->user()->withTrashed()->first()) {
             $doctor->user()->withTrashed()->first()->restore();
+            
         }
         return redirect()->route('admin.doctor.index')->with('success', 'Doctor restored successfully');
     }

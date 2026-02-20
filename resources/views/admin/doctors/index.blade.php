@@ -17,10 +17,16 @@
                 </div>
                 @can('delete_doctors')
                 <div class="col-auto">
-                    <button class="btn btn-outline-secondary mr-2">
+                    <!-- add new doctor -->
+                    <div class="btn btn-outline-primary">
+                        <i class="fe fe-plus"></i> 
+                        <a href="{{ route('admin.doctor.create') }}" class="text-decoration-none text-reset "> Add New Doctor</a>
+                    </div>
+                    <!-- archived doctors -->
+                    <div class="btn btn-outline-secondary">
                         <i class="fe fe-archive"></i> 
-                        <a href="{{ route('admin.doctor.trashed') }}" class="text-decoration-none text-reset"> Archived Doctors</a>
-                    </button>
+                        <a href="{{ route('admin.doctor.trashed') }}" class="text-decoration-none text-reset "> Archived Doctors</a>
+                    </div>
                 </div>
                 @endcan
             </div>
@@ -115,11 +121,11 @@
                                         <td>
                                             @if($doctor->image)
                                                 <div class="avatar avatar-md">
-                                                    <img src="{{ asset('images/doctors/' . $doctor->image) }}" alt="{{ $doctor->user->name }}" class="avatar-img rounded-circle">
+                                                    <img src="{{ asset('images/doctors/' . $doctor->image)  }}" alt="{{ $doctor->user->name }}" class="avatar-img rounded-circle">
                                                 </div>
                                             @else
                                                 <div class="avatar avatar-md">
-                                                    <img src="{{ asset('admin-assets/img/default-doctor.png') }}" alt="Default" class="avatar-img rounded-circle">
+                                                    <span class="avatar-title rounded-circle bg-light text-primary">{{ strtoupper(substr($doctor->user->name, 0, 1)) }}</span>
                                                 </div>
                                             @endif
                                         </td>
@@ -174,21 +180,22 @@
                                                 </a>
                                                 @endcan
 
-                                                @can('delete_doctors')
-                                                <form action="{{ route('admin.doctor.destroy', $doctor) }}" 
-                                                      method="POST" 
-                                                      class="d-inline"
-                                                      onsubmit="return confirm('Are you sure you want to delete Dr. {{ $doctor->user->name }}?')">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" 
-                                                            class="btn btn-sm btn-outline-danger" 
-                                                            data-toggle="tooltip" 
-                                                            title="Delete">
-                                                        <i class="fe fe-trash-2"></i>
-                                                    </button>
-                                                </form>
-                                                @endcan
+@can('delete_doctors')
+<form action="{{ route('admin.doctor.destroy', $doctor) }}" 
+      method="POST" 
+      id="delete-form-{{ $doctor->id }}"
+      class="d-inline">
+    @csrf
+    @method('DELETE')
+    <button type="button" 
+            onclick="confirmDelete({{ $doctor->id }}, '{{ $doctor->user->name }}')"
+            class="btn btn-sm btn-outline-danger" 
+            data-toggle="tooltip" 
+            title="Delete">
+        <i class="fe fe-trash-2"></i>
+    </button>
+</form>
+@endcan
                                             </div>
                                         </td>
                                     </tr>
@@ -263,5 +270,25 @@
     $(function () {
         $('[data-toggle="tooltip"]').tooltip()
     })
+
+    // SweetAlert Delete Confirmation
+    function confirmDelete(id, name) {
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "Dr. " + name + " will be moved to the archives!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#6e7881',
+            confirmButtonText: 'Yes, Archive it!',
+            cancelButtonText: 'Cancel',
+            reverseButtons: true
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Submit the specific form
+                document.getElementById('delete-form-' + id).submit();
+            }
+        })
+    }
 </script>
 @endpush

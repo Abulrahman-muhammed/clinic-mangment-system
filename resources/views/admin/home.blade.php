@@ -19,7 +19,7 @@
             <div class="row align-items-center mb-4">
                 <div class="col">
                     <h2 class="h5 page-title">Admin Dashboard</h2>
-                    <p class="text-muted">Welcome back, {{ auth()->user()->name }}</p>
+                    <p class="text-muted">Welcome back, {{  ucfirst(auth()->user()->name) }}</p>
                 </div>
                 <div class="col-auto">
                     <button class="btn btn-primary btn-sm" onclick="window.location.href='{{ route('admin.booking.index') }}'">
@@ -319,7 +319,7 @@
             <div class="row align-items-center mb-4">
                 <div class="col">
                     <h2 class="h5 page-title">Doctor Dashboard</h2>
-                    <p class="text-muted">Welcome back, Dr. {{ auth()->user()->name }}</p>
+                    <p class="text-muted">Welcome back, Dr. {{ ucfirst(auth()->user()->name) }}</p>
                 </div>
             </div>
 
@@ -538,7 +538,7 @@
             <div class="row align-items-center mb-4">
                 <div class="col">
                     <h2 class="h5 page-title">Receptionist Dashboard</h2>
-                    <p class="text-muted">Welcome back, {{ auth()->user()->name }}</p>
+                    <p class="text-muted">Welcome back, {{ ucfirst(auth()->user()->name) }}</p>
                 </div>
 
             </div>

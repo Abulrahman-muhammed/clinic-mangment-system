@@ -157,21 +157,22 @@
 
                                         <td class="text-center">
                                             <div class="btn-group" role="group">
-                                                @can('edit_doctors')
-                                                <form action="{{ route('admin.doctor.restore', $doctor->id) }}" 
-                                                        method="POST" 
-                                                        class="d-inline">
-                                                    @csrf
-                                                    @method('patch')
-                                                    <button type="submit" 
-                                                            class="btn btn-sm btn-outline-success" 
-                                                            data-toggle="tooltip" 
-                                                            title="Restore"
-                                                            onclick="return confirm('Are you sure you want to restore Dr. {{ $doctor->user->name }}?')">
-                                                        <i class="fe fe-refresh-cw"></i>
-                                                    </button>
-                                                </form>
-                                                @endcan
+@can('edit_doctors')
+<form action="{{ route('admin.doctor.restore', $doctor->id) }}" 
+      method="POST" 
+      id="restore-form-{{ $doctor->id }}"
+      class="d-inline">
+    @csrf
+    @method('patch')
+    <button type="button" 
+            class="btn btn-sm btn-outline-success" 
+            data-toggle="tooltip" 
+            title="Restore"
+            onclick="confirmRestore({{ $doctor->id }}, '{{ $doctor->user->name }}')">
+        <i class="fe fe-refresh-cw"></i>
+    </button>
+</form>
+@endcan
                                             </div>
                                         </td>
                                     </tr>
@@ -254,5 +255,24 @@
     $(function () {
         $('[data-toggle="tooltip"]').tooltip()
     })
+</script>
+<script>
+function confirmRestore(doctorId, doctorName) {
+    Swal.fire({
+        title: 'Restore Doctor',
+        html: `Are you sure you want to restore <strong>Dr. ${doctorName}</strong>?`,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Yes, Restore',
+        cancelButtonText: 'Cancel',
+        confirmButtonColor: '#28a745',
+        cancelButtonColor: '#dc3545',
+        reverseButtons: true
+    }).then((result) => {
+        if (result.isConfirmed) {
+            document.getElementById(`restore-form-${doctorId}`).submit();
+        }
+    });
+}
 </script>
 @endpush

@@ -46,6 +46,7 @@
 
                             <div class="col-md-6 mb-3">
                                 <label for="role" class="form-label">Role</label>
+                                @if (!$user->hasRole('admin'))
                                 <select name="role" class="form-control">
                                     <option value="">-- Select Role --</option>
                                     @foreach ($roles as $id => $roleName)
@@ -55,6 +56,9 @@
                                         </option>
                                     @endforeach
                                 </select>
+                                @else
+                                <input type="text" name="role" class="form-control" value="{{ $user->role }}" readonly>
+                                @endif
                             </div>
                         </div>
 

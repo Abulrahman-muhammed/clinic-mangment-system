@@ -21,23 +21,30 @@ class UserController extends Controller
     
 
 
-public function index(Request $request)
-{
-    $query = User::where('role', '=', 'admin');
+    public function index(Request $request)
+    {
+        $query = User::with('roles');
 
-    if ($request->filled('search')) {
-        $search = $request->search;
-        $query->where(function($q) use ($search) {
-            $q->where('name', 'LIKE', "%{$search}%")
-              ->orWhere('email', 'LIKE', "%{$search}%")
-              ->orWhere('phone', 'LIKE', "%{$search}%");
-        });
+        // Search by name, email, or phone
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('name',  'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%")
+                  ->orWhere('phone', 'like', "%{$search}%");
+            });
+        }
+
+        // Filter by role
+        if ($request->filled('role')) {
+            $query->role($request->role); // Spatie helper
+        }
+
+        $users = $query->latest()->paginate(15);
+        $roles = Role::all(); // For the filter dropdown
+
+        return view('admin.users.index', compact('users', 'roles'));
     }
-
-    $users = $query->orderBy('id', 'desc')->paginate(10)->withQueryString();
-
-    return view('admin.users.index', compact('users'));
-}
 
     /**
      * Show the form for creating a new resource.
@@ -148,13 +155,29 @@ public function index(Request $request)
             ->with('success', '✅ User updated successfully.');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(User $user)
-    {
-        // Delete related doctor/receptionist if exist
+
+/**
+ * Soft delete a user
+ */
+
+public function destroy(User $user)
+{
+    if ($user->id === auth()->id()) {
+        return redirect()->route('admin.user.index')
+            ->with('error', 'You cannot delete your own account!');
+    }
+
+    $name = $user->name;
+
+    DB::transaction(function () use ($user) {
+        
         if ($user->doctor) {
+            // ✅ soft delete schedules/invoices/bookings BEFORE deleting doctor
+            $user->doctor->schedules()->delete();
+            $user->doctor->invoices()->delete();
+            $user->doctor->bookings()->delete();
+            
+            // Now soft delete the doctor
             $user->doctor->delete();
         }
 
@@ -163,8 +186,138 @@ public function index(Request $request)
         }
 
         $user->delete();
+    });
 
-        return redirect()->route('admin.user.index')
-            ->with('success', ' User deleted successfully.');
+    return redirect()->route('admin.user.index')
+        ->with('success', "{$name} has been moved to archives!");
+}
+/**
+ * Display trashed users
+ */
+public function trashed(Request $request)
+{
+    $query = User::onlyTrashed()->with('roles'); // FIX: onlyTrashed بدل with trashed
+
+    if ($request->filled('search')) {
+        $search = $request->search;
+        $query->where(function ($q) use ($search) {
+            $q->where('name',  'like', "%{$search}%")
+              ->orWhere('email', 'like', "%{$search}%")
+              ->orWhere('phone', 'like', "%{$search}%");
+        });
     }
+
+    if ($request->filled('role')) {
+        $query->whereHas('roles', function ($q) use ($request) {
+            $q->where('name', $request->role);
+        });
+    }
+
+    $users = $query->latest('deleted_at')->paginate(10);
+    $roles = Role::all();
+
+    return view('admin.users.trashed', compact('users', 'roles'));
+}
+
+
+/**
+ * Restore a soft-deleted user
+ */
+public function restore($id)
+{
+    $user = User::onlyTrashed()->findOrFail($id);
+
+    DB::transaction(function () use ($user) {
+        $user->restore();
+
+        if ($user->doctor()->withTrashed()->exists()) {
+            $doctor = $user->doctor()->withTrashed()->first();
+            
+            // Restore doctor first
+            $doctor->restore();
+            
+            // Then restore related records using whereHas or direct query
+            \App\Models\DoctorSchedule::onlyTrashed()
+                ->where('doctor_id', $doctor->id)
+                ->restore();
+            
+            \App\Models\Invoice::onlyTrashed()
+                ->where('doctor_id', $doctor->id)
+                ->restore();
+            
+            \App\Models\Booking::onlyTrashed()
+                ->where('doctor_id', $doctor->id)
+                ->restore();
+        }
+
+        if ($user->receptionist()->withTrashed()->exists()) {
+            $user->receptionist()->withTrashed()->first()->restore();
+        }
+    });
+
+    return redirect()->route('admin.user.trashed')
+        ->with('success', "{$user->name} has been restored successfully!");
+}
+
+/**
+ * Permanently delete a user
+ */
+public function forceDelete($id)
+{
+    $user = User::onlyTrashed()->with('roles')->findOrFail($id);
+    $name = $user->name;
+    $role = $user->roles->pluck('name')->first();
+
+    // ✅ Check if doctor has related data
+    if ($role === 'doctor' && $user->doctor()->withTrashed()->exists()) {
+        $doctor = $user->doctor()->withTrashed()->first();
+        
+        $relatedData = [];
+        
+        $bookingsCount  = \App\Models\Booking::withTrashed()->where('doctor_id', $doctor->id)->count();
+        $invoicesCount  = \App\Models\Invoice::withTrashed()->where('doctor_id', $doctor->id)->count();
+        $schedulesCount = \App\Models\DoctorSchedule::withTrashed()->where('doctor_id', $doctor->id)->count();
+        
+        if ($bookingsCount > 0)  $relatedData[] = "{$bookingsCount} appointment(s)";
+        if ($invoicesCount > 0)  $relatedData[] = "{$invoicesCount} invoice(s)";
+        if ($schedulesCount > 0) $relatedData[] = "{$schedulesCount} schedule(s)";
+
+        if (!empty($relatedData)) {
+            return redirect()->route('admin.user.trashed')
+                ->with('error', "Cannot delete {$name} because they have: " . implode(', ', $relatedData) . ". Please delete these first from their respective pages.");
+        }
+    }
+
+    // ✅ Safe to delete — لو وصلنا هنا يبقى مفيش بيانات
+    DB::transaction(function () use ($user, $role) {
+        
+        if ($role === 'doctor' && $user->doctor()->withTrashed()->exists()) {
+            $doctor = $user->doctor()->withTrashed()->first();
+            
+            // Delete image only
+            if ($doctor->image) {
+                $path = public_path('images/doctors/' . $doctor->image);
+                if (file_exists($path)) unlink($path);
+            }
+            
+            $doctor->forceDelete();
+        }
+
+        if ($role === 'receptionist' && $user->receptionist()->withTrashed()->exists()) {
+            $receptionist = $user->receptionist()->withTrashed()->first();
+            
+            if ($receptionist->image) {
+                $path = public_path('images/receptionists/' . $receptionist->image);
+                if (file_exists($path)) unlink($path);
+            }
+            
+            $receptionist->forceDelete();
+        }
+
+        $user->forceDelete();
+    });
+
+    return redirect()->route('admin.user.trashed')
+        ->with('success', "{$name} has been permanently deleted!");
+}
 }

@@ -171,4 +171,41 @@ public function show(Patient $patient)
         $patient->delete();
         return redirect()->route('admin.patient.index')->with('success', 'Patient deleted successfully.');
     }
+    public function trashed(Request $request)
+    {
+        $query = Patient::onlyTrashed();
+
+        // Search filter
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%")
+                  ->orWhere('phone', 'like', "%{$search}%");
+            });
+        }
+
+        // Gender filter
+        if ($request->filled('gender')) {
+            $query->where('gender', $request->gender);
+        }
+
+        // Blood type filter
+        if ($request->filled('blood_type')) {
+            $query->where('blood_type', $request->blood_type);
+        }
+
+        $patients = $query->latest('deleted_at')->paginate(15);
+
+        return view('admin.patients.trashed', compact('patients'));
+    }
+
+    public function restore($id)
+    {
+        $patient = Patient::onlyTrashed()->findOrFail($id);
+        $patient->restore();
+
+        return redirect()->route('admin.patient.trashed')
+            ->with('success', "Patient '{$patient->name}' has been restored successfully!");
+    }
 }

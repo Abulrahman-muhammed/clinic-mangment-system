@@ -47,9 +47,9 @@ class User extends Authenticatable
     ];
 
     public function doctor() {
-        return $this->hasOne(Doctor::class);
+        return $this->hasOne(Doctor::class)->withTrashed();
     }
     public function receptionist() {
-        return $this->hasOne(Receptionist::class);
+        return $this->hasOne(Receptionist::class)->withTrashed();
     }
 }

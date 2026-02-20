@@ -14,7 +14,13 @@
                     <h2 class="h3 mb-0 page-title">Patients Management</h2>
                     <p class="text-muted">View and manage patient records and medical history</p>
                 </div>
+
                 <div class="col-auto">
+                    {{-- زرار الأرشيف --}}
+                    <a href="{{ route('admin.patient.trashed') }}" class="btn btn-outline-secondary mr-2">
+                        <i class="fe fe-archive mr-1"></i> Archived Patients
+                    </a>
+                    
                     @can('create_patients')
                     <a href="{{ route('admin.patient.create') }}" class="btn btn-primary">
                         <i class="fe fe-plus mr-1"></i> Add Patient
@@ -33,6 +39,7 @@
                 </div>
             @endif
 
+            {{-- Filter Card (كما هي بدون تغيير) --}}
             <div class="card shadow mb-4">
                 <div class="card-header">
                     <strong class="card-title">Filters</strong>
@@ -75,15 +82,9 @@
                             </div>
                             <div class="form-group col-md-2">
                                 <label>&nbsp;</label>
-                                @role('doctor')
-                                <button type="button" class="btn btn-secondary btn-block" onclick="window.location.href='{{ route('admin.doctor.myPatients') }}'">
+                                <button type="button" class="btn btn-secondary btn-block" onclick="window.location.href='{{ $action }}'">
                                     <i class="fe fe-rotate-ccw"></i> Reset
                                 </button>
-                                @else
-                                <button type="button" class="btn btn-secondary btn-block" onclick="window.location.href='{{ route('admin.patient.index') }}'">
-                                    <i class="fe fe-rotate-ccw"></i> Reset
-                                </button>
-                                @endrole
                             </div>
                         </div>
                     </form>
@@ -107,11 +108,7 @@
                                     <th>Contact</th>
                                     <th>Info</th>
                                     <th>Medical History</th>
-                                    <th class="text-center" style="width: 120px;">
-                                        @can('edit_patients'||'delete_patients')
-                                            Actions
-                                        @endcan
-                                    </th>
+                                    <th class="text-center" style="width: 120px;">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -142,37 +139,36 @@
                                             <span class="text-muted small fw-bold">Type: <span class="text-dark">{{ $patient->blood_type ?? '??' }}</span></span>
                                         </td>
                                         <td style="max-width: 250px;">
-                                            @if($patient->medical_history)
-                                                <p class="small text-truncate mb-0" title="{{ $patient->medical_history }}">
-                                                    {{ $patient->medical_history }}
-                                                </p>
-                                            @else
-                                                <span class="text-muted small">No recorded history</span>
-                                            @endif
+                                            <p class="small text-truncate mb-0" title="{{ $patient->medical_history ?? 'No recorded history' }}">
+                                                {{ $patient->medical_history ?? 'No recorded history' }}
+                                            </p>
                                             <small class="d-block text-muted text-truncate italic"><i class="fe fe-map-pin mr-1"></i>{{ $patient->address ?? '-' }}</small>
                                         </td>
-<td class="text-center">
-    <div class="btn-group">
-        @can('view_patients')
-        <a href="{{ route('admin.patient.show', $patient) }}" class="btn btn-sm btn-outline-info" data-toggle="tooltip" title="View">
-            <i class="fe fe-eye"></i>
-        </a>
-        @endcan
-        @can('edit_patients')
-        <a href="{{ route('admin.patient.edit', $patient) }}" class="btn btn-sm btn-outline-primary" data-toggle="tooltip" title="Edit">
-            <i class="fe fe-edit"></i>
-        </a>
-        @endcan
-        @can('delete_patients')
-        <form action="{{ route('admin.patient.destroy', $patient) }}" method="POST" class="d-inline" onsubmit="return confirm('Remove patient record for {{ $patient->name }}?')">
-            @csrf @method('DELETE')
-            <button type="submit" class="btn btn-sm btn-outline-danger" data-toggle="tooltip" title="Delete">
-                <i class="fe fe-trash-2"></i>
-            </button>
-        </form>
-        @endcan
-    </div>
-</td>
+                                        <td class="text-center">
+                                            <div class="btn-group">
+                                                @can('view_patients')
+                                                <a href="{{ route('admin.patient.show', $patient) }}" class="btn btn-sm btn-outline-info" data-toggle="tooltip" title="View">
+                                                    <i class="fe fe-eye"></i>
+                                                </a>
+                                                @endcan
+                                                @can('edit_patients')
+                                                <a href="{{ route('admin.patient.edit', $patient) }}" class="btn btn-sm btn-outline-primary" data-toggle="tooltip" title="Edit">
+                                                    <i class="fe fe-edit"></i>
+                                                </a>
+                                                @endcan
+                                                @can('delete_patients')
+                                                {{-- تعديل فورم الحذف --}}
+                                                <form action="{{ route('admin.patient.destroy', $patient) }}" method="POST" id="delete-form-{{ $patient->id }}" class="d-inline">
+                                                    @csrf @method('DELETE')
+                                                    <button type="button" class="btn btn-sm btn-outline-danger" 
+                                                            onclick="confirmDelete({{ $patient->id }}, '{{ $patient->name }}')"
+                                                            data-toggle="tooltip" title="Delete">
+                                                        <i class="fe fe-trash-2"></i>
+                                                    </button>
+                                                </form>
+                                                @endcan
+                                            </div>
+                                        </td>
                                     </tr>
                                 @empty
                                     <tr>
@@ -203,6 +199,27 @@
 @endcan
 
 @endsection
+
+@push('scripts')
+<script>
+    function confirmDelete(id, name) {
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "Patient '" + name + "' will be moved to the trash!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, delete it!',
+            cancelButtonText: 'Cancel'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                document.getElementById('delete-form-' + id).submit();
+            }
+        })
+    }
+</script>
+@endpush
 
 @push('styles')
 <style>

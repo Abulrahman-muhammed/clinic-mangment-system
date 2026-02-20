@@ -10,11 +10,9 @@
 
             <div class="card shadow">
                 <div class="card-body">
-
                     <form action="{{ route('admin.invoice.store') }}" method="POST" id="invoiceForm">
                         @csrf
 
-                        <!-- Select Patient & Doctor -->
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label for="patient_id">Select Patient</label>
@@ -31,13 +29,12 @@
                                 <select name="doctor_id" id="doctor_id" class="form-control select2" required>
                                     <option value="">-- Choose Doctor --</option>
                                     @foreach($doctors as $doctor)
-                                        <option value="{{ $doctor->id }}">{{$doctor->user->name}}</option>
+                                        <option value="{{ $doctor->id }}">{{ $doctor->user->name }}</option>
                                     @endforeach
                                 </select>
                             </div>
                         </div>
 
-                        <!-- Department & Consultation Fee -->
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label for="department">Doctor Department</label>
@@ -50,7 +47,6 @@
                             </div>
                         </div>
 
-                        <!-- Services -->
                         <div class="row">
                             <div class="col-md-12 mb-3">
                                 <label for="service_id">Select Additional Service</label>
@@ -67,7 +63,6 @@
                             </div>
                         </div>
 
-                        <!-- Selected Services Table -->
                         <div class="row">
                             <div class="col-md-12 mb-3">
                                 <table class="table table-sm table-bordered text-center" id="servicesTable">
@@ -78,20 +73,19 @@
                                             <th>Action</th>
                                         </tr>
                                     </thead>
-                                    <tbody></tbody>
+                                    <tbody>
+                                        </tbody>
                                 </table>
                             </div>
                         </div>
 
-                        <!-- Total Amount -->
                         <div class="row">
                             <div class="col-md-6 offset-md-6 mb-3">
                                 <label for="total_amount" class="fw-bold">Total Amount (EGP)</label>
-                                <input type="number" step="0.01" name="amount" id="total_amount" class="form-control fw-bold" readonly>
+                                <input type="number" step="0.01" name="amount" id="total_amount" class="form-control fw-bold" readonly value="0.00">
                             </div>
                         </div>
 
-                        <!-- Status & Date -->
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label>Payment Status</label>
@@ -106,7 +100,6 @@
                             </div>
                         </div>
 
-                        <!-- Notes -->
                         <div class="row">
                             <div class="col-md-12 mb-3">
                                 <label>Notes</label>
@@ -114,16 +107,9 @@
                             </div>
                         </div>
 
-                        <!-- Submit -->
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-save"></i> Create Invoice
-                        </button>
-                        <a href="{{ route('admin.invoice.index') }}" class="btn btn-secondary ms-2">
-                            <i class="fas fa-arrow-left"></i> Back
-                        </a>
-
+                        <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Create Invoice</button>
+                        <a href="{{ route('admin.invoice.index') }}" class="btn btn-secondary ms-2">Back</a>
                     </form>
-
                 </div>
             </div>
         </div>
@@ -131,79 +117,77 @@
 </div>
 @endsection
 
-@section('scripts')
+@push('scripts')
 <script>
 $(document).ready(function() {
     let consultationFee = 0;
     let serviceIndex = 0;
 
-    // Initialize Select2
-    $('.select2').select2({
-        theme: 'bootstrap4',
-        width: '100%'
-    });
+    $('.select2').select2({ theme: 'bootstrap4', width: '100%' });
 
-    // Fetch doctor info - مهم: استخدم change مع jQuery
+    // 1. Fetch Doctor Info via AJAX
     $('#doctor_id').on('change', function () {
         const doctorId = $(this).val();
-
         if (!doctorId) {
-            $('#department').val('');
-            $('#consultation_fee').val('');
-            consultationFee = 0;
-            updateTotal();
+            resetDoctorFields();
             return;
         }
 
-    fetch(`/admin/doctors/info/${doctorId}`)
-            .then(res => res.json())
-            .then(data => {
-                $('#department').val(data.department_name ?? '');
-                consultationFee = parseFloat(data.consultation_fee ?? 0);
-                $('#consultation_fee').val(consultationFee.toFixed(2));
-                updateTotal();
-            })
-            .catch(err => console.error('Error fetching doctor info:', err));
+        const url = "{{ route('admin.doctor.info', ':id') }}".replace(':id', doctorId);
+        $.get(url, function(data) {
+            $('#department').val(data.department_name);
+            consultationFee = parseFloat(data.consultation_fee || 0);
+            $('#consultation_fee').val(consultationFee.toFixed(2));
+            updateTotal();
+        }).fail(function() {
+            console.error("Could not fetch doctor info");
+        });
     });
 
-    // Add service
+    // 2. Add Service to Table
     $('#service_id').on('change', function () {
         const selected = $(this).find('option:selected');
         const serviceName = selected.data('name');
         const servicePrice = parseFloat(selected.data('price') || 0);
 
-        if (!serviceName || servicePrice <= 0) return;
+        if (!serviceName) return;
 
-        const tbody = $('#servicesTable tbody');
         const row = `
             <tr>
                 <td>${serviceName}<input type="hidden" name="services[${serviceIndex}][name]" value="${serviceName}"></td>
-                <td>${servicePrice.toFixed(2)}<input type="hidden" name="services[${serviceIndex}][price]" value="${servicePrice}"></td>
+                <td>${servicePrice.toFixed(2)}<input type="hidden" name="services[${serviceIndex}][price]" class="service-price" value="${servicePrice}"></td>
                 <td><button type="button" class="btn btn-sm btn-danger remove-service">Remove</button></td>
-            </tr>
-        `;
-        tbody.append(row);
+            </tr>`;
+        
+        $('#servicesTable tbody').append(row);
         serviceIndex++;
-
         updateTotal();
-        $(this).val('').trigger('change');
+
+        // Reset the select2 dropdown
+        $(this).val(null).trigger('change');
     });
 
-    // Remove service
+    // 3. Remove Service
     $(document).on('click', '.remove-service', function() {
         $(this).closest('tr').remove();
         updateTotal();
     });
 
-    // Calculate total
+    // 4. Calculate Total
     function updateTotal() {
         let total = consultationFee;
-        $('#servicesTable tbody tr').each(function() {
-            const priceInput = $(this).find('input[name*="[price]"]');
-            total += parseFloat(priceInput.val() || 0);
+        $('.service-price').each(function() {
+            total += parseFloat($(this).val() || 0);
         });
         $('#total_amount').val(total.toFixed(2));
     }
+
+    function resetDoctorFields() {
+        $('#department').val('');
+        $('#consultation_fee').val('');
+        consultationFee = 0;
+        updateTotal();
+    }
 });
 </script>
-@endsection
+@endpush
