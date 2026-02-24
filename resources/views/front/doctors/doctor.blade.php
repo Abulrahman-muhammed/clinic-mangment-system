@@ -381,7 +381,7 @@
           <div class="dp-hr"></div>
 
           <div class="dp-btns">
-            <a href="#" class="dp-book">
+            <a href="{{ route('front.booking.create', $doctor->id) }}" class="dp-book">
               <i class="fa-regular fa-calendar-check"></i> Book
             </a>
             <a href="{{ route('front.doctor.show', $doctor->id) }}" class="dp-profile">

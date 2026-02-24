@@ -75,15 +75,41 @@
 }
 .lg-heading p { font-size: 0.88rem; color: #94a3b8; font-weight: 400; }
 
-/* Alert */
+/* ── ALERTS ── */
+/* Error */
 .lg-alert {
   display: flex; align-items: center; gap: 9px;
   background: #fef2f2; color: #dc2626;
-  border: 1px solid #fecaca; border-radius: 10px;
-  padding: 11px 14px; margin-bottom: 22px;
+  border: 1px solid #fecaca; border-radius: 12px;
+  padding: 12px 16px; margin-bottom: 22px;
   font-size: 0.83rem; font-weight: 500;
+  animation: lgSlideIn .3s ease;
 }
-.lg-alert i { flex-shrink: 0; }
+.lg-alert i { flex-shrink: 0; font-size: 0.9rem; }
+
+/* Success */
+.lg-alert-success {
+  display: flex; align-items: center; gap: 10px;
+  background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+  color: #16a34a;
+  border: 1px solid #86efac;
+  border-radius: 12px;
+  padding: 13px 16px; margin-bottom: 22px;
+  font-size: 0.84rem; font-weight: 600;
+  box-shadow: 0 2px 8px rgba(22, 163, 74, 0.1);
+  animation: lgSlideIn .3s ease;
+}
+.lg-alert-success i {
+  flex-shrink: 0;
+  font-size: 1rem;
+  color: #22c55e;
+}
+.lg-alert-success span { line-height: 1.4; }
+
+@keyframes lgSlideIn {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
 
 /* Form */
 .lg-form { display: flex; flex-direction: column; gap: 20px; }
@@ -216,10 +242,24 @@
 
     <!-- Alerts -->
     @if($errors->any())
-      <div class="lg-alert"><i class="fa-solid fa-circle-exclamation"></i> {{ $errors->first() }}</div>
+      <div class="lg-alert">
+        <i class="fa-solid fa-circle-exclamation"></i>
+        {{ $errors->first() }}
+      </div>
     @endif
+
     @if(session('error'))
-      <div class="lg-alert"><i class="fa-solid fa-circle-exclamation"></i> {{ session('error') }}</div>
+      <div class="lg-alert">
+        <i class="fa-solid fa-circle-exclamation"></i>
+        {{ session('error') }}
+      </div>
+    @endif
+
+    @if(session('status'))
+      <div class="lg-alert-success">
+        <i class="fa-solid fa-circle-check"></i>
+        <span>{{ session('status') }}</span>
+      </div>
     @endif
 
     <!-- Form -->

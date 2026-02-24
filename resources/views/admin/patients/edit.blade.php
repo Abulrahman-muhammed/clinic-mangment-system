@@ -128,19 +128,6 @@
                             </div>
                         </div>
 
-                        <!-- Password -->
-                        <div class="row">
-                            <div class="col-md-12 mb-3">
-                                <label for="password">New Password (optional)</label>
-                                <input type="password"
-                                       name="password"
-                                       class="form-control @error('password') is-invalid @enderror"
-                                       placeholder="Leave blank to keep current password">
-                                @error('password')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-                        </div>
 
                         <!-- Submit -->
                         <div class="row">

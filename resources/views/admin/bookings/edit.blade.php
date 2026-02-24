@@ -6,22 +6,22 @@
 <div class="container-fluid">
     <div class="row justify-content-center">
         <div class="col-12 col-lg-10 col-xl-8">
-            
+
             <div class="row align-items-center mb-4">
                 <div class="col">
-                    <h2 class="h3 mb-0 page-title">Edit Appointment #{{ $booking->id }}</h2>
-                    <p class="text-muted">Modify patient information or reschedule the appointment.</p>
+                    <h2 class="h3 mb-0 page-title">Edit Appointment #{{ str_pad($booking->id, 6, '0', STR_PAD_LEFT) }}</h2>
+                    <p class="text-muted">Modify the appointment status.</p>
                 </div>
                 <div class="col-auto">
                     @if(auth()->user()->hasRole('admin') || auth()->user()->hasRole('receptionist'))
-                    <a href="{{ route('admin.booking.index') }}" class="btn btn-secondary">
-                        <i class="fe fe-arrow-left mr-1"></i> Back to List
-                    </a>
+                        <a href="{{ route('admin.booking.index') }}" class="btn btn-secondary">
+                            <i class="fe fe-arrow-left mr-1"></i> Back to List
+                        </a>
                     @endif
                     @if(auth()->user()->hasRole('doctor'))
-                    <a href="{{ route('admin.doctor.myBookings') }}" class="btn btn-secondary">
-                        <i class="fe fe-arrow-left mr-1"></i> Back to My Appointments
-                    </a>
+                        <a href="{{ route('admin.doctor.myBookings') }}" class="btn btn-secondary">
+                            <i class="fe fe-arrow-left mr-1"></i> Back to My Appointments
+                        </a>
                     @endif
                 </div>
             </div>
@@ -36,67 +36,88 @@
                         @method('PUT')
 
                         <div class="row">
+
+                            {{-- Patient Name --}}
                             <div class="form-group col-md-6">
-                                <label for="name" class="font-weight-bold">Patient Name</label>
-                                <input type="text" name="name" id="name" class="form-control @error('name') is-invalid @enderror" 
-                                       value="{{ old('name', $booking->name) }}" readonly>
-                                @error('name') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                <label class="font-weight-bold">Patient Name</label>
+                                <input type="text" class="form-control"
+                                       value="{{ $booking->patient->name ?? '—' }}" readonly>
                             </div>
 
+                            {{-- Phone --}}
                             <div class="form-group col-md-6">
-                                <label for="phone" class="font-weight-bold">Phone Number</label>
-                                <input type="text" name="phone" id="phone" class="form-control @error('phone') is-invalid @enderror" 
-                                       value="{{ old('phone', $booking->phone) }}" readonly>
-                                @error('phone') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                <label class="font-weight-bold">Phone Number</label>
+                                <input type="text" class="form-control"
+                                       value="{{ $booking->patient->phone ?? '—' }}" readonly>
                             </div>
 
+                            {{-- Email --}}
                             <div class="form-group col-md-12">
-                                <label for="email" class="font-weight-bold">Email Address</label>
-                                <input type="email" name="email" id="email" class="form-control @error('email') is-invalid @enderror" 
-                                       value="{{ old('email', $booking->email) }}" readonly>
-                                @error('email') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                <label class="font-weight-bold">Email Address</label>
+                                <input type="email" class="form-control"
+                                       value="{{ $booking->patient->email ?? '—' }}" readonly>
                             </div>
 
                             <hr class="col-12 my-4">
 
+                            {{-- Date --}}
                             <div class="form-group col-md-4">
-                                <label for="date" class="font-weight-bold">Date</label>
-                                <input type="date" name="date" id="date" class="form-control @error('date') is-invalid @enderror" 
-                                       value="{{ old('date', \Carbon\Carbon::parse($booking->date)->format('Y-m-d')) }}" readonly>
-                                @error('date') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                <label class="font-weight-bold">Date</label>
+                                <input type="date" class="form-control"
+                                       value="{{ \Carbon\Carbon::parse($booking->appointment_date)->format('Y-m-d') }}" readonly>
                             </div>
 
+                            {{-- Time --}}
                             <div class="form-group col-md-4">
-                                <label for="time" class="font-weight-bold">Time</label>
-                                <input type="time" name="time" id="time" class="form-control @error('time') is-invalid @enderror" 
-                                       value="{{ old('time', \Carbon\Carbon::parse($booking->date)->format('H:i')) }}" readonly>
+                                <label class="font-weight-bold">Time</label>
+                                <input type="time" class="form-control"
+                                       value="{{ \Carbon\Carbon::parse($booking->appointment_time)->format('H:i') }}" readonly>
                             </div>
 
+                            {{-- Status (only editable field) --}}
                             <div class="form-group col-md-4">
                                 <label for="status" class="font-weight-bold">Status</label>
                                 <select name="status" id="status" class="form-control custom-select">
-                                    <option value="pending" {{ $booking->status == 'pending' ? 'selected' : '' }}> Pending</option>
-                                    <option value="confirmed" {{ $booking->status == 'confirmed' ? 'selected' : '' }}> Confirmed</option>
-                                    <option value="completed" {{ $booking->status == 'completed' ? 'selected' : '' }}> Completed</option>
-                                    <option value="cancelled" {{ $booking->status == 'cancelled' ? 'selected' : '' }}> Cancelled</option>
+                                    <option value="pending"   {{ $booking->status === 'pending'   ? 'selected' : '' }}>Pending</option>
+                                    <option value="confirmed" {{ $booking->status === 'confirmed' ? 'selected' : '' }}>Confirmed</option>
+                                    <option value="completed" {{ $booking->status === 'completed' ? 'selected' : '' }}>Completed</option>
+                                    <option value="cancelled" {{ $booking->status === 'cancelled' ? 'selected' : '' }}>Cancelled</option>
                                 </select>
                             </div>
 
+                            {{-- Doctor (read-only display) --}}
                             @if(auth()->user()->hasRole('admin') || auth()->user()->hasRole('receptionist'))
                             <div class="form-group col-md-12">
-                                <label for="doctor_id" class="font-weight-bold">Assign Doctor</label>
-                                <input type="text" name="doctor_id" id="doctor_id" class="form-control @error('doctor_id') is-invalid @enderror" 
-                                       value="{{ old('doctor_id', $booking->doctor->user->name) }}" readonly>
+                                <label class="font-weight-bold">Doctor</label>
+                                <input type="text" class="form-control"
+                                       value="{{ $booking->doctor->user->name ?? 'N/A' }}" readonly>
                             </div>
                             @endif
+
+                            {{-- Payment info (read-only display) --}}
+                            <div class="form-group col-md-6">
+                                <label class="font-weight-bold">Payment Method</label>
+                                <input type="text" class="form-control"
+                                       value="{{ $booking->payment_method === 'card' ? 'Online (Card)' : 'Pay at Clinic' }}" readonly>
+                            </div>
+
+                            <div class="form-group col-md-6">
+                                <label class="font-weight-bold">Payment Status</label>
+                                <input type="text" class="form-control"
+                                       value="{{ ucfirst($booking->payment_status) }}" readonly>
+                            </div>
+
                         </div>
 
                         <div class="text-right mt-3">
-                            <button type="submit" class="btn btn-primary px-4">Update Appointment Status</button>
+                            <button type="submit" class="btn btn-primary px-5">
+                                <i class="fe fe-save mr-1"></i> Update Status
+                            </button>
                         </div>
                     </form>
                 </div>
             </div>
+
         </div>
     </div>
 </div>

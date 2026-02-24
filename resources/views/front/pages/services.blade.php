@@ -234,7 +234,6 @@
     position: relative;
     display: flex;
     flex-direction: column;
-    /* IMPORTANT: always visible, no opacity 0 */
     opacity: 1;
     transform: none;
   }
@@ -255,7 +254,6 @@
   }
   .svc-card:hover::before { opacity: 1; }
 
-  /* card image */
   .svc-img-box {
     position: relative;
     height: 210px;
@@ -289,7 +287,6 @@
     border: 1px solid rgba(0,106,255,0.18);
   }
 
-  /* card body */
   .svc-body {
     padding: 22px 22px 18px;
     flex: 1;
@@ -338,12 +335,10 @@
     50%      { box-shadow: 0 0 0 5px rgba(16,185,129,0); }
   }
 
-  /* card footer */
+  /* footer — price only, no button */
   .svc-footer {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 12px;
     padding-top: 16px;
     border-top: 1px solid #eef0f6;
   }
@@ -356,27 +351,6 @@
   }
   .svc-price-currency { font-size: 0.55em; font-weight: 400; color: #8892aa; }
   .svc-price-label { font-size: 0.7rem; color: #8892aa; font-weight: 400; margin-top: 3px; }
-  .svc-book-btn {
-    display: inline-flex;
-    align-items: center; gap: 8px;
-    padding: 10px 22px;
-    background: #006aff;
-    color: #fff;
-    border-radius: 14px;
-    font-size: 0.82rem;
-    font-weight: 700;
-    text-decoration: none;
-    transition: background 0.3s, transform 0.3s, box-shadow 0.3s;
-    white-space: nowrap;
-    box-shadow: 0 4px 14px rgba(0,106,255,0.25);
-    border: none; cursor: pointer;
-  }
-  .svc-book-btn:hover {
-    background: #0052cc;
-    transform: translateY(-1px);
-    box-shadow: 0 6px 20px rgba(0,106,255,0.35);
-    color: #fff;
-  }
 
   /* ── EMPTY / NO RESULTS ── */
   .svc-empty {
@@ -560,6 +534,7 @@
                 </div>
               </div>
 
+              {{-- Price only — no Book button --}}
               <div class="svc-footer">
                 <div>
                   <div class="svc-price">
@@ -568,11 +543,8 @@
                   </div>
                   <div class="svc-price-label">per session</div>
                 </div>
-                <a href="#" class="svc-book-btn">
-                  <i class="fa-regular fa-calendar-check"></i>
-                  Book Now
-                </a>
               </div>
+
             </div>
           </div>
         @empty
@@ -583,7 +555,6 @@
           </div>
         @endforelse
 
-        {{-- JS no-results --}}
         <div id="svcNoResults" style="display:none;" class="svc-empty">
           <div class="svc-empty-icon"><i class="fa-solid fa-magnifying-glass"></i></div>
           <h3>No results found</h3>
@@ -607,12 +578,10 @@
 <script>
 document.addEventListener('DOMContentLoaded', function () {
 
-  /* ── card entrance animation keyframes ── */
   const styleTag = document.createElement('style');
   styleTag.textContent = '@keyframes cardIn { from { opacity:0; transform:translateY(22px); } to { opacity:1; transform:translateY(0); } }';
   document.head.appendChild(styleTag);
 
-  /* ── sticky header shadow ── */
   const header = document.querySelector('.main-header');
   if (header) {
     window.addEventListener('scroll', function () {
@@ -620,18 +589,13 @@ document.addEventListener('DOMContentLoaded', function () {
     }, { passive: true });
   }
 
-  /* ── elements ── */
   var searchInput = document.getElementById('svcSearch');
   var sortSelect  = document.getElementById('svcSort');
   var countEl     = document.getElementById('svcCount');
   var noResults   = document.getElementById('svcNoResults');
   var grid        = document.getElementById('svcGrid');
 
-  /* safety check */
-  if (!searchInput || !sortSelect || !grid) {
-    console.warn('Services page: one or more elements not found');
-    return;
-  }
+  if (!searchInput || !sortSelect || !grid) return;
 
   function getCards() {
     return Array.from(grid.querySelectorAll('.svc-card'));
@@ -642,16 +606,13 @@ document.addEventListener('DOMContentLoaded', function () {
     var val = sortSelect.value;
     var all = getCards();
 
-    /* 1. show/hide by name */
     all.forEach(function (card) {
       var name = (card.getAttribute('data-name') || '').toLowerCase();
       card.style.display = name.indexOf(q) !== -1 ? '' : 'none';
     });
 
-    /* 2. collect visible */
     var visible = all.filter(function (c) { return c.style.display !== 'none'; });
 
-    /* 3. sort if needed */
     if (val !== 'default') {
       visible.sort(function (a, b) {
         var pa = parseFloat(a.getAttribute('data-price')) || 0;
@@ -667,19 +628,12 @@ document.addEventListener('DOMContentLoaded', function () {
       visible.forEach(function (c) { grid.appendChild(c); });
     }
 
-    /* 4. update count */
     if (countEl) countEl.textContent = visible.length;
-
-    /* 5. no-results message */
-    if (noResults) {
-      noResults.style.display = visible.length === 0 ? 'block' : 'none';
-    }
+    if (noResults) noResults.style.display = visible.length === 0 ? 'block' : 'none';
   }
 
   searchInput.addEventListener('input', run);
   sortSelect.addEventListener('change', run);
-
-  /* run once on load to set correct count */
   run();
 
 });

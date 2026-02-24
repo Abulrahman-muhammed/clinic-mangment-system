@@ -65,7 +65,6 @@ class PatientController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:patients',
-            'password' => 'required|string|min:8',
             'date_of_birth' => 'required|date',
             'phone' => 'required|string|max:15|unique:patients',
             'gender' => 'required|in:male,female',
@@ -76,7 +75,6 @@ class PatientController extends Controller
         $patient = Patient::create([
             'name' => $request->name,
             'email' => $request->email,
-            'password' => bcrypt($request->password),
             'date_of_birth' => $request->date_of_birth,
             'phone' => $request->phone,
             'gender' => $request->gender,
@@ -89,35 +87,45 @@ class PatientController extends Controller
 
     /**
      * Display the specified resource.
-     */
-public function show(Patient $patient)
+     */public function show(Patient $patient)
 {
-    // Get patient's appointments
-    $appointments = Booking::where('phone', $patient->phone)
-                          ->with(['doctor.user', 'doctor.major'])
-                          ->latest()
-                          ->paginate(10);
-    
-    // Get patient's invoices
+    // 1. جلب المواعيد مع التحميل المسبق (Eager Loading) والترقيم
+    $appointments = Booking::where('patient_id', $patient->id)
+                            ->with(['doctor.user', 'doctor.major'])
+                            ->latest()
+                            ->paginate(10);
+
+    // 2. جلب آخر 5 فواتير
     $invoices = Invoice::where('patient_id', $patient->id)
-                      ->with('doctor.user')
-                      ->latest()
-                      ->take(5)
-                      ->get();
-    
-    // Statistics
+                        ->with('doctor.user')
+                        ->latest()
+                        ->take(5)
+                        ->get();
+
+    // 3. تحسين الإحصائيات: نجلب كل الحالات مرة واحدة من جدول المواعيد لتقليل الاستعلامات
+    $bookingStats = Booking::where('patient_id', $patient->id)
+        ->selectRaw("
+            COUNT(*) as total,
+            SUM(CASE WHEN status = 'completed' THEN 1 ELSE 0 END) as completed,
+            SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) as pending,
+            SUM(CASE WHEN payment_status = 'paid' THEN amount ELSE 0 END) as paid_bookings_sum
+        ")
+        ->first();
+
+    $invoicesSum = Invoice::where('patient_id', $patient->id)->sum('amount');
+    $invoicesCount = Invoice::where('patient_id', $patient->id)->count();
+
+    // حساب إجمالي ما أنفقه المريض
+    $patientTotalSpent = $invoicesSum + $bookingStats->paid_bookings_sum;
+
     $stats = [
-        'total_appointments' => Booking::where('phone', $patient->phone)->count(),
-        'completed_appointments' => Booking::where('phone', $patient->phone)
-                                          ->where('status', 'completed')
-                                          ->count(),
-        'pending_appointments' => Booking::where('phone', $patient->phone)
-                                        ->where('status', 'pending')
-                                        ->count(),
-        'total_invoices' => Invoice::where('patient_id', $patient->id)->count(),
-        'total_amount' => Invoice::where('patient_id', $patient->id)->sum('amount'),
+        'total_appointments'     => $bookingStats->total,
+        'completed_appointments' => $bookingStats->completed,
+        'pending_appointments'   => $bookingStats->pending,
+        'total_invoices'         => $invoicesCount,
+        'total_amount'           => $patientTotalSpent,
     ];
-    
+
     return view('admin.patients.show', compact('patient', 'appointments', 'invoices', 'stats'));
 }
 

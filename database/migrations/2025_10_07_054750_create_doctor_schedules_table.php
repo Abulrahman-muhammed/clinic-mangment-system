@@ -27,7 +27,7 @@ return new class extends Migration
 
             $table->time('start_time'); // بداية المواعيد
             $table->time('end_time');   // نهاية المواعيد
-
+            $table->unique(['doctor_id', 'day_of_week']);
             $table->softDeletes();
             $table->timestamps();
         });

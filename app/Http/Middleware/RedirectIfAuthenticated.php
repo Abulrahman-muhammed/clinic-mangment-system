@@ -21,7 +21,13 @@ class RedirectIfAuthenticated
 
         foreach ($guards as $guard) {
             if (Auth::guard($guard)->check()) {
-                return redirect()->route('admin.dashboard');
+                $role = Auth::user()->role;
+
+                if ($role === 'admin') {
+                    return redirect()->route('admin.dashboard');
+                } else {
+                    return redirect()->route('front.home');
+                }
             }
         }
 

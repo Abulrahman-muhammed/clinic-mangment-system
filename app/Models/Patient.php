@@ -10,12 +10,35 @@ class Patient extends Model
 {
     use HasFactory, SoftDeletes;
     protected $fillable = [
-    'name', 'email', 'password', 'date_of_birth', 'phone',
-    'gender', 'blood_type', 'address', 'medical_history'
-];
+        'name',
+        'email',
+        'password',
+        'date_of_birth',
+        'phone',
+        'gender',
+        'blood_type',
+        'address',
+        'medical_history',
+    ];
     protected $hidden = [
         'password',
     ];
 
+  protected $casts = [
+        'date_of_birth' => 'date',
+    ];
 
+    // ─── Relationships ────────────────────────────
+    public function bookings()
+    {
+        return $this->hasMany(Booking::class);
+    }
+
+    // ─── Helpers ──────────────────────────────────
+    public function getAgeAttribute(): ?int
+    {
+        return $this->date_of_birth
+            ? $this->date_of_birth->age
+            : null;
+    }
 }

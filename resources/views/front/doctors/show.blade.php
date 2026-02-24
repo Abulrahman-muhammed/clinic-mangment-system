@@ -519,7 +519,7 @@
             <span>Certified specialist</span>
           </div>
           <div class="ds-book-feat">
-            <i class="fa-solid fa-shield-halved"></i>
+            <i class="fa-solid fa-lock"></i>
             <span>Secure & private consultation</span>
           </div>
           <div class="ds-book-feat">
@@ -556,7 +556,7 @@
         </div>
         @endif
 
-        <a href="#" class="ds-big-book-btn">
+        <a href="{{ route('front.booking.create', $doctor->id) }}" class="ds-big-book-btn">
           <i class="fa-regular fa-calendar-check"></i>
           Confirm Booking
         </a>

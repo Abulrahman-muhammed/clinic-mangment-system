@@ -58,16 +58,6 @@
 
                         <!-- Password -->
                         <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="password">Password</label>
-                                <input type="password" 
-                                       name="password" 
-                                       class="form-control @error('password') is-invalid @enderror" 
-                                       placeholder="Enter password">
-                                @error('password')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
 
                             <!-- Date of Birth -->
                             <div class="col-md-6 mb-3">
@@ -77,6 +67,17 @@
                                        class="form-control @error('date_of_birth') is-invalid @enderror" 
                                        value="{{ old('date_of_birth') }}">
                                 @error('date_of_birth')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                                                        <div class="col-md-6 mb-3">
+                                <label for="address">Address</label>
+                                <input type="text" 
+                                       name="address" 
+                                       class="form-control @error('address') is-invalid @enderror" 
+                                       placeholder="Enter patient address" 
+                                       value="{{ old('address') }}">
+                                @error('address')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
@@ -114,21 +115,6 @@
                                     <option value="unknown" {{ old('blood_type') == 'unknown' ? 'selected' : '' }}>Unknown</option>
                                 </select>
                                 @error('blood_type')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-                        </div>
-
-                        <!-- Address -->
-                        <div class="row">
-                            <div class="col-md-12 mb-3">
-                                <label for="address">Address</label>
-                                <input type="text" 
-                                       name="address" 
-                                       class="form-control @error('address') is-invalid @enderror" 
-                                       placeholder="Enter patient address" 
-                                       value="{{ old('address') }}">
-                                @error('address')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>

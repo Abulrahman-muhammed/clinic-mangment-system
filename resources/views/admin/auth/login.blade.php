@@ -77,7 +77,18 @@
               </button>
             </div>        
           @endif
-
+            @if(session('status'))
+              <div class="alert alert-success alert-dismissible fade show mb-3 shadow-sm" role="alert">
+                <div class="d-flex align-items-center mb-1">
+                  <i class="fe fe-check-circle fe-16 mr-2"></i>
+                  <strong>Success!</strong>
+                </div>
+                {{ session('status') }}
+                <button type="button" class="close-custom" data-dismiss="alert" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>        
+            @endif
           <div class="form-group">
             <label for="inputEmail" class="sr-only">Email address</label>
             <input type="email" id="inputEmail" name="email" class="form-control form-control-lg" placeholder="Email address" required value="{{ old('email') }}">

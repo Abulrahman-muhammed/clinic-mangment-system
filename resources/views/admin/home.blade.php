@@ -191,8 +191,11 @@
                                                     <div class="d-flex align-items-center">
   
                                                         <div>
-                                                            <strong>{{ $booking->name ?? 'N/A' }}</strong><br>
-                                                            <small class="text-muted">{{ $booking->email }}</small>
+                                                            <strong>
+                                                                <a href="{{ route('admin.patient.show', $booking->patient_id) }}" >
+                                                                {{ $booking->patient->name ?? 'N/A' }}
+                                                                </a></strong>   <br>
+                                                            <small class="text-muted">{{ $booking->patient->email ?? 'N/A' }}</small>
                                                         </div>
                                                     </div>
                                                 </td>

@@ -12,44 +12,91 @@ class Booking extends Model
     use HasFactory,SoftDeletes;
 
     protected $fillable = [
-        'name',
-        'email',
-        'phone',
-        'date',
+        'user_id',
         'doctor_id',
-        'status'
+        'patient_id',
+        'service_id',
+        'appointment_date',
+        'appointment_time',
+        'payment_method',
+        'amount',
+        'payment_status',
+        'card_name',
+        'card_last4',
+        'card_expiry',
+        'status',
+        'notes',
     ];
 
     protected $casts = [
-        'date' => 'date',
-    ];
+        'appointment_date' => 'date',
+        'amount'           => 'decimal:2',
+    ];// ─── Relationships ───────────────────────────
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 
- public function doctor()
+    public function doctor()
     {
         return $this->belongsTo(Doctor::class);
     }
 
-    /**
-     * العلاقة مع المريض - أضف دي
-     */
+    public function service()
+    {
+        return $this->belongsTo(Service::class);
+    }
+
     public function patient()
     {
         return $this->belongsTo(Patient::class);
     }
 
-    /**
-     * العلاقة مع الـ User (لو المريض user)
-     */
-    public function user()
+     // ─── Booking creation logic (in Controller) ───────────────────────────────
+
+    // ─── Helpers ─────────────────────────────────
+    public function isPaid(): bool
     {
-        return $this->belongsTo(User::class, 'patient_id');
+        return $this->payment_status === 'paid';
     }
 
-    /**
-     * العلاقة مع الـ Invoice
-     */
-    public function invoice()
+    public function isConfirmed(): bool
     {
-        return $this->hasOne(Invoice::class);
+        return $this->status === 'confirmed';
+    }
+
+    public function isPending(): bool
+    {
+        return $this->status === 'pending';
+    }
+
+    public function getFormattedTimeAttribute(): string
+    {
+        return \Carbon\Carbon::parse($this->appointment_time)->format('g:i A');
+    }
+
+    public function getFormattedDateAttribute(): string
+    {
+        return $this->appointment_date->format('D, d M Y');
+    }
+
+    public function getStatusBadgeClassAttribute(): string
+    {
+        return match($this->status) {
+            'confirmed'  => 'badge-success',
+            'cancelled'  => 'badge-danger',
+            'completed'  => 'badge-info',
+            default      => 'badge-warning',
+        };
+    }
+
+    public function getPaymentBadgeClassAttribute(): string
+    {
+        return match($this->payment_status) {
+            'paid'      => 'badge-success',
+            'failed'    => 'badge-danger',
+            'refunded'  => 'badge-info',
+            default     => 'badge-warning',
+        };
     }
 }
