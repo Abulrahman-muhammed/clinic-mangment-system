@@ -42,8 +42,8 @@ public function store(Request $request, Doctor $doctor)
             // Allows the current email owner to proceed, but blocks others
             Rule::unique('patients', 'email')->ignore($existingPatient?->id),
         ],
-        'patient_dob'        => ['nullable', 'date', 'before:today'],
-        'patient_gender'     => ['nullable', 'in:male,female'],
+        'patient_dob'        => ['required', 'date', 'before:today'],
+        'patient_gender'     => ['required', 'in:male,female'],
         'patient_blood_type' => ['nullable', 'in:A+,A-,B+,B-,AB+,AB-,O+,O-'],
         'patient_notes'      => ['nullable', 'string', 'max:2000'],
         'payment_method'     => ['required', 'in:card,at_clinic'],
@@ -100,6 +100,7 @@ public function store(Request $request, Doctor $doctor)
     if ($validated['payment_method'] === 'card') {
         return redirect()->route('front.booking.fake-checkout', $booking);
     }
+
 
     return redirect()
         ->route('front.booking.success', $booking)
@@ -213,16 +214,22 @@ public function store(Request $request, Doctor $doctor)
 
     // ─────────────────────────────────────────────
     //  Soft delete (archive)
+    //  Allowed for: cancelled, completed, or failed-payment bookings
     // ─────────────────────────────────────────────
     public function destroy(Booking $booking)
     {
         abort_unless($booking->user_id === Auth::id(), 403);
-        
-        // Server-side guard: only allow deleting cancelled or completed
-        abort_unless(in_array($booking->status, ['cancelled', 'completed']), 403);
-        
+
+        $canDelete =
+            in_array($booking->status, ['cancelled', 'completed'])
+            || $booking->payment_status === 'failed';
+
+        abort_unless($canDelete, 403);
+
         $booking->delete();
 
-        return back()->with('success', 'Appointment deleted successfully.');
+        return redirect()
+            ->route('front.profile.my-appointments')
+            ->with('success', 'Booking deleted successfully.');
     }
 }

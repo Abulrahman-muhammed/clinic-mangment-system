@@ -19,7 +19,21 @@
                     </a>
                 </div>
             </div>
-
+                {{-- validation error messages --}}
+                {{-- @if($errors->any())
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <i class="fe fe-alert-triangle mr-2"></i>
+                        <strong>Please fix the following errors:</strong>
+                        <ul class="mb-0 mt-2">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                @endif --}}
             <form action="{{ route('admin.doctor.store') }}" method="POST" enctype="multipart/form-data" id="doctorForm">
                 @csrf
 

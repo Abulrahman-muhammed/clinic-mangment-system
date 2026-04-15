@@ -44,7 +44,12 @@
                     <strong class="card-title">Filter Appointments</strong>
                 </div>
                 <div class="card-body">
-                    <form method="GET" action="{{ route('admin.booking.index') }}">
+                    @php
+                        $action = auth()->user()->hasRole('doctor') 
+                            ? route('admin.doctor.myBookings') 
+                            : route('admin.booking.index');
+                    @endphp
+                    <form method="GET" action="{{ $action }}">
                         <div class="form-row">
 
                             <div class="form-group col-md-3">
@@ -89,7 +94,7 @@
                                 </button>
                             </div>
                             <div class="form-group col-md-1 d-flex align-items-end">
-                                <a href="{{ route('admin.booking.index') }}" class="btn btn-secondary btn-block">
+                                <a href="{{ $action }}" class="btn btn-secondary btn-block">
                                     <i class="fe fe-rotate-ccw"></i>
                                 </a>
                             </div>

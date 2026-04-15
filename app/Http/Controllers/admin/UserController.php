@@ -51,7 +51,7 @@ class UserController extends Controller
      */
     public function create()
     {
-        $roles = Role::pluck('name', 'id');
+        $roles = Role::whereNotIn('name', ['doctor', 'receptionist'])->pluck('name', 'id');
         return view('admin.users.create', compact('roles'));
     }
 
@@ -76,15 +76,8 @@ class UserController extends Controller
             $user->assignRole($roleName);
 
             // Create related profile if Doctor or Receptionist
-            if ($roleName === 'doctor') {
-                Doctor::create([
-                    'user_id' => $user->id,
-                    'major_id' => 1,
-                ]);
-            } elseif ($roleName === 'receptionist') {
-                Receptionist::create([
-                    'user_id' => $user->id,
-                ]);
+            if ($roleName === 'user') {
+                $user->update(['role' => 'user']);
             }
         }
         });
@@ -107,7 +100,7 @@ class UserController extends Controller
      */
     public function edit(User $user)
     {
-        $roles = Role::pluck('name', 'id');
+        $roles = Role::whereNotIn('name', ['doctor', 'receptionist'])->pluck('name', 'id');
         $userRole = $user->roles->pluck('name')->first();
 
         return view('admin.users.edit', compact('user', 'roles', 'userRole'));     
@@ -122,7 +115,7 @@ class UserController extends Controller
             'name'  => $request->name,
             'email' => $request->email,
             'phone' => $request->phone,
-            'role'  => 'admin',
+            'role'  => $request->role == 'user' ? 'user' : 'admin', 
         ];
 
         if ($request->filled('password')) {
@@ -135,18 +128,6 @@ class UserController extends Controller
         if ($request->role) {
             $roleName = strtolower($request->role);
             $user->syncRoles([$roleName]);
-
-            // Ensure profile exists
-            if ($roleName === 'doctor' && !$user->doctor) {
-                Doctor::create([
-                    'user_id' => $user->id,
-                    'major_id' => 1,
-                ]);
-            } elseif ($roleName === 'receptionist' && !$user->receptionist) {
-                Receptionist::create([
-                    'user_id' => $user->id,
-                ]);
-            }
         } else {
             $user->roles()->detach();
         }

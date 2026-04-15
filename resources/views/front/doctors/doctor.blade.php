@@ -179,6 +179,14 @@
   border-radius: 50%; border: 3px solid #fff;
   position: relative; z-index: 1;
 }
+.dp-av-placeholder {
+  width: 100%; height: 100%; border-radius: 50%;
+  background: linear-gradient(135deg, #05143a 0%, #006aff 55%, #4d9fff 100%);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Fraunces', serif; font-size: 1.5rem; font-weight: 700;
+  color: #fff; letter-spacing: 0.04em;
+  position: relative; z-index: 1; border: 3px solid #fff;
+}
 .dp-online {
   position: absolute; bottom: 4px; right: 4px; z-index: 2;
   width: 14px; height: 14px; border-radius: 50%;
@@ -188,8 +196,56 @@
 
 /* CARD CONTENT */
 .dp-name { font-family: 'Fraunces', serif; font-size: 1.18rem; font-weight: 600; color: #05143a; margin-bottom: 8px; line-height: 1.3; }
-.dp-badge { display: inline-block; background: #eef3ff; color: #006aff; padding: 4px 14px; border-radius: 9999px; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; margin-bottom: 14px; }
-.dp-contact { width: 100%; margin-bottom: 14px; }
+.dp-badge { display: inline-block; background: #eef3ff; color: #006aff; padding: 4px 14px; border-radius: 9999px; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; margin-bottom: 12px; }
+
+/* ── EXPERIENCE PILL ── */
+.dp-exp {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: #f2f6ff;
+  border: 1px solid rgba(0,106,255,0.12);
+  border-radius: 9999px;
+  padding: 5px 14px 5px 8px;
+  margin-bottom: 12px;
+  transition: background .4s cubic-bezier(.22,1,.36,1),
+              border-color .4s cubic-bezier(.22,1,.36,1),
+              box-shadow .4s cubic-bezier(.22,1,.36,1),
+              transform .4s cubic-bezier(.22,1,.36,1);
+}
+.dp-card:hover .dp-exp {
+  background: linear-gradient(135deg, #f2f6ff 0%, #f5ead8 100%);
+  border-color: rgba(201,168,76,0.30);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(0,106,255,0.10);
+}
+.dp-exp-icon {
+  width: 22px; height: 22px;
+  background: #006aff;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  transition: background .4s cubic-bezier(.22,1,.36,1),
+              transform .4s cubic-bezier(.22,1,.36,1);
+}
+.dp-card:hover .dp-exp-icon {
+  background: linear-gradient(135deg, #006aff, #c9a84c);
+  transform: rotate(10deg);
+}
+.dp-exp-icon i { font-size: 0.55rem; color: #fff; }
+.dp-exp-num {
+  font-family: 'Fraunces', serif;
+  font-size: 0.95rem; font-weight: 700; color: #006aff; line-height: 1;
+  transition: color .4s;
+}
+.dp-card:hover .dp-exp-num { color: #003180; }
+.dp-exp-lbl {
+  font-size: 0.6rem; font-weight: 700;
+  color: #8892aa; letter-spacing: 0.08em;
+  text-transform: uppercase; line-height: 1.2; text-align: left;
+}
+
+.dp-contact { width: 100%; margin-bottom: 12px; }
 .dp-crow { display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 0.77rem; color: #8892aa; font-weight: 300; margin-bottom: 5px; }
 .dp-crow i { color: #006aff; font-size: 0.7rem; }
 .dp-price { font-family: 'Fraunces', serif; font-size: 1.3rem; font-weight: 700; color: #05143a; line-height: 1; margin-bottom: 10px; }
@@ -340,11 +396,15 @@
           {{-- Avatar --}}
           <div class="dp-av">
             <div class="dp-av-ring"></div>
-            <img
-              src="{{ $doctor->image ? asset('images/doctors/' . $doctor->image) : asset('images/default-doctor.png') }}"
-              alt="Dr. {{ $doctor->user->name }}"
-              onerror="this.onerror=null;this.src='https://placehold.co/200x200/eef3ff/006aff?text=Dr'"
-            />
+            @if($doctor->image)
+              <img
+                src="{{ asset('images/doctors/' . $doctor->image) }}"
+                alt="Dr. {{ $doctor->user->name }}"
+                onerror="this.onerror=null;this.src='https://placehold.co/200x200/eef3ff/006aff?text=Dr'"
+              />
+            @else
+              <div class="dp-av-placeholder">{{ strtoupper(substr($doctor->user->name, 0, 2)) }}</div>
+            @endif
             <div class="dp-online"></div>
           </div>
 
@@ -353,6 +413,15 @@
           @if($doctor->major)
             <span class="dp-badge">{{ $doctor->major->title }}</span>
           @endif
+
+          {{-- Experience Pill --}}
+          <div class="dp-exp">
+            <div class="dp-exp-icon">
+              <i class="fa-solid fa-briefcase-medical"></i>
+            </div>
+            <span class="dp-exp-num">{{ $doctor->years_of_experience }}</span>
+            <span class="dp-exp-lbl">yrs<br>exp.</span>
+          </div>
 
           <div class="dp-contact">
             <div class="dp-crow">

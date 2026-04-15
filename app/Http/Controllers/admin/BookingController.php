@@ -6,10 +6,18 @@ use App\Models\Booking;
 use App\Models\Doctor;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\DB;
 
 class BookingController extends Controller
 {
+    // الـ Status Transitions المسموح بيها
+    private const ALLOWED_TRANSITIONS = [
+        'pending'   => ['confirmed', 'cancelled'],
+        'confirmed' => ['completed', 'cancelled'],
+        'completed' => [],   // نهائي - مينفعش يتغير
+        'cancelled' => [],   // نهائي - مينفعش يتغير
+    ];
+
     // ─────────────────────────────────────────────
     //  Index
     // ─────────────────────────────────────────────
@@ -18,7 +26,6 @@ class BookingController extends Controller
         $query = Booking::with(['patient', 'doctor.user', 'doctor.major'])
             ->latest('appointment_date');
 
-        // Search by patient name / email / phone
         if ($request->filled('search')) {
             $search = $request->search;
             $query->whereHas('patient', function ($q) use ($search) {
@@ -40,7 +47,6 @@ class BookingController extends Controller
             $query->whereDate('appointment_date', $request->date);
         }
 
-        // Doctors see only their own bookings
         if (auth()->user()->hasRole('doctor')) {
             $query->whereHas('doctor', fn($q) => $q->where('user_id', auth()->id()));
         }
@@ -57,45 +63,86 @@ class BookingController extends Controller
     public function edit($id)
     {
         $booking = Booking::with(['patient', 'doctor.user'])->findOrFail($id);
+
+        // ✅ Authorization: Doctor يشوف بس bookings بتاعته
+        if (auth()->user()->hasRole('doctor')) {
+            abort_if($booking->doctor->user_id !== auth()->id(), 403);
+        }
+
         $doctors = Doctor::with('user')->get();
 
         return view('admin.bookings.edit', compact('booking', 'doctors'));
     }
 
     // ─────────────────────────────────────────────
-    //  Update (status only)
+    //  Update - مع Transaction + Validation منطقي
     // ─────────────────────────────────────────────
     public function update(Request $request, $id)
     {
-        $booking = Booking::findOrFail($id);
+        // ✅ Lock the row لمنع Race Condition
+        $booking = Booking::lockForUpdate()->findOrFail($id);
 
+        // ✅ Authorization
+        if (auth()->user()->hasRole('doctor')) {
+            abort_if($booking->doctor->user_id !== auth()->id(), 403);
+        }
+
+        // ✅ Basic validation
         $request->validate([
             'status' => 'required|in:pending,confirmed,completed,cancelled',
         ]);
 
-        $booking->update(['status' => $request->status]);
+        $newStatus     = $request->status;
+        $currentStatus = $booking->status;
+
+        // ✅ App-level: منع تغيير Status بشكل غير منطقي
+        if ($newStatus !== $currentStatus) {
+            $allowed = self::ALLOWED_TRANSITIONS[$currentStatus] ?? [];
+
+            if (!in_array($newStatus, $allowed)) {
+                return back()->withErrors([
+                    'status' => "Cannot change the status from [{$currentStatus}] to [{$newStatus}]."
+                ]);
+            }
+        }
+
+        // ✅ Transaction: كل العمليات تنجح أو كلها تفشل
+        DB::transaction(function () use ($booking, $newStatus) {
+            $updateData = ['status' => $newStatus];
+
+            if ($newStatus === 'completed') {
+                $updateData['payment_status'] = 'paid';
+            }
+
+            $booking->update($updateData);
+        });
 
         $route = auth()->user()->hasRole('doctor')
             ? 'admin.doctor.myBookings'
             : 'admin.booking.index';
 
         return redirect()->route($route)
-            ->with('success', 'Booking status updated successfully.');
+            ->with('success', 'Appointment status updated successfully.');
     }
 
     // ─────────────────────────────────────────────
-    //  Soft delete (archive)
+    //  Destroy - مع Authorization
     // ─────────────────────────────────────────────
     public function destroy(Booking $booking)
     {
+        // ✅ Doctor ميحذفش غير bookings بتاعته
+        if (auth()->user()->hasRole('doctor')) {
+            abort_if($booking->doctor->user_id !== auth()->id(), 403);
+        }
+
         $booking->delete();
 
         return redirect()->route('admin.booking.index')
-            ->with('success', 'Booking archived successfully.');
+            ->with('success', 'Appointment archived successfully.');
     }
 
     // ─────────────────────────────────────────────
-    //  Trashed list
+    //  Trashed
     // ─────────────────────────────────────────────
     public function trashed(Request $request)
     {
@@ -127,13 +174,20 @@ class BookingController extends Controller
     }
 
     // ─────────────────────────────────────────────
-    //  Restore
+    //  Restore - مع Authorization
     // ─────────────────────────────────────────────
     public function restore($id)
     {
-        Booking::withTrashed()->findOrFail($id)->restore();
+        $booking = Booking::withTrashed()->findOrFail($id);
+
+        // ✅ Doctor ميعملش restore لـ bookings مش بتاعته
+        if (auth()->user()->hasRole('doctor')) {
+            abort_if($booking->doctor->user_id !== auth()->id(), 403);
+        }
+
+        $booking->restore();
 
         return redirect()->route('admin.booking.trashed')
-            ->with('success', 'Booking restored successfully.');
+            ->with('success',  'Appointment restored successfully.');
     }
 }

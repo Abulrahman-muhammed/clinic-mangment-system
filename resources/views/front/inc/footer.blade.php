@@ -1,8 +1,11 @@
+    @php
+        $generalSettings = app(App\Settings\GeneralSettings::class);
+    @endphp
     <footer class="footer-section">
       <div class="footer-container">
         <div class="footer-content">
           <div class="footer-col about">
-            <h2 class="footer-logo">{{ config('app.name') }}</h2>
+            <h2 class="footer-logo">{{ $generalSettings->site_name }}</h2>
             <p class="description">
               Your trusted medical companion for medicines, doctor
               consultations, and AI-powered medical assistance.
@@ -14,27 +17,27 @@
             <div class="underline"><span></span></div>
             <ul>
               <li>
-                <a href="/frontend/pages/home.html"
+                <a href="{{ url('/') }}"
                   ><i class="fa-solid fa-chevron-right"></i> Home</a
                 >
               </li>
               <li>
-                <a href="/frontend/pages/home.html#features"
+                <a href="{{ url('/') }}#features"
                   ><i class="fa-solid fa-chevron-right"></i> Features</a
                 >
               </li>
               <li>
-                <a href="/frontend/pages/all-services.html"
+                <a href="{{ route('front.services.index') }}"
                   ><i class="fa-solid fa-chevron-right"></i> Services</a
                 >
               </li>
               <li>
-                <a href="/frontend/pages/all-doctors.html"
+                <a href="{{ route('front.doctors') }}"
                   ><i class="fa-solid fa-chevron-right"></i> Doctors</a
                 >
               </li>
               <li>
-                <a href="#"
+                <a href="{{ route('front.about') }}"
                   ><i class="fa-solid fa-chevron-right"></i> About Us</a
                 >
               </li>
@@ -46,21 +49,22 @@
             <div class="underline"><span></span></div>
             <div class="contact-item">
               <i class="fa-solid fa-phone"></i>
-              <span>01276905241</span>
+              <span>{{ $generalSettings->site_phone }}</span>
             </div>
             <div class="contact-item">
               <i class="fa-solid fa-envelope"></i>
-              <span>Doctor122@gmail.com</span>
+              <span>{{ $generalSettings->site_email }}</span>
             </div>
             <div class="contact-item">
               <i class="fa-solid fa-location-dot"></i>
-              <span>Tanta, Egypt</span>
+              <span>{{ $generalSettings->site_address }}</span>
             </div>
 
             <div class="social-icons">
-              <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
-              <a href="#"><i class="fa-brands fa-twitter"></i></a>
-              <a href="#"><i class="fa-brands fa-facebook-f"></i></a>
+              <a href="{{ $generalSettings->linkedin_url }}" target="_blank"><i class="fa-brands fa-linkedin-in"></i></a>
+              <a href="{{ $generalSettings->twitter_url }}" target="_blank"><i class="fa-brands fa-twitter"></i></a>
+              <a href="{{ $generalSettings->facebook_url }}" target="_blank"><i class="fa-brands fa-facebook-f"></i></a>
+              <a href="{{ $generalSettings->instagram_url }}" target="_blank"><i class="fa-brands fa-instagram"></i></a>
             </div>
           </div>
         </div>

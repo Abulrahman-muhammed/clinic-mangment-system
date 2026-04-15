@@ -59,8 +59,14 @@ class profileController extends Controller
         return view('admin.profile.doctor', compact('doctor', 'majors'));
     }
 
-    public function updateDoctorProfile(UpdateDoctorRequest $request)
+    public function updateDoctorProfile(Request $request)
     {
+        $request->validate([
+            'name'     => 'required|string|max:255',
+            'email'    => 'required|email|unique:users,email,' . Auth::user()->id,
+            'phone'    => 'nullable|string|max:20',
+            'password' => 'nullable|string|min:8|confirmed',
+        ]);
         $doctor = Doctor::with('user')->where('user_id', Auth::id())->firstOrFail();
     
         $imageName = $doctor->image; 

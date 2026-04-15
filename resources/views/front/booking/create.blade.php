@@ -59,6 +59,16 @@
               @for($i=1;$i<=5;$i++)<i class="fa-solid fa-star{{ $i<=4?'':'-half-stroke' }}"></i>@endfor
               <small>4.8</small>
             </div>
+
+            {{-- Experience Pill --}}
+            <div class="bk-exp-pill">
+              <div class="bk-exp-icon">
+                <i class="fa-solid fa-briefcase-medical"></i>
+              </div>
+              <span class="bk-exp-num">{{ $doctor->years_of_experience }}</span>
+              <span class="bk-exp-lbl">yrs<br>exp.</span>
+            </div>
+
           </div>
         </div>
 
@@ -82,7 +92,6 @@
             <span class="c-muted"><i class="fa-regular fa-calendar-check c-blue"></i> Consultation Fee</span>
             <strong>{{ number_format($doctor->consultation_fee, 2) }} EGP</strong>
           </div>
-
           <div class="bk-divider"></div>
           <div class="bk-row">
             <span class="fw-700">Total Due</span>
@@ -91,7 +100,6 @@
         </div>
 
         <div class="bk-card bk-card--pad bk-trust">
-          {{-- Changed: PayMob → Stripe --}}
           <div class="bk-trust-item"><i class="fa-solid fa-lock c-blue"></i> Secured by Stripe</div>
           <div class="bk-trust-item"><i class="fa-solid fa-headset c-blue"></i> 24/7 Support</div>
         </div>
@@ -251,8 +259,6 @@
             </div>
 
             <div class="bk-pay-tabs">
-
-              {{-- Changed: PayMob badge → Stripe brand --}}
               <label class="bk-pay-tab active" for="pay-card">
                 <input type="radio" name="payment_method" id="pay-card" value="card" checked hidden>
                 <i class="fa-regular fa-credit-card"></i>
@@ -277,10 +283,8 @@
                 <i class="fa-solid fa-hospital"></i>
                 <span>Pay at Clinic</span>
               </label>
-
             </div>
 
-            {{-- Changed: PayMob notice → Stripe notice --}}
             <div id="card-notice">
               <div class="bk-notice bk-notice--stripe">
                 <i class="fa-brands fa-stripe-s"></i>
@@ -356,9 +360,51 @@
 .bk-doc-initials{display:flex;align-items:center;justify-content:center;filter:drop-shadow(0 6px 20px rgba(0,0,0,.2))}
 .bk-doc-meta{padding:16px 16px 20px;text-align:center}
 .bk-doc-name{font-family:'Fraunces',serif;font-size:1.05rem;font-weight:700;color:var(--text);margin-bottom:4px}
-.bk-stars{display:flex;align-items:center;justify-content:center;gap:3px;color:var(--gold);font-size:.75rem;margin-top:8px}
+.bk-stars{display:flex;align-items:center;justify-content:center;gap:3px;color:var(--gold);font-size:.75rem;margin-top:8px;margin-bottom:14px}
 .bk-stars small{color:var(--grey-500);margin-left:4px}
 .bk-badge{display:inline-block;background:var(--blue-soft);color:var(--blue);padding:4px 14px;border-radius:var(--r-full);font-size:.68rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+
+/* ─── Experience Pill ─── */
+.bk-exp-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: var(--blue-soft);
+  border: 1px solid rgba(0,106,255,0.14);
+  border-radius: var(--r-full);
+  padding: 5px 14px 5px 8px;
+  transition: background .4s, border-color .4s, box-shadow .4s, transform .4s;
+}
+.bk-card:hover .bk-exp-pill {
+  background: linear-gradient(135deg, var(--blue-soft) 0%, var(--gold-light) 100%);
+  border-color: rgba(201,168,76,0.30);
+  box-shadow: 0 4px 14px rgba(0,106,255,0.10);
+  transform: translateY(-1px);
+}
+.bk-exp-icon {
+  width: 22px; height: 22px;
+  background: var(--blue);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  transition: background .4s, transform .4s;
+}
+.bk-card:hover .bk-exp-icon {
+  background: linear-gradient(135deg, var(--blue), var(--gold));
+  transform: rotate(10deg);
+}
+.bk-exp-icon i { font-size: .55rem; color: #fff; }
+.bk-exp-num {
+  font-family: 'Fraunces', serif;
+  font-size: .95rem; font-weight: 700; color: var(--blue); line-height: 1;
+  transition: color .4s;
+}
+.bk-card:hover .bk-exp-num { color: var(--blue-dark); }
+.bk-exp-lbl {
+  font-size: .6rem; font-weight: 700;
+  color: var(--grey-500); letter-spacing: .08em;
+  text-transform: uppercase; line-height: 1.2; text-align: left;
+}
 
 /* ─── Rows ─── */
 .bk-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px dashed var(--grey-200);font-size:.78rem}
@@ -419,8 +465,6 @@
 .bk-pay-tab.active{border-color:var(--blue);background:var(--blue-soft)}
 .bk-pay-tab.active i,.bk-pay-tab.active span{color:var(--blue)}
 .bk-pay-brands{display:flex;gap:6px;align-items:center;margin-top:2px}
-
-/* Changed: PayMob badge → Stripe badge */
 .bk-stripe-badge{display:inline-flex;align-items:center;background:#635bff;color:white;padding:2px 7px;border-radius:4px;font-size:.75rem}
 .bk-stripe-badge i{font-size:.9rem}
 
@@ -429,8 +473,6 @@
 .bk-notice i{flex-shrink:0;margin-top:2px}
 .bk-notice--green{background:#f0fff4;border:1px solid #9ae6b4;color:#276749}
 .bk-notice--green i{color:#38a169}
-
-/* Changed: paymob notice → stripe notice */
 .bk-notice--stripe{background:#f0efff;border:1px solid #b5b0ff;color:#1a0080}
 .bk-notice--stripe i{color:#635bff;font-size:1.1rem}
 

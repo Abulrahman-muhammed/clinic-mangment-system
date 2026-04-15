@@ -19,7 +19,7 @@
             <div class="row align-items-center mb-4">
                 <div class="col">
                     <h2 class="h5 page-title">Admin Dashboard</h2>
-                    <p class="text-muted">Welcome back, {{  ucfirst(auth()->user()->name) }}</p>
+                    <p class="text-muted">Welcome back, {{ ucfirst(auth()->user()->name) }}</p>
                 </div>
                 <div class="col-auto">
                     <button class="btn btn-primary btn-sm" onclick="window.location.href='{{ route('admin.booking.index') }}'">
@@ -164,7 +164,6 @@
 
             <!-- Recent Appointments & Top Doctors -->
             <div class="row">
-                <!-- Recent Appointments -->
                 <div class="col-md-8">
                     <div class="card shadow mb-4">
                         <div class="card-header">
@@ -188,16 +187,12 @@
                                             @foreach($recentBookings as $booking)
                                             <tr>
                                                 <td>
-                                                    <div class="d-flex align-items-center">
-  
-                                                        <div>
-                                                            <strong>
-                                                                <a href="{{ route('admin.patient.show', $booking->patient_id) }}" >
-                                                                {{ $booking->patient->name ?? 'N/A' }}
-                                                                </a></strong>   <br>
-                                                            <small class="text-muted">{{ $booking->patient->email ?? 'N/A' }}</small>
-                                                        </div>
-                                                    </div>
+                                                    <strong>
+                                                        <a href="{{ route('admin.patient.show', $booking->patient_id) }}">
+                                                            {{ $booking->patient->name ?? 'N/A' }}
+                                                        </a>
+                                                    </strong><br>
+                                                    <small class="text-muted">{{ $booking->patient->email ?? 'N/A' }}</small>
                                                 </td>
                                                 <td>
                                                     <strong>Dr. {{ $booking->doctor->user->name ?? 'N/A' }}</strong><br>
@@ -228,7 +223,6 @@
                                 </div>
                             @else
                                 <div class="text-center py-5">
-                                    <span class="fe fe-calendar fe-48 text-muted mb-3 d-block"></span>
                                     <p class="text-muted">No appointments yet</p>
                                 </div>
                             @endif
@@ -236,7 +230,6 @@
                     </div>
                 </div>
 
-                <!-- Top Doctors -->
                 <div class="col-md-4">
                     <div class="card shadow mb-4">
                         <div class="card-header">
@@ -255,7 +248,7 @@
                                             </div>
                                             <div class="text-right">
                                                 <span class="badge badge-primary">{{ $doctor->bookings_count }}</span>
-                                                <small class="d-block text-muted">ِAppointments</small>
+                                                <small class="d-block text-muted">Appointments</small>
                                             </div>
                                         </div>
                                     </div>
@@ -263,7 +256,6 @@
                                 </div>
                             @else
                                 <div class="text-center py-4">
-                                    <span class="fe fe-users fe-48 text-muted mb-3 d-block"></span>
                                     <p class="text-muted">No data available</p>
                                 </div>
                             @endif
@@ -326,8 +318,10 @@
                 </div>
             </div>
 
-            <!-- Stats Cards -->
+            <!-- Stats Cards Row 1 -->
             <div class="row my-4">
+
+                {{-- Total Appointments --}}
                 <div class="col-md-3">
                     <div class="card shadow border-0 text-white bg-primary mb-4">
                         <div class="card-body">
@@ -344,6 +338,7 @@
                     </div>
                 </div>
 
+                {{-- My Patients --}}
                 <div class="col-md-3">
                     <div class="card shadow border-0 mb-4">
                         <div class="card-body">
@@ -360,6 +355,7 @@
                     </div>
                 </div>
 
+                {{-- Working Days --}}
                 <div class="col-md-3">
                     <div class="card shadow border-0 mb-4">
                         <div class="card-body">
@@ -376,6 +372,7 @@
                     </div>
                 </div>
 
+                {{-- Total Invoices --}}
                 <div class="col-md-3">
                     <div class="card shadow border-0 mb-4">
                         <div class="card-body">
@@ -391,10 +388,89 @@
                         </div>
                     </div>
                 </div>
+
+                {{-- Today's Appointments --}}
+                <div class="col-md-3">
+                    <div class="card shadow border-0 mb-4">
+                        <div class="card-body">
+                            <div class="row align-items-center">
+                                <div class="col">
+                                    <small class="text-muted mb-1">Today's Appointments</small>
+                                    <h3 class="card-title mb-0">{{ $data['today_count'] }}</h3>
+                                </div>
+                                <div class="col-4 text-right">
+                                    <span class="fe fe-sun fe-32 text-info"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Upcoming Appointments --}}
+                <div class="col-md-3">
+                    <div class="card shadow border-0 mb-4">
+                        <div class="card-body">
+                            <div class="row align-items-center">
+                                <div class="col">
+                                    <small class="text-muted mb-1">Upcoming</small>
+                                    <h3 class="card-title mb-0">{{ $data['upcoming_count'] }}</h3>
+                                </div>
+                                <div class="col-4 text-right">
+                                    <span class="fe fe-arrow-right-circle fe-32 text-primary"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- 💰 Bookings Earnings — Today + Month في ويدجت واحد --}}
+                <div class="col-md-3">
+                    <div class="card shadow border-0 mb-4">
+                        <div class="card-body">
+                            <div class="row align-items-center">
+                                <div class="col">
+                                    <small class="text-muted mb-1">Bookings Earnings</small>
+                                    <h3 class="card-title mb-0 text-success">${{ number_format($data['bookings_earnings_today'], 2) }}</h3>
+                                    <small class="text-muted">
+                                        This month:
+                                        <strong class="text-dark">${{ number_format($data['bookings_earnings_month'], 2) }}</strong>
+                                    </small>
+                                </div>
+                                <div class="col-4 text-right">
+                                    <span class="fe fe-dollar-sign fe-32 text-success"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- 🧾 Invoices Earnings — Today + Month في ويدجت واحد --}}
+                <div class="col-md-3">
+                    <div class="card shadow border-0 mb-4">
+                        <div class="card-body">
+                            <div class="row align-items-center">
+                                <div class="col">
+                                    <small class="text-muted mb-1">Invoices Earnings</small>
+                                    <h3 class="card-title mb-0 text-warning">${{ number_format($data['invoices_earnings_today'], 2) }}</h3>
+                                    <small class="text-muted">
+                                        This month:
+                                        <strong class="text-dark">${{ number_format($data['invoices_earnings_month'], 2) }}</strong>
+                                    </small>
+                                </div>
+                                <div class="col-4 text-right">
+                                    <span class="fe fe-trending-up fe-32 text-warning"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
 
             <!-- Tables Row -->
             <div class="row">
+
+                {{-- Recent Appointments --}}
                 <div class="col-md-6">
                     <div class="card shadow mb-4">
                         <div class="card-header">
@@ -415,12 +491,10 @@
                                     <tbody>
                                         @foreach($data['recent_bookings'] as $booking)
                                         <tr>
+                                            <td><strong>{{ $booking->patient->name ?? $booking->user->name ?? 'N/A' }}</strong></td>
                                             <td>
-                                                <strong>{{ $booking->name ?? 'N/A' }}</strong>
-                                            </td>
-                                            <td>
-                                                <span class="text-muted">{{ \Carbon\Carbon::parse($booking->date)->format('M d, Y') }}</span><br>
-                                                <small class="text-muted">{{ \Carbon\Carbon::parse($booking->date)->format('h:i A') }}</small>
+                                                <span class="text-muted">{{ \Carbon\Carbon::parse($booking->appointment_date)->format('M d, Y') }}</span><br>
+                                                <small class="text-muted">{{ \Carbon\Carbon::parse($booking->appointment_time)->format('h:i A') }}</small>
                                             </td>
                                             <td>
                                                 <span class="badge badge-{{ $booking->status == 'completed' ? 'success' : ($booking->status == 'pending' ? 'warning' : 'info') }}">
@@ -438,7 +512,6 @@
                                 </table>
                             @else
                                 <div class="text-center py-5">
-                                    <span class="fe fe-calendar fe-48 text-muted mb-3"></span>
                                     <p class="text-muted">No recent appointments</p>
                                 </div>
                             @endif
@@ -446,6 +519,7 @@
                     </div>
                 </div>
 
+                {{-- Recent Patients --}}
                 <div class="col-md-6">
                     <div class="card shadow mb-4">
                         <div class="card-header">
@@ -453,34 +527,26 @@
                             <a class="float-right small text-primary" href="{{ route('admin.doctor.myPatients') }}">View all</a>
                         </div>
                         <div class="card-body p-0">
-                            @if(isset($data['recent_patients']) && $data['recent_patients']->count() > 0)
+                            @if($data['recent_patients']->count() > 0)
                                 <table class="table table-hover mb-0">
                                     <thead>
                                         <tr>
                                             <th class="border-top-0">Patient Name</th>
-                                            <th class="border-top-0">Last Visit</th>
+                                            {{-- from invoices or bookings --}}
                                             <th class="border-top-0">Action</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @foreach($data['recent_patients'] as $patient)
+                                        @foreach($data['recent_patients'] as $booking)
                                         <tr>
                                             <td>
-                                                <div class="d-flex align-items-center">
-                                                    <div>
-                                                        <strong>{{ $patient->patient->name ?? 'N/A' }}</strong><br>
-                                                        <small class="text-muted">ID: #{{ $patient->patient_id }}</small>
-                                                    </div>
-                                                </div>
+                                                <strong>{{ $booking->patient->name ?? 'N/A' }}</strong><br>
+                                                <small class="text-muted">ID: #{{ $booking->patient_id }}</small>
                                             </td>
                                             <td>
-                                                <span class="text-muted">{{ \Carbon\Carbon::parse($patient->last_visit)->format('M d, Y') }}</span><br>
-                                                <small class="text-muted">{{ \Carbon\Carbon::parse($patient->last_visit)->diffForHumans() }}</small>
-                                            </td>
-                                            <td>
-                                                  <a href="{{ route('admin.patient.show', $patient->patient_id) }}" class="btn btn-sm btn-outline-primary">
+                                                <a href="{{ route('admin.patient.show', $booking->patient_id) }}" class="btn btn-sm btn-outline-primary">
                                                     <span class="fe fe-eye"></span>
-                                                  </a>
+                                                </a>
                                             </td>
                                         </tr>
                                         @endforeach
@@ -488,8 +554,49 @@
                                 </table>
                             @else
                                 <div class="text-center py-5">
-                                    <span class="fe fe-users fe-48 text-muted mb-3"></span>
                                     <p class="text-muted">No patients yet</p>
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            {{-- Today's Bookings Table --}}
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card shadow mb-4">
+                        <div class="card-header">
+                            <strong class="card-title">Today's Appointments</strong>
+                        </div>
+                        <div class="card-body p-0">
+                            @if($data['today_bookings']->count() > 0)
+                                <table class="table table-hover mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th class="border-top-0">Patient</th>
+                                            <th class="border-top-0">Time</th>
+                                            <th class="border-top-0">Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach($data['today_bookings'] as $booking)
+                                        <tr>
+                                            <td><strong>{{ $booking->patient->name ?? 'N/A' }}</strong></td>
+                                            <td>{{ \Carbon\Carbon::parse($booking->appointment_time)->format('h:i A') }}</td>
+                                            <td>
+                                                <span class="badge badge-{{ $booking->status == 'completed' ? 'success' : ($booking->status == 'pending' ? 'warning' : 'info') }}">
+                                                    {{ ucfirst($booking->status) }}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            @else
+                                <div class="text-center py-4">
+                                    <p class="text-muted">No appointments today</p>
                                 </div>
                             @endif
                         </div>
@@ -521,7 +628,6 @@
                                 </div>
                             @else
                                 <div class="text-center py-4">
-                                    <span class="fe fe-clock fe-48 text-muted mb-3"></span>
                                     <p class="text-muted">No schedule set</p>
                                 </div>
                             @endif
@@ -529,6 +635,7 @@
                     </div>
                 </div>
             </div>
+
         </div>
     </div>
 </div>
@@ -543,7 +650,6 @@
                     <h2 class="h5 page-title">Receptionist Dashboard</h2>
                     <p class="text-muted">Welcome back, {{ ucfirst(auth()->user()->name) }}</p>
                 </div>
-
             </div>
 
             <!-- Stats Cards -->
@@ -640,12 +746,8 @@
                                             <tr>
                                                 <td>{{ $index + 1 }}</td>
                                                 <td>
-                                                    <div class="d-flex align-items-center">
-                                                        <div>
-                                                            <strong>{{ $appointment->name ?? 'N/A' }}</strong><br>
-                                                            <small class="text-muted">{{ $appointment->phone ?? 'No phone' }}</small>
-                                                        </div>
-                                                    </div>
+                                                    <strong>{{ $appointment->name ?? 'N/A' }}</strong><br>
+                                                    <small class="text-muted">{{ $appointment->phone ?? 'No phone' }}</small>
                                                 </td>
                                                 <td>
                                                     <strong>Dr. {{ $appointment->doctor->user->name ?? 'N/A' }}</strong><br>
@@ -665,7 +767,7 @@
                                                     </span>
                                                 </td>
                                                 <td class="text-right">
-                                                    <a href="{{ route('admin.booking.index') }}" class="btn btn-sm btn-outline-primary" title="View Details">
+                                                    <a href="{{ route('admin.booking.index') }}" class="btn btn-sm btn-outline-primary">
                                                         <span class="fe fe-eye"></span>
                                                     </a>
                                                 </td>
@@ -676,7 +778,6 @@
                                 </div>
                             @else
                                 <div class="text-center py-5">
-                                    <span class="fe fe-calendar fe-48 text-muted mb-3 d-block"></span>
                                     <p class="text-muted mb-3">No appointments scheduled for today</p>
                                 </div>
                             @endif

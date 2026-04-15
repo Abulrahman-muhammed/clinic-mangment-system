@@ -7,6 +7,9 @@ use App\Http\Controllers\user\DoctorController;
 use App\Http\Controllers\user\ContactController;
 use App\Http\Controllers\user\ServiceController;
 use App\Http\Controllers\user\BookingController;
+use App\Http\Controllers\user\ChatBotController;
+use App\Http\Controllers\user\NotificationController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -32,8 +35,12 @@ Route::group(['as' => 'front.'], function () {
     Route::get('/doctor/{doctor}',  [DoctorController::class, 'show'])->name('doctor.show');
 
     // ── Booking (guests see form, auth required to submit) ────────────────
+
+    // ── chatbot ───────────────────────────────────────────────────────────
+    Route::get('/chatbot', [ChatBotController::class, 'index'])->name('chatbot');
+    Route::post('/chatbot/send', [ChatBotController::class, 'send'])->name('chatbot.send');
     
-    Route::middleware(['auth'])->group(function () {
+    Route::middleware(['auth','verified'])->group(function () {
         // front.profile.my-appointments
         Route::get('/profile/appointments', [HomeController::class, 'appointments'])->name('profile.my-appointments');
         Route::patch('/booking/{booking}/cancel', [HomeController::class, 'cancel'])->name('booking.cancel');
@@ -54,6 +61,13 @@ Route::group(['as' => 'front.'], function () {
         // Result pages
         Route::get('/booking/{booking}/success',[BookingController::class, 'success'])->name('booking.success');
         Route::get('/booking/{booking}/failed',[BookingController::class, 'failed'])->name('booking.failed');
+
+        // ── Notifications ──────────────────────────────────────────────────
+        Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+        Route::post('/notifications/{id}/mark-as-read', [NotificationController::class, 'markAsRead'])->name('notifications.markAsRead');
+        Route::post('/notifications/mark-all-as-read', [NotificationController::class, 'markAllAsRead'])->name('notifications.markAllRead');
+        Route::delete('/notifications/{id}', [NotificationController::class, 'destroy'])->name('notifications.destroy');
+
 
     });
 

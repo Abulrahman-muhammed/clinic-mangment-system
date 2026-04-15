@@ -17,8 +17,8 @@ class UpdateDoctorRequest extends FormRequest
 
     public function rules(): array
     { 
-        $doctor = Doctor::where('user_id', Auth::id())->first();
-        $userId = $doctor?->user_id;
+        $doctor = $this->route('doctor');
+        $userId = $doctor->user_id;
         return [
             'name'     => 'sometimes|string|max:255',
             'gender'   => 'sometimes|in:male,female',
@@ -35,7 +35,7 @@ class UpdateDoctorRequest extends FormRequest
                 'max:255',
                 Rule::unique('users', 'email')->ignore($userId)
             ],
-            'password' => 'nullable|string|min:8|confirmed',
+            'password' => 'nullable|string|min:8',
         ];
     }
 }

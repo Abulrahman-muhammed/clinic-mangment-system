@@ -19,7 +19,22 @@ AOS.init({
   });
     </script>
 
+
+
+{{-- Pass user ID to JS --}}
+<script>
+    window._authUserId = {{ auth()->id() }};
+
+
+</script>
+     
+{{-- Vite assets (لو مش موجود خليه) --}}
+@vite(['resources/js/app.js'])
+ 
     @stack('scripts')
+
+
+
 </body>
 
 </html>

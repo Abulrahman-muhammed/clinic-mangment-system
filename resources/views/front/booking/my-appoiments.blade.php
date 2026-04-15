@@ -198,7 +198,7 @@
             @endif
 
             {{-- 🗑 Delete Button: only for cancelled or completed --}}
-            @if(in_array($booking->status, ['cancelled', 'completed']))
+            @if(in_array($booking->status, ['cancelled', 'completed']) || $booking->payment_status === 'failed')
               <form action="{{ route('front.booking.destroy', $booking) }}"
                     method="POST"
                     id="delete-form-{{ $booking->id }}">

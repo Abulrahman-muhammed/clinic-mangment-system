@@ -173,40 +173,45 @@
                                         </td>
 
                                         <td class="text-center">
-                                            <div class="btn-group" role="group">
-                                                @can('edit_users')
-                                                <a href="{{ route('admin.user.edit', $user) }}"
-                                                   class="btn btn-sm btn-outline-primary"
-                                                   data-toggle="tooltip" title="Edit User">
-                                                    <i class="fe fe-edit"></i>
-                                                </a>
-                                                @endcan
+                                            {{--if user has role not doctor or receptionist, disable edit and delete buttons --}}
+                                            @if(!($user->hasRole('doctor') || $user->hasRole('receptionist')))
 
-                                                @can('delete_users')
-                                                @if($user->id !== auth()->id())
-                                                    <form action="{{ route('admin.user.destroy', $user) }}"
-                                                          method="POST"
-                                                          id="delete-form-{{ $user->id }}"
-                                                          class="d-inline">
-                                                        @csrf
-                                                        @method('DELETE')
-                                                        <button type="button"
-                                                                onclick="confirmDelete({{ $user->id }}, '{{ addslashes($user->name) }}', '{{ Str::ucfirst($role ?? 'No Role') }}')"
-                                                                class="btn btn-sm btn-outline-danger"
-                                                                data-toggle="tooltip" title="Delete User">
-                                                            <i class="fe fe-trash-2"></i>
+                                                <div class="btn-group" role="group">
+                                                    @can('edit_users')
+                                                    <a href="{{ route('admin.user.edit', $user) }}"
+                                                    class="btn btn-sm btn-outline-primary"
+                                                    data-toggle="tooltip" title="Edit User">
+                                                        <i class="fe fe-edit"></i>
+                                                    </a>
+                                                    @endcan
+
+                                                    @can('delete_users')
+                                                    @if($user->id !== auth()->id())
+                                                        <form action="{{ route('admin.user.destroy', $user) }}"
+                                                            method="POST"
+                                                            id="delete-form-{{ $user->id }}"
+                                                            class="d-inline">
+                                                            @csrf
+                                                            @method('DELETE')
+                                                            <button type="button"
+                                                                    onclick="confirmDelete({{ $user->id }}, '{{ addslashes($user->name) }}', '{{ Str::ucfirst($role ?? 'No Role') }}')"
+                                                                    class="btn btn-sm btn-outline-danger"
+                                                                    data-toggle="tooltip" title="Delete User">
+                                                                <i class="fe fe-trash-2"></i>
+                                                            </button>
+                                                        </form>
+                                                    @else
+                                                        <button class="btn btn-sm btn-outline-secondary"
+                                                                disabled
+                                                                data-toggle="tooltip"
+                                                                title="You cannot delete your own account">
+                                                            <i class="fe fe-lock"></i>
                                                         </button>
-                                                    </form>
-                                                @else
-                                                    <button class="btn btn-sm btn-outline-secondary"
-                                                            disabled
-                                                            data-toggle="tooltip"
-                                                            title="You cannot delete your own account">
-                                                        <i class="fe fe-lock"></i>
-                                                    </button>
-                                                @endif
-                                                @endcan
-                                            </div>
+                                                    @endif
+                                                    @endcan
+                                                </div>
+
+                                            @endif
                                         </td>
                                     </tr>
                                 @empty

@@ -7,7 +7,11 @@ use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\ServiceProvider;
-
+use App\Models\Booking;
+use App\Models\Doctor;
+use App\Models\Patient;
+use App\Observers\BookingObserver;
+use App\Observers\BookingStatusObserverr;
 class AppServiceProvider extends ServiceProvider
 {
     /**
@@ -25,18 +29,9 @@ class AppServiceProvider extends ServiceProvider
     {
         Paginator::useBootstrapFive();
         Paginator::useBootstrapFour();
+        Booking::observe(BookingObserver::class);
+        Booking::observe(BookingStatusObserverr::class);
+        
 
-        // $settings = cache()->remember(
-        //     'settings',
-        //      3600,
-        //      fn() => Setting::all()->keyBy('key')
-        //     );
-        // View::share('settings', $settings);
-
-        $this->app->bind('settings', function () {
-            return Cache::rememberForever('settings', function () {
-                return Setting::pluck('value', 'key');
-            });
-        });
     }
 }

@@ -188,6 +188,11 @@
   display: flex; align-items: center; gap: 14px;
   padding: 12px 16px; background: #f5f7fc;
   border-radius: 12px; border: 1px solid #e8ecf4;
+  transition: border-color .3s, box-shadow .3s;
+}
+.ds-info-row:hover {
+  border-color: rgba(0,106,255,0.2);
+  box-shadow: 0 4px 14px rgba(0,106,255,0.07);
 }
 .ds-info-icon {
   width: 36px; height: 36px; border-radius: 10px;
@@ -197,6 +202,33 @@
 }
 .ds-info-label { font-size: 0.72rem; color: #9aa4b8; font-weight: 500; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 2px; }
 .ds-info-val { font-size: 0.88rem; color: #05143a; font-weight: 500; }
+
+/* ── EXPERIENCE ROW ── */
+.ds-exp-val {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+.ds-exp-dots {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.ds-exp-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #d8dce8;
+  transition: background .3s, transform .3s;
+  display: inline-block;
+}
+.ds-exp-dot.active {
+  background: linear-gradient(135deg, #006aff, #c9a84c);
+}
+.ds-info-row:hover .ds-exp-dot.active {
+  transform: scale(1.4);
+}
 
 /* ── SCHEDULE ── */
 .ds-schedule-grid {
@@ -386,6 +418,10 @@
       <div class="ds-stat-key">Consultation Fee</div>
     </div>
     <div class="ds-stat-item">
+      <div class="ds-stat-val">{{ $doctor->years_of_experience }}<span>+</span></div>
+      <div class="ds-stat-key">Years Experience</div>
+    </div>
+    <div class="ds-stat-item">
       <div class="ds-stat-val">{{ $doctor->schedules->count() ?? 0 }}<span>/7</span></div>
       <div class="ds-stat-key">Available Days</div>
     </div>
@@ -457,6 +493,20 @@
             </div>
           </div>
           @endif
+          <div class="ds-info-row">
+            <div class="ds-info-icon"><i class="fa-solid fa-briefcase-medical"></i></div>
+            <div style="flex:1;">
+              <div class="ds-info-label">Experience</div>
+              <div class="ds-info-val ds-exp-val">
+                <span>{{ $doctor->years_of_experience }} years of practice</span>
+                <span class="ds-exp-dots">
+                  @for($i = 1; $i <= 10; $i++)
+                    <span class="ds-exp-dot {{ $i <= min($doctor->years_of_experience, 10) ? 'active' : '' }}"></span>
+                  @endfor
+                </span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -517,6 +567,10 @@
           <div class="ds-book-feat">
             <i class="fa-solid fa-circle-check"></i>
             <span>Certified specialist</span>
+          </div>
+          <div class="ds-book-feat">
+            <i class="fa-solid fa-briefcase-medical"></i>
+            <span>{{ $doctor->years_of_experience }}+ years of experience</span>
           </div>
           <div class="ds-book-feat">
             <i class="fa-solid fa-lock"></i>

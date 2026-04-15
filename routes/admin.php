@@ -7,7 +7,6 @@ use App\Http\Controllers\admin\MajorController;
 use App\Http\Controllers\admin\DoctorController;
 use App\Http\Controllers\admin\BookingController;
 use App\Http\Controllers\admin\ContactController;
-use App\Http\Controllers\admin\SettingController;
 use App\Http\Controllers\admin\auth\LoginController;
 use App\Http\Controllers\admin\ScheduleController;
 use App\Http\Controllers\admin\ServiceController;
@@ -17,6 +16,8 @@ use App\Http\Controllers\admin\InvoiceController;
 use App\Http\Controllers\admin\RoleController;
 use App\Http\Controllers\admin\profileController;
 use App\Http\Controllers\admin\DoctorDashboardController;
+use App\Http\Controllers\admin\SettngController;
+use App\Http\Controllers\admin\NotificationController;
 
 Route::group([
     'prefix' => 'admin',
@@ -133,9 +134,16 @@ Route::group([
     )->name('invoice.toggleStatus');
     Route::resource('invoice', InvoiceController::class)->except('show');
 
-     // Settings
-     Route::get('/settings', [SettingController::class, 'edit'])->name('settings.edit');
-     Route::put('/settings', [SettingController::class, 'update'])->name('settings.update');
+    // Settings
+    Route::get('/settings', [SettngController::class, 'index'])->name('settings.edit');
+    Route::put('/settings', [SettngController::class, 'update'])->name('settings.update');
+
+            // ── Notifications ───────────────────────────────────────────────────
+        Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+        Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllAsRead'])->name('notifications.markAllRead');
+        Route::post('/notifications/{id}/mark-read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
+        Route::delete('/notifications/{id}', [NotificationController::class, 'destroy'])->name('notifications.destroy');
+        Route::delete('/notifications', [NotificationController::class, 'clearAll'])->name('notifications.clearAll');
     }
     );
 });

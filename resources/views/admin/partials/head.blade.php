@@ -3,6 +3,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="">
     <meta name="author" content="">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <!-- <link rel="icon" href="{{asset('admin-assets')}}/favicon.ico"> -->
     <title>Dashboard - @yield('title') </title>
     <!-- Simple bar CSS -->
@@ -22,4 +23,9 @@
     <!-- App CSS -->
     <link rel="stylesheet" href="{{asset('admin-assets')}}/css/app-light.css" id="lightTheme">
     <link rel="stylesheet" href="{{asset('admin-assets')}}/css/app-dark.css" id="darkTheme" disabled>
+
+    <script>
+    window._authUserId = {{ auth()->id() ?? 'null' }};
+  </script>
+
   </head>

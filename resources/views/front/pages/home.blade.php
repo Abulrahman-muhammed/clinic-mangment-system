@@ -43,7 +43,7 @@
               <div class="hero-text">
                 <h1>AI-Powered Assistance</h1>
                 <p>Experience the future of healthcare with our smart AI chatbot. Instant answers to your medical inquiries 24/7.</p>
-                <a href="#" class="book-btn">Try the Chatbot</a>
+                <a href="{{ route('front.chatbot') }}" class="book-btn">Try the Chatbot</a>
               </div>
             </div>
           </div>
@@ -111,7 +111,7 @@
             </div>
             <h3 class="pref-card-name">AI Assistant</h3>
             <p class="pref-card-info">Ask about symptoms, medications, or health tips — get quick, intelligent answers available 24/7.</p>
-            <a href="#" class="pref-action-btn">Talk to AI</a>
+            <a href="{{ route('front.chatbot') }}" class="pref-action-btn">Talk to AI</a>
           </div>
 
         </div>
@@ -278,6 +278,13 @@
                   <span><i class="fa-solid fa-phone"></i> {{ $doctor->user->phone }}</span>
                 </div>
                 <span class="doc-specialty">{{ $doctor->major->title }}</span>
+<div class="doc-exp-bar">
+  <div class="doc-exp-icon">
+    <i class="fa-solid fa-briefcase-medical"></i>
+  </div>
+  <span class="doc-exp-number">{{ $doctor->years_of_experience }}</span>
+  <span class="doc-exp-text">yrs<br>exp.</span>
+</div>
                 <h4 class="doc-price">Appointment: {{ number_format($doctor->consultation_fee, 2) }} EGP</h4>
                 <div class="doc-rating">
                   @for ($i = 1; $i <= 5; $i++)
@@ -316,8 +323,11 @@
     <div class="floating-socials">
 
       {{-- WhatsApp --}}
+      @php
+        $generalSettings = app(App\Settings\GeneralSettings::class);
+      @endphp
       <a
-        href="https://wa.me/201XXXXXXXXX"
+        href="https://wa.me/{{  $generalSettings->site_phone }}"
         class="float-btn float-btn--whatsapp"
         target="_blank"
         rel="noopener noreferrer"
@@ -330,7 +340,7 @@
 
       {{-- AI Chatbot --}}
       <a
-        href="#"
+        href="{{ route('front.chatbot') }}"
         class="float-btn float-btn--chatbot"
         data-tip="AI Assistant"
         aria-label="Chat with our AI Assistant"

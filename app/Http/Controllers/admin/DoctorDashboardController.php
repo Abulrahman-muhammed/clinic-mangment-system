@@ -5,26 +5,108 @@ namespace App\Http\Controllers\admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\{Invoice, Patient, Booking, Doctor, DoctorSchedule};
-use Illuminate\Support\Facades\Auth;
-
+use Illuminate\Support\Facades\DB;
 
 class DoctorDashboardController extends Controller
 {
-    // دالة مساعدة خاصة بالكنترولر لتقليل التكرار
+    // 🔹 Get logged doctor
     private function getDoctor()
     {
         return Doctor::where('user_id', auth()->id())->firstOrFail();
     }
 
-    // my invoices
+    // ─────────────────────────────────────────────
+    // 📊 Dashboard
+    // ─────────────────────────────────────────────
+    public function dashboard()
+    {
+        $doctor = $this->getDoctor();
+
+        $data = [
+
+            // 📅 Stats
+            'today_count' => Booking::where('doctor_id', $doctor->id)
+                ->whereDate('appointment_date', today())
+                ->count(),
+
+            'upcoming_count' => Booking::where('doctor_id', $doctor->id)
+                ->whereDate('appointment_date', '>', today())
+                ->count(),
+
+            'bookings_count' => Booking::where('doctor_id', $doctor->id)->count(),
+
+            // 👤 Patients (Booking + Invoice)
+            'patients_count' => DB::table(function ($query) use ($doctor) {
+                $query->select('patient_id')
+                    ->from('bookings')
+                    ->where('doctor_id', $doctor->id)
+                    ->union(
+                        DB::table('invoices')
+                            ->select('patient_id')
+                            ->where('doctor_id', $doctor->id)
+                    );
+            }, 'patients')->distinct()->count('patient_id'),
+
+            // 💰 Earnings
+            'earnings_today' => Invoice::where('doctor_id', $doctor->id)
+                ->whereDate('invoice_date', today())
+                ->sum('amount'),
+
+            'earnings_month' => Invoice::where('doctor_id', $doctor->id)
+                ->whereMonth('invoice_date', now()->month)
+                ->sum('amount'),
+
+            // ✅ إضافة schedules_count
+            'schedules_count' => DoctorSchedule::where('doctor_id', $doctor->id)->count(),
+
+            // ✅ إضافة invoices_count
+            'invoices_count' => Invoice::where('doctor_id', $doctor->id)->count(),
+
+            // 📋 Today's bookings
+            'today_bookings' => Booking::where('doctor_id', $doctor->id)
+                ->whereDate('appointment_date', today())
+                ->with('patient')
+                ->orderBy('appointment_time')
+                ->get(),
+
+            // 📋 Recent bookings
+            'recent_bookings' => Booking::where('doctor_id', $doctor->id)
+                ->with(['patient', 'user'])
+                ->latest()
+                ->take(5)
+                ->get(),
+
+            // ✅ إضافة recent_patients (من Booking مع patient)
+            'recent_patients' => Booking::where('doctor_id', $doctor->id)
+                ->with('patient')
+                ->latest()
+                ->take(5)
+                ->get(),
+
+            // 🗓️ Schedule
+            'schedules' => DoctorSchedule::where('doctor_id', $doctor->id)
+                ->orderByRaw("FIELD(day_of_week, 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday')")
+                ->get(),
+        ];
+
+        return view('admin.home', compact('data'));
+    }
+
+    // ─────────────────────────────────────────────
+    // 🧾 My Invoices
+    // ─────────────────────────────────────────────
     public function myInvoices(Request $request)
     {
         $doctor = $this->getDoctor();
-        
-        $query = Invoice::where('doctor_id', $doctor->id);
+
+        $query = Invoice::where('doctor_id', $doctor->id)
+            ->with('patient');
 
         if ($request->filled('search')) {
-            $query->where('patient_id', $request->search);
+            $query->whereHas('patient', function ($q) use ($request) {
+                $q->where('name', 'like', "%{$request->search}%")
+                  ->orWhere('email', 'like', "%{$request->search}%");
+            });
         }
 
         if ($request->filled('status')) {
@@ -36,16 +118,27 @@ class DoctorDashboardController extends Controller
         }
 
         $invoices = $query->latest()->paginate(10)->withQueryString();
+
         return view('admin.invoices.index', compact('invoices'));
     }
 
-    // my patients
+    // ─────────────────────────────────────────────
+    // 👤 My Patients (Booking + Invoice)
+    // ─────────────────────────────────────────────
     public function myPatients(Request $request)
     {
         $doctor = $this->getDoctor();
 
-        // نجلب فقط الـ IDs للمرضى الذين لديهم فواتير مع هذا الدكتور
-        $patientIds = Invoice::where('doctor_id', $doctor->id)->distinct()->pluck('patient_id');
+        // 🔥 collect patient IDs from both tables
+        $bookingPatients = Booking::where('doctor_id', $doctor->id)
+            ->pluck('patient_id');
+
+        $invoicePatients = Invoice::where('doctor_id', $doctor->id)
+            ->pluck('patient_id');
+
+        $patientIds = $bookingPatients
+            ->merge($invoicePatients)
+            ->unique();
 
         $patients = Patient::whereIn('id', $patientIds)
             ->when($request->search, function ($query) use ($request) {
@@ -67,19 +160,48 @@ class DoctorDashboardController extends Controller
         return view('admin.patients.index', compact('patients'));
     }
 
-    // my bookings
-    public function myBookings()
+    // ─────────────────────────────────────────────
+    // 📅 My Bookings
+    // ─────────────────────────────────────────────
+    public function myBookings(Request $request)
     {
         $doctor = $this->getDoctor();
-        $bookings = Booking::where('doctor_id', $doctor->id)->latest()->paginate(10);
-        
+ 
+        $query = Booking::where('doctor_id', $doctor->id)
+            ->with(['patient', 'user']);
+ 
+        // 🔍 Search by patient name / email / phone
+        if ($request->filled('search')) {
+            $query->whereHas('patient', function ($q) use ($request) {
+                $q->where('name', 'like', "%{$request->search}%")
+                  ->orWhere('email', 'like', "%{$request->search}%")
+                  ->orWhere('phone', 'like', "%{$request->search}%");
+            });
+        }
+ 
+        // 🏷️ Filter by status
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+ 
+        // 📅 Filter by appointment date
+        if ($request->filled('date')) {
+            $query->whereDate('appointment_date', $request->date);
+        }
+ 
+        $bookings = $query->latest()->paginate(10)->withQueryString();
+ 
         return view('admin.bookings.index', compact('bookings'));
     }
+ 
 
-    // my schedule
+    // ─────────────────────────────────────────────
+    // 🗓️ My Schedule
+    // ─────────────────────────────────────────────
     public function mySchedule(Request $request)
     {
         $doctor = $this->getDoctor();
+
         $query = DoctorSchedule::where('doctor_id', $doctor->id);
 
         if ($request->filled('day')) {
@@ -87,43 +209,7 @@ class DoctorDashboardController extends Controller
         }
 
         $schedules = $query->latest()->paginate(10)->withQueryString();
+
         return view('admin.schedules.index', compact('schedules', 'doctor'));
     }
-
-public function dashboard()
-{
-        $doctor = Doctor::where('user_id', Auth::id())->first();
-        
-        if (!$doctor) {
-            abort(404, 'Doctor profile not found');
-        }
-
-        $data = [
-            'bookings_count'  => Booking::where('doctor_id', $doctor->id)->count(),
-            
-            'patients_count'  => Invoice::where('doctor_id', $doctor->id)
-                                        ->distinct('patient_id')
-                                        ->count('patient_id'),
-            
-            'schedules_count' => DoctorSchedule::where('doctor_id', $doctor->id)->count(),
-            
-            'invoices_count'  => Invoice::where('doctor_id', $doctor->id)->count(),
-            
-            'recent_bookings' => Booking::where('doctor_id', $doctor->id)
-                                        ->with('patient')
-                                        ->latest()
-                                        ->take(5)
-                                        ->get(),
-            
-            'schedules'       => DoctorSchedule::where('doctor_id', $doctor->id)
-                                              ->orderByRaw("FIELD(day_of_week, 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday')")
-                                              ->get(),
-        ];
-
-        return view('admin.home', compact('data'));
-}
-
-
-
-
 }
