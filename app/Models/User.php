@@ -24,7 +24,8 @@ class User extends Authenticatable implements MustVerifyEmail
         'email',
         'phone',
         'password',
-        'role'
+        'role',
+        'email_verified_at',
     ];
 
     /**
@@ -52,5 +53,14 @@ class User extends Authenticatable implements MustVerifyEmail
     }
     public function receptionist() {
         return $this->hasOne(Receptionist::class)->withTrashed();
+    }
+    public function visitsCreated()
+    {
+        return $this->hasMany(Visit::class, 'receptionist_id');
+    }
+    
+    public function invoicesCreated()
+    {
+        return $this->hasMany(Invoice::class, 'user_id');
     }
 }

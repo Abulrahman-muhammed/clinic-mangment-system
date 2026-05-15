@@ -74,9 +74,12 @@
                                         @endif
                                     </div>
                                     @if($unreadCount > 0)
-                                        <a href="{{ route('front.notifications.markAllRead') }}" class="notif-mark-read">
+                                    <form action="{{ route('front.notifications.markAllRead') }}" method="POST">
+                                        @csrf
+                                        <button type="submit" class="notif-mark-read">
                                             Mark all read
-                                        </a>
+                                        </button>
+                                    </form>
                                     @endif
                                 </div>
 

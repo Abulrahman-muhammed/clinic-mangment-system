@@ -25,7 +25,8 @@
     <link rel="stylesheet" href="{{asset('admin-assets')}}/css/app-dark.css" id="darkTheme" disabled>
 
     <script>
-    window._authUserId = {{ auth()->id() ?? 'null' }};
+    window._authUserId = 'admin';
+    window.APP_ROLE = "{{ auth()->user()->role ?? 'null' }}";
   </script>
 
   </head>

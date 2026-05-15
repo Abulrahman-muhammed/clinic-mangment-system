@@ -18,6 +18,7 @@ use App\Http\Controllers\admin\profileController;
 use App\Http\Controllers\admin\DoctorDashboardController;
 use App\Http\Controllers\admin\SettngController;
 use App\Http\Controllers\admin\NotificationController;
+use App\Http\Controllers\admin\VisitController;
 
 Route::group([
     'prefix' => 'admin',
@@ -71,6 +72,7 @@ Route::group([
     // Doctor Dashboard Routes
     Route::get('/doctors/my-schedule', [DoctorDashboardController::class, 'mySchedule'])->name('doctor.mySchedule'); 
     Route::get('/doctors/my-bookings', [DoctorDashboardController::class, 'myBookings'])->name('doctor.myBookings'); 
+    Route::get('/doctors/my-visits', [DoctorDashboardController::class, 'myVisits'])->name('doctor.myVisits');
     Route::get('/doctors/my-patients', [DoctorDashboardController::class, 'myPatients'])->name('doctor.myPatients'); 
     Route::get('/doctors/my-invoices', [DoctorDashboardController::class, 'myInvoices'])->name('doctor.myInvoices'); 
     Route::get('/doctor/dashboard', [DoctorDashboardController::class, 'dashboard'])->name('doctor.dashboard');
@@ -144,6 +146,16 @@ Route::group([
         Route::post('/notifications/{id}/mark-read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
         Route::delete('/notifications/{id}', [NotificationController::class, 'destroy'])->name('notifications.destroy');
         Route::delete('/notifications', [NotificationController::class, 'clearAll'])->name('notifications.clearAll');
+
+
+
+    // Visits
+    Route::resource('visit', VisitController::class);
+    // trash and restore for visits
+    Route::get('/visits/trashed', [VisitController::class, 'trashed'])->name('visit.trashed');
+    Route::patch('/visits/{visit}/restore', [VisitController::class, 'restore'])->name('visit.restore');
+    Route::patch('/visits/{visit}/update-status', [VisitController::class, 'updateStatus'])->name('visit.update-status');
+    
     }
     );
 });

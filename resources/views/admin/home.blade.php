@@ -111,7 +111,7 @@
                 </div>
             </div>
 
-            <!-- Secondary Stats -->
+            <!-- Secondary Stats — Bookings -->
             <div class="row">
                 <div class="col-md-4">
                     <div class="card shadow border-0 text-white bg-warning mb-4">
@@ -150,8 +150,84 @@
                         <div class="card-body">
                             <div class="row align-items-center">
                                 <div class="col">
-                                    <small class="text-white-50 mb-1">Completed</small>
+                                    <small class="text-white-50 mb-1">Completed Appointments</small>
                                     <h3 class="card-title text-white mb-0">{{ $completedBookings }}</h3>
+                                </div>
+                                <div class="col-4 text-right">
+                                    <span class="fe fe-check-circle fe-32"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Visits Stats -->
+            <div class="row align-items-center mb-3">
+                <div class="col">
+                    <h6 class="text-muted text-uppercase font-weight-bold mb-0">
+                        <span class="fe fe-activity mr-1"></span> Visits Overview
+                    </h6>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="card shadow border-0 mb-4">
+                        <div class="card-body">
+                            <div class="row align-items-center">
+                                <div class="col">
+                                    <small class="text-muted mb-1">Total Visits</small>
+                                    <h3 class="card-title mb-0">{{ $totalVisits }}</h3>
+                                    <p class="small text-muted mb-0">All Time</p>
+                                </div>
+                                <div class="col-4 text-right">
+                                    <span class="fe fe-activity fe-32 text-primary"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="card shadow border-0 mb-4">
+                        <div class="card-body">
+                            <div class="row align-items-center">
+                                <div class="col">
+                                    <small class="text-muted mb-1">Today's Visits</small>
+                                    <h3 class="card-title mb-0">{{ $todayVisits }}</h3>
+                                    <p class="small text-muted mb-0">Today</p>
+                                </div>
+                                <div class="col-4 text-right">
+                                    <span class="fe fe-sun fe-32 text-info"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="card shadow border-0 text-white bg-warning mb-4">
+                        <div class="card-body">
+                            <div class="row align-items-center">
+                                <div class="col">
+                                    <small class="text-white-50 mb-1">Pending Visits</small>
+                                    <h3 class="card-title text-white mb-0">{{ $pendingVisits }}</h3>
+                                </div>
+                                <div class="col-4 text-right">
+                                    <span class="fe fe-clock fe-32"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="card shadow border-0 text-white bg-success mb-4">
+                        <div class="card-body">
+                            <div class="row align-items-center">
+                                <div class="col">
+                                    <small class="text-white-50 mb-1">Completed Visits</small>
+                                    <h3 class="card-title text-white mb-0">{{ $completedVisits }}</h3>
                                 </div>
                                 <div class="col-4 text-right">
                                     <span class="fe fe-check-circle fe-32"></span>
@@ -199,8 +275,8 @@
                                                     <small class="text-muted">{{ $booking->doctor->major->name ?? '' }}</small>
                                                 </td>
                                                 <td>
-                                                    <span class="text-muted">{{ \Carbon\Carbon::parse($booking->date)->format('M d, Y') }}</span><br>
-                                                    <small class="text-muted">{{ \Carbon\Carbon::parse($booking->date)->format('h:i A') }}</small>
+                                                    <span class="text-muted">{{ \Carbon\Carbon::parse($booking->appointment_date)->format('M d, Y') }}</span><br>
+                                                    <small class="text-muted">{{ \Carbon\Carbon::parse($booking->appointment_time)->format('h:i A') }}</small>
                                                 </td>
                                                 <td>
                                                     <span class="badge badge-{{ 
@@ -302,10 +378,15 @@
                     </div>
                 </div>
             </div>
+
         </div>
     </div>
 </div>
 @endrole
+
+{{-- ================================================================ --}}
+{{--                        DOCTOR DASHBOARD                          --}}
+{{-- ================================================================ --}}
 
 @role('doctor')
 <div class="container-fluid">
@@ -318,10 +399,8 @@
                 </div>
             </div>
 
-            <!-- Stats Cards Row 1 -->
+            <!-- Bookings Stats -->
             <div class="row my-4">
-
-                {{-- Total Appointments --}}
                 <div class="col-md-3">
                     <div class="card shadow border-0 text-white bg-primary mb-4">
                         <div class="card-body">
@@ -338,7 +417,6 @@
                     </div>
                 </div>
 
-                {{-- My Patients --}}
                 <div class="col-md-3">
                     <div class="card shadow border-0 mb-4">
                         <div class="card-body">
@@ -355,7 +433,6 @@
                     </div>
                 </div>
 
-                {{-- Working Days --}}
                 <div class="col-md-3">
                     <div class="card shadow border-0 mb-4">
                         <div class="card-body">
@@ -372,7 +449,6 @@
                     </div>
                 </div>
 
-                {{-- Total Invoices --}}
                 <div class="col-md-3">
                     <div class="card shadow border-0 mb-4">
                         <div class="card-body">
@@ -389,7 +465,6 @@
                     </div>
                 </div>
 
-                {{-- Today's Appointments --}}
                 <div class="col-md-3">
                     <div class="card shadow border-0 mb-4">
                         <div class="card-body">
@@ -406,7 +481,6 @@
                     </div>
                 </div>
 
-                {{-- Upcoming Appointments --}}
                 <div class="col-md-3">
                     <div class="card shadow border-0 mb-4">
                         <div class="card-body">
@@ -423,7 +497,6 @@
                     </div>
                 </div>
 
-                {{-- 💰 Bookings Earnings — Today + Month في ويدجت واحد --}}
                 <div class="col-md-3">
                     <div class="card shadow border-0 mb-4">
                         <div class="card-body">
@@ -432,8 +505,7 @@
                                     <small class="text-muted mb-1">Bookings Earnings</small>
                                     <h3 class="card-title mb-0 text-success">${{ number_format($data['bookings_earnings_today'], 2) }}</h3>
                                     <small class="text-muted">
-                                        This month:
-                                        <strong class="text-dark">${{ number_format($data['bookings_earnings_month'], 2) }}</strong>
+                                        This month: <strong class="text-dark">${{ number_format($data['bookings_earnings_month'], 2) }}</strong>
                                     </small>
                                 </div>
                                 <div class="col-4 text-right">
@@ -444,7 +516,6 @@
                     </div>
                 </div>
 
-                {{-- 🧾 Invoices Earnings — Today + Month في ويدجت واحد --}}
                 <div class="col-md-3">
                     <div class="card shadow border-0 mb-4">
                         <div class="card-body">
@@ -453,8 +524,7 @@
                                     <small class="text-muted mb-1">Invoices Earnings</small>
                                     <h3 class="card-title mb-0 text-warning">${{ number_format($data['invoices_earnings_today'], 2) }}</h3>
                                     <small class="text-muted">
-                                        This month:
-                                        <strong class="text-dark">${{ number_format($data['invoices_earnings_month'], 2) }}</strong>
+                                        This month: <strong class="text-dark">${{ number_format($data['invoices_earnings_month'], 2) }}</strong>
                                     </small>
                                 </div>
                                 <div class="col-4 text-right">
@@ -464,10 +534,85 @@
                         </div>
                     </div>
                 </div>
-
             </div>
 
-            <!-- Tables Row -->
+            <!-- Visits Stats -->
+            <div class="row align-items-center mb-3">
+                <div class="col">
+                    <h6 class="text-muted text-uppercase font-weight-bold mb-0">
+                        <span class="fe fe-activity mr-1"></span> Visits Overview
+                    </h6>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="card shadow border-0 mb-4">
+                        <div class="card-body">
+                            <div class="row align-items-center">
+                                <div class="col">
+                                    <small class="text-muted mb-1">Total Visits</small>
+                                    <h3 class="card-title mb-0">{{ $data['total_visits'] }}</h3>
+                                    <p class="small text-muted mb-0">All Time</p>
+                                </div>
+                                <div class="col-4 text-right">
+                                    <span class="fe fe-activity fe-32 text-primary"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="card shadow border-0 mb-4">
+                        <div class="card-body">
+                            <div class="row align-items-center">
+                                <div class="col">
+                                    <small class="text-muted mb-1">Today's Visits</small>
+                                    <h3 class="card-title mb-0">{{ $data['today_visits'] }}</h3>
+                                    <p class="small text-muted mb-0">Today</p>
+                                </div>
+                                <div class="col-4 text-right">
+                                    <span class="fe fe-sun fe-32 text-info"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="card shadow border-0 text-white bg-warning mb-4">
+                        <div class="card-body">
+                            <div class="row align-items-center">
+                                <div class="col">
+                                    <small class="text-white-50 mb-1">Pending Visits</small>
+                                    <h3 class="card-title text-white mb-0">{{ $data['pending_visits'] }}</h3>
+                                </div>
+                                <div class="col-4 text-right">
+                                    <span class="fe fe-clock fe-32"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="card shadow border-0 text-white bg-success mb-4">
+                        <div class="card-body">
+                            <div class="row align-items-center">
+                                <div class="col">
+                                    <small class="text-white-50 mb-1">Completed Visits</small>
+                                    <h3 class="card-title text-white mb-0">{{ $data['completed_visits'] }}</h3>
+                                </div>
+                                <div class="col-4 text-right">
+                                    <span class="fe fe-check-circle fe-32"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tables Row: Recent Appointments + Recent Visits -->
             <div class="row">
 
                 {{-- Recent Appointments --}}
@@ -519,32 +664,40 @@
                     </div>
                 </div>
 
-                {{-- Recent Patients --}}
+                {{-- Recent Visits --}}
                 <div class="col-md-6">
                     <div class="card shadow mb-4">
                         <div class="card-header">
-                            <strong class="card-title">Recent Patients</strong>
-                            <a class="float-right small text-primary" href="{{ route('admin.doctor.myPatients') }}">View all</a>
+                            <strong class="card-title">Recent Visits</strong>
                         </div>
                         <div class="card-body p-0">
-                            @if($data['recent_patients']->count() > 0)
+                            @if($data['recent_visits']->count() > 0)
                                 <table class="table table-hover mb-0">
                                     <thead>
                                         <tr>
-                                            <th class="border-top-0">Patient Name</th>
-                                            {{-- from invoices or bookings --}}
+                                            <th class="border-top-0">Patient</th>
+                                            <th class="border-top-0">Receptionist</th>
+                                            <th class="border-top-0">Status</th>
                                             <th class="border-top-0">Action</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @foreach($data['recent_patients'] as $booking)
+                                        @foreach($data['recent_visits'] as $visit)
                                         <tr>
                                             <td>
-                                                <strong>{{ $booking->patient->name ?? 'N/A' }}</strong><br>
-                                                <small class="text-muted">ID: #{{ $booking->patient_id }}</small>
+                                                <strong>{{ $visit->patient->name ?? 'N/A' }}</strong><br>
+                                                <small class="text-muted">{{ \Carbon\Carbon::parse($visit->created_at)->format('M d, Y') }}</small>
                                             </td>
                                             <td>
-                                                <a href="{{ route('admin.patient.show', $booking->patient_id) }}" class="btn btn-sm btn-outline-primary">
+                                                <span class="text-muted">{{ $visit->receptionist->name ?? 'N/A' }}</span>
+                                            </td>
+                                            <td>
+                                                <span class="badge badge-{{ $visit->status == 'completed' ? 'success' : ($visit->status == 'pending' ? 'warning' : 'info') }}">
+                                                    {{ ucfirst($visit->status) }}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <a href="{{ route('admin.patient.show', $visit->patient_id) }}" class="btn btn-sm btn-outline-primary">
                                                     <span class="fe fe-eye"></span>
                                                 </a>
                                             </td>
@@ -554,7 +707,7 @@
                                 </table>
                             @else
                                 <div class="text-center py-5">
-                                    <p class="text-muted">No patients yet</p>
+                                    <p class="text-muted">No visits yet</p>
                                 </div>
                             @endif
                         </div>
@@ -641,6 +794,10 @@
 </div>
 @endrole
 
+{{-- ================================================================ --}}
+{{--                     RECEPTIONIST DASHBOARD                       --}}
+{{-- ================================================================ --}}
+
 @role('receptionist')
 <div class="container-fluid">
     <div class="row justify-content-center">
@@ -652,8 +809,24 @@
                 </div>
             </div>
 
-            <!-- Stats Cards -->
+            <!-- Bookings Stats -->
             <div class="row my-4">
+                <div class="col-md-3">
+                    <div class="card shadow border-0 mb-4">
+                        <div class="card-body">
+                            <div class="row align-items-center">
+                                <div class="col">
+                                    <small class="text-muted mb-1">Total Patients</small>
+                                    <h3 class="card-title mb-0">{{ $totalPatients }}</h3>
+                                </div>
+                                <div class="col-4 text-right">
+                                    <span class="fe fe-users fe-32 text-primary"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="col-md-3">
                     <div class="card shadow border-0 text-white bg-info mb-4">
                         <div class="card-body">
@@ -675,7 +848,7 @@
                         <div class="card-body">
                             <div class="row align-items-center">
                                 <div class="col">
-                                    <small class="text-white-50 mb-1">Pending</small>
+                                    <small class="text-white-50 mb-1">Pending Appointments</small>
                                     <h3 class="card-title text-white mb-0">{{ $pendingBookings }}</h3>
                                 </div>
                                 <div class="col-4 text-right">
@@ -701,17 +874,77 @@
                         </div>
                     </div>
                 </div>
+            </div>
+
+            <!-- Visits Stats -->
+            <div class="row align-items-center mb-3">
+                <div class="col">
+                    <h6 class="text-muted text-uppercase font-weight-bold mb-0">
+                        <span class="fe fe-activity mr-1"></span> Visits Overview
+                    </h6>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="card shadow border-0 mb-4">
+                        <div class="card-body">
+                            <div class="row align-items-center">
+                                <div class="col">
+                                    <small class="text-muted mb-1">Total Visits</small>
+                                    <h3 class="card-title mb-0">{{ $totalVisits }}</h3>
+                                    <p class="small text-muted mb-0">All Time</p>
+                                </div>
+                                <div class="col-4 text-right">
+                                    <span class="fe fe-activity fe-32 text-primary"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
                 <div class="col-md-3">
                     <div class="card shadow border-0 mb-4">
                         <div class="card-body">
                             <div class="row align-items-center">
                                 <div class="col">
-                                    <small class="text-muted mb-1">Total Patients</small>
-                                    <h3 class="card-title mb-0">{{ $totalPatients }}</h3>
+                                    <small class="text-muted mb-1">Today's Visits</small>
+                                    <h3 class="card-title mb-0">{{ $todayVisits }}</h3>
+                                    <p class="small text-muted mb-0">Today</p>
                                 </div>
                                 <div class="col-4 text-right">
-                                    <span class="fe fe-users fe-32 text-primary"></span>
+                                    <span class="fe fe-sun fe-32 text-info"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="card shadow border-0 text-white bg-warning mb-4">
+                        <div class="card-body">
+                            <div class="row align-items-center">
+                                <div class="col">
+                                    <small class="text-white-50 mb-1">Pending Visits</small>
+                                    <h3 class="card-title text-white mb-0">{{ $pendingVisits }}</h3>
+                                </div>
+                                <div class="col-4 text-right">
+                                    <span class="fe fe-clock fe-32"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="card shadow border-0 text-white bg-success mb-4">
+                        <div class="card-body">
+                            <div class="row align-items-center">
+                                <div class="col">
+                                    <small class="text-white-50 mb-1">Completed Visits</small>
+                                    <h3 class="card-title text-white mb-0">{{ $completedVisits }}</h3>
+                                </div>
+                                <div class="col-4 text-right">
+                                    <span class="fe fe-check-circle fe-32"></span>
                                 </div>
                             </div>
                         </div>
@@ -719,13 +952,14 @@
                 </div>
             </div>
 
-            <!-- Today's Appointments Table -->
+            <!-- Today Appointments + Recent Visits -->
             <div class="row">
-                <div class="col-12">
+
+                {{-- Today's Appointments --}}
+                <div class="col-md-7">
                     <div class="card shadow mb-4">
                         <div class="card-header">
                             <strong class="card-title">Today's Appointments</strong>
-                            <span class="badge badge-primary float-right">{{ \Carbon\Carbon::today()->format('l, M d, Y') }}</span>
                         </div>
                         <div class="card-body p-0">
                             @if($todayAppointments->count() > 0)
@@ -733,43 +967,25 @@
                                     <table class="table table-hover mb-0">
                                         <thead>
                                             <tr>
-                                                <th class="border-top-0">#</th>
                                                 <th class="border-top-0">Patient</th>
                                                 <th class="border-top-0">Doctor</th>
                                                 <th class="border-top-0">Time</th>
                                                 <th class="border-top-0">Status</th>
-                                                <th class="border-top-0 text-right">Actions</th>
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            @foreach($todayAppointments as $index => $appointment)
+                                            @foreach($todayAppointments as $appt)
                                             <tr>
-                                                <td>{{ $index + 1 }}</td>
+                                                <td><strong>{{ $appt->patient->name ?? 'N/A' }}</strong></td>
                                                 <td>
-                                                    <strong>{{ $appointment->name ?? 'N/A' }}</strong><br>
-                                                    <small class="text-muted">{{ $appointment->phone ?? 'No phone' }}</small>
+                                                    <strong>Dr. {{ $appt->doctor->user->name ?? 'N/A' }}</strong><br>
+                                                    <small class="text-muted">{{ $appt->doctor->major->name ?? '' }}</small>
                                                 </td>
+                                                <td>{{ \Carbon\Carbon::parse($appt->appointment_time)->format('h:i A') }}</td>
                                                 <td>
-                                                    <strong>Dr. {{ $appointment->doctor->user->name ?? 'N/A' }}</strong><br>
-                                                    <small class="text-muted">{{ $appointment->doctor->major->name ?? 'General' }}</small>
-                                                </td>
-                                                <td>
-                                                    <span class="fe fe-clock text-muted mr-1"></span>
-                                                    {{ \Carbon\Carbon::parse($appointment->date)->format('h:i A') }}
-                                                </td>
-                                                <td>
-                                                    <span class="badge badge-{{ 
-                                                        $appointment->status == 'completed' ? 'success' : 
-                                                        ($appointment->status == 'pending' ? 'warning' : 
-                                                        ($appointment->status == 'confirmed' ? 'info' : 'secondary')) 
-                                                    }}">
-                                                        {{ ucfirst($appointment->status) }}
+                                                    <span class="badge badge-{{ $appt->status == 'completed' ? 'success' : ($appt->status == 'pending' ? 'warning' : 'info') }}">
+                                                        {{ ucfirst($appt->status) }}
                                                     </span>
-                                                </td>
-                                                <td class="text-right">
-                                                    <a href="{{ route('admin.booking.index') }}" class="btn btn-sm btn-outline-primary">
-                                                        <span class="fe fe-eye"></span>
-                                                    </a>
                                                 </td>
                                             </tr>
                                             @endforeach
@@ -778,12 +994,57 @@
                                 </div>
                             @else
                                 <div class="text-center py-5">
-                                    <p class="text-muted mb-3">No appointments scheduled for today</p>
+                                    <p class="text-muted">No appointments today</p>
                                 </div>
                             @endif
                         </div>
                     </div>
                 </div>
+
+                {{-- Recent Visits --}}
+                <div class="col-md-5">
+                    <div class="card shadow mb-4">
+                        <div class="card-header">
+                            <strong class="card-title">Recent Visits</strong>
+                        </div>
+                        <div class="card-body p-0">
+                            @if($recentVisits->count() > 0)
+                                <table class="table table-hover mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th class="border-top-0">Patient</th>
+                                            <th class="border-top-0">Doctor</th>
+                                            <th class="border-top-0">Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach($recentVisits as $visit)
+                                        <tr>
+                                            <td>
+                                                <strong>{{ $visit->patient->name ?? 'N/A' }}</strong><br>
+                                                <small class="text-muted">{{ \Carbon\Carbon::parse($visit->created_at)->format('M d, Y') }}</small>
+                                            </td>
+                                            <td>
+                                                <span>Dr. {{ $visit->doctor->user->name ?? 'N/A' }}</span>
+                                            </td>
+                                            <td>
+                                                <span class="badge badge-{{ $visit->status == 'completed' ? 'success' : ($visit->status == 'pending' ? 'warning' : 'info') }}">
+                                                    {{ ucfirst($visit->status) }}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            @else
+                                <div class="text-center py-5">
+                                    <p class="text-muted">No visits yet</p>
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+
             </div>
 
             <!-- Quick Actions -->
@@ -802,12 +1063,6 @@
                                     </a>
                                 </div>
                                 <div class="col-md-4 col-sm-6 mb-3">
-                                    <a href="{{ route('admin.booking.index') }}" class="btn btn-outline-success btn-block py-3">
-                                        <span class="fe fe-search fe-24 mb-2 d-block"></span>
-                                        Search Records
-                                    </a>
-                                </div>
-                                <div class="col-md-4 col-sm-6 mb-3">
                                     <a href="{{ route('admin.invoice.create') }}" class="btn btn-outline-warning btn-block py-3">
                                         <span class="fe fe-file-text fe-24 mb-2 d-block"></span>
                                         Generate Invoice
@@ -818,6 +1073,7 @@
                     </div>
                 </div>
             </div>
+
         </div>
     </div>
 </div>
@@ -827,21 +1083,21 @@
 
 @push('styles')
 <style>
-.badge-soft-primary { 
-    background-color: rgba(60, 114, 252, 0.1); 
-    color: #3c72fc; 
+.badge-soft-primary {
+    background-color: rgba(60, 114, 252, 0.1);
+    color: #3c72fc;
 }
-.avatar-sm { 
-    width: 32px; 
-    height: 32px; 
-    line-height: 32px; 
-    font-size: 12px; 
+.avatar-sm {
+    width: 32px;
+    height: 32px;
+    line-height: 32px;
+    font-size: 12px;
 }
-.avatar-md { 
-    width: 40px; 
-    height: 40px; 
-    line-height: 40px; 
-    font-size: 14px; 
+.avatar-md {
+    width: 40px;
+    height: 40px;
+    line-height: 40px;
+    font-size: 14px;
 }
 .bg-primary-light {
     background-color: rgba(60, 114, 252, 0.1);

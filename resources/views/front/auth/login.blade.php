@@ -64,7 +64,7 @@ html, body { height: 100%; font-family: 'DM Sans', sans-serif; -webkit-font-smoo
   background: var(--white);
   border: 1px solid var(--grey-200);
   border-radius: 28px;
-  padding: 52px 48px;
+  padding: 52px 48px 60px;
   box-shadow: var(--shadow-card);
   position: relative; overflow: hidden;
 }
@@ -188,6 +188,42 @@ html, body { height: 100%; font-family: 'DM Sans', sans-serif; -webkit-font-smoo
 .lg-btn:hover::before { left: 125%; }
 .lg-btn:disabled { opacity: 0.7; cursor: not-allowed; transform: none; }
 
+/* ── Divider ── */
+.lg-or {
+  display: flex; align-items: center; gap: 12px;
+  color: var(--grey-300); font-size: 0.78rem; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.08em;
+}
+.lg-or::before, .lg-or::after {
+  content: ''; flex: 1; height: 1px; background: var(--grey-200);
+}
+
+/* ── Google button ── */
+.lg-btn-google {
+  width: 100%; padding: 13px 20px;
+  border: 1.5px solid var(--grey-200); border-radius: 999px;
+  background: var(--white); color: var(--grey-700);
+  font-family: 'DM Sans', sans-serif; font-size: 0.9rem; font-weight: 600;
+  cursor: pointer; text-decoration: none;
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  transition: border-color var(--t), box-shadow var(--t), transform var(--t), background var(--t);
+  box-shadow: 0 1px 4px rgba(5,20,58,0.06);
+  position: relative; overflow: hidden;
+}
+.lg-btn-google:hover {
+  border-color: var(--grey-300);
+  background: var(--grey-100);
+  box-shadow: 0 4px 16px rgba(5,20,58,0.10);
+  transform: translateY(-1px);
+  color: var(--text);
+}
+.lg-btn-google:active { transform: translateY(0); }
+
+/* Google "G" SVG icon inline */
+.lg-google-icon {
+  width: 18px; height: 18px; flex-shrink: 0;
+}
+
 .lg-footer {
   margin-top: 28px; padding-top: 24px;
   border-top: 1px solid var(--grey-200);
@@ -227,17 +263,11 @@ html, body { height: 100%; font-family: 'DM Sans', sans-serif; -webkit-font-smoo
       </div>
       <div class="lg-divider"></div>
 
-      <!-- demo error — uncomment to test -->
-      <!-- <div class="lg-alert lg-alert-error"><i class="fa-solid fa-circle-exclamation"></i> Invalid email or password.</div> -->
-      <!-- <div class="lg-alert lg-alert-success"><i class="fa-solid fa-circle-check"></i> Password reset successfully.</div> -->
-      {{-- session status --}}
       @if (session('status'))
         <div class="lg-alert lg-alert-success">
           <i class="fa-solid fa-circle-check"></i> {{ session('status') }}
-          <div class="lg-alert-close"><i class="fa-solid fa-xmark"></i></div>
         </div>
       @endif
-
 
       <form action="{{ route('login') }}" method="POST" class="lg-form" id="lgForm">
         @csrf
@@ -248,7 +278,7 @@ html, body { height: 100%; font-family: 'DM Sans', sans-serif; -webkit-font-smoo
             <input type="email" name="email" placeholder="you@example.com" autocomplete="email" value="{{ old('email') }}"/>
           </div>
           @error('email')
-            <span class="lg-error-msg"><i class="fa-solid fa-circle-exclamation"></i> {{ $message }}</span>
+            <span class="lg-err-txt"><i class="fa-solid fa-circle-exclamation"></i> {{ $message }}</span>
           @enderror
         </div>
 
@@ -258,7 +288,7 @@ html, body { height: 100%; font-family: 'DM Sans', sans-serif; -webkit-font-smoo
             <a href="{{ route('password.request') }}" class="lg-forgot">Forgot password?</a>
           </div>
           @error('password')
-            <span class="lg-error-msg"><i class="fa-solid fa-circle-exclamation"></i> {{ $message }}</span>
+            <span class="lg-err-txt"><i class="fa-solid fa-circle-exclamation"></i> {{ $message }}</span>
           @enderror
           <div class="lg-input-box">
             <i class="fa-solid fa-lock lg-ico"></i>
@@ -279,6 +309,20 @@ html, body { height: 100%; font-family: 'DM Sans', sans-serif; -webkit-font-smoo
           <span class="s1"><i class="fa-solid fa-right-to-bracket"></i> Sign In</span>
           <span class="s2" style="display:none;"><i class="fa-solid fa-spinner fa-spin"></i> Signing in…</span>
         </button>
+
+        {{-- ── OR divider ── --}}
+        <div class="lg-or">or</div>
+
+        {{-- ── Google Socialite button ── --}}
+        <a href="{{ route('front.socialite.login', 'google') }}" class="lg-btn-google">
+          <svg class="lg-google-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+            <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+            <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
+            <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+          </svg>
+          Continue with Google
+        </a>
 
       </form>
 

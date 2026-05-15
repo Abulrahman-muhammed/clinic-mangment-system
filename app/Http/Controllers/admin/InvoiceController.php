@@ -5,6 +5,10 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Invoice;
+use App\Models\Patient;
+use App\Models\Doctor;
+use App\Models\Service;
+use App\Models\Visit;
 class InvoiceController extends Controller
 {
     /**
@@ -43,11 +47,15 @@ class InvoiceController extends Controller
      */
     public function create()
     {
-        $doctors = \App\Models\Doctor::get();
-        $patients = \App\Models\Patient::all();
-        $services = \App\Models\Service::all();
-
-        return view('admin.invoices.create',compact('doctors', 'patients','services') );
+        $doctors = Doctor::get();
+        $patients = Patient::all();
+        $services = Service::all();
+        $visits   = Visit::with(['patient', 'doctor.user'])
+                     ->where('status', 'done')  // only completed visits
+                     ->whereDoesntHave('invoice')  // only visits without an invoice
+                     ->latest()
+                     ->get();
+        return view('admin.invoices.create',compact('doctors', 'patients','services', 'visits') );
     }
 
     /**
@@ -59,6 +67,7 @@ class InvoiceController extends Controller
         $request->validate([
             'patient_id' => 'required|exists:patients,id',
             'doctor_id' => 'required|exists:doctors,id',
+            'visit_id' => 'nullable|exists:visits,id',
             'invoice_date' => 'required|date',
             'status' => 'required|in:paid,unpaid',
             'amount' => 'required|numeric|min:0',
@@ -71,6 +80,7 @@ class InvoiceController extends Controller
         $invoice = Invoice::create([
             'patient_id' => $request->patient_id,
             'doctor_id' => $request->doctor_id,
+            'visit_id' => $request->visit_id,
             'user_id' => auth()->id(),
             'invoice_date' => $request->invoice_date,
             'status' => $request->status,
@@ -81,7 +91,7 @@ class InvoiceController extends Controller
         if ($request->has('services')) {
             foreach ($request->services as $service) {
                 \App\Models\InvoiceService::create([
-                    'invoice_id' => $invoice->id, // ✅  Make sure to set the invoice_id
+                    'invoice_id' => $invoice->id, 
                     'service_name' => $service['name'],
                     'price' => $service['price'],
                 ]);

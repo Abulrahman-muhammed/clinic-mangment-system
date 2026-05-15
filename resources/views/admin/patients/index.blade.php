@@ -17,10 +17,11 @@
 
                 <div class="col-auto">
                     {{-- زرار الأرشيف --}}
+                    @can('delete_patients')
                     <a href="{{ route('admin.patient.trashed') }}" class="btn btn-outline-secondary mr-2">
                         <i class="fe fe-archive mr-1"></i> Archived Patients
                     </a>
-                    
+                    @endcan
                     @can('create_patients')
                     <a href="{{ route('admin.patient.create') }}" class="btn btn-primary">
                         <i class="fe fe-plus mr-1"></i> Add Patient

@@ -34,11 +34,21 @@ class Patient extends Model
         return $this->hasMany(Booking::class);
     }
 
+    // invoices
+    public function invoices()
+    {
+        return $this->hasMany(Invoice::class);
+    }
+
     // ─── Helpers ──────────────────────────────────
     public function getAgeAttribute(): ?int
     {
         return $this->date_of_birth
             ? $this->date_of_birth->age
             : null;
+    }
+    public function visits()
+    {
+        return $this->hasMany(Visit::class)->withTrashed();
     }
 }

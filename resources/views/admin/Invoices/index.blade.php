@@ -125,6 +125,7 @@
                                 <tr>
                                     <th class="text-center" style="width: 50px;">#</th>
                                     <th>Patient & Doctor</th>
+                                    <th>Visit</th>
                                     <th>Services Rendered</th>
                                     <th class="text-center">Date</th>
                                     <th class="text-right">Amount</th>
@@ -155,6 +156,17 @@
                                                     </small>
                                                 </div>
                                             </div>
+                                        </td>
+
+                                        <td>
+                                            @if($invoice->visit)
+                                                <span class="badge badge-soft-info">
+                                                    <i class="fe fe-check-circle mr-1"></i>
+                                                    {{ $invoice->visit->status }}
+                                                </span>
+                                            @else
+                                                <span class="text-muted small fst-italic">No visit associated</span>
+                                            @endif
                                         </td>
 
                                         <td>

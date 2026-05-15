@@ -6,7 +6,9 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\{Invoice, Patient, Booking, Doctor, DoctorSchedule};
 use Illuminate\Support\Facades\DB;
-
+use Illuminate\Support\Facades\Auth;
+use App\Models\User;
+use App\Models\Visit;
 class DoctorDashboardController extends Controller
 {
     // 🔹 Get logged doctor
@@ -212,4 +214,36 @@ class DoctorDashboardController extends Controller
 
         return view('admin.schedules.index', compact('schedules', 'doctor'));
     }
+
+    // myVisits
+
+public function myVisits(Request $request)
+{
+    $doctor = $this->getDoctor();
+
+    $query = Visit::where('doctor_id', $doctor->id)
+        ->with(['patient', 'receptionist']);
+
+    if ($request->filled('search')) {
+        $query->whereHas('patient', function ($q) use ($request) {
+            $q->where('name', 'like', "%{$request->search}%")
+              ->orWhere('email', 'like', "%{$request->search}%")
+              ->orWhere('phone', 'like', "%{$request->search}%");
+        });
+    }
+
+    if ($request->filled('status')) {
+        $query->where('status', $request->status);
+    }
+
+    if ($request->filled('date')) {
+        $query->whereDate('created_at', $request->date);
+    }
+
+    $visits = $query->latest()->paginate(10)->withQueryString();
+
+    $doctors = []; // doctors list not needed for doctor role (filter hides it)
+
+    return view('admin.visits.index', compact('visits', 'doctors'));
+}
 }

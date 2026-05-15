@@ -43,6 +43,12 @@ class NewBookingNotification extends Notification  implements ShouldBroadcast
 
     private function payload(): array
     {
+        $user = \App\Models\User::find($this->notifiableId);
+
+        $route = $user?->hasRole('admin')
+            ? route('admin.booking.index')
+            : route('admin.doctor.myBookings');
+
         return [
             'title'      => 'New Booking',
             'message'    => 'New appointment booked for ' . ($this->booking->patient->name ?? 'a patient'),
@@ -52,7 +58,7 @@ class NewBookingNotification extends Notification  implements ShouldBroadcast
             'time'       => $this->booking->appointment_time,
             'icon'       => 'fe-calendar',
             'color'      => 'primary',
-            'url'        => route('admin.doctor.myBookings'),
+            'url'        => $route,
         ];
     }
 }

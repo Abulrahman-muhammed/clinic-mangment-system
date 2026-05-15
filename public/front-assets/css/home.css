@@ -8521,6 +8521,9 @@ body {
 
 /* ── Item ── */
 .notif-item {
+  border: none !important;          /* reset native button border */
+  text-align: left;                 /* keeps content aligned like list rows */
+
   display: flex !important;
   align-items: flex-start !important;
   gap: 13px !important;
@@ -8750,4 +8753,187 @@ body {
   .notif-inner {
     min-width: 260px;
   }
+}
+/* Final fix: prevent "Mark all read" clipping */
+.notif-head {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center !important;
+  column-gap: 8px;
+}
+
+.notif-head-left {
+  min-width: 0 !important;
+  overflow: hidden;
+}
+
+.notif-title {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.notif-mark-read {
+  margin-left: 0 !important;
+  max-width: none !important;
+  white-space: nowrap !important;
+  font-size: 10.5px !important;
+  padding: 6px 8px !important;
+  line-height: 1 !important;
+}
+/* Override global .header-icons a sizing for dropdown links */
+.header-icons .notif-dropdown a.notif-mark-read {
+  width: auto !important;
+  height: auto !important;
+  min-width: max-content !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 6px 10px !important;
+  line-height: 1.1 !important;
+  font-size: 11px !important;
+  white-space: nowrap !important;
+}
+.header-icons .notif-dropdown a.notif-view-all {
+  width: 100% !important;
+  height: auto !important;
+  display: flex !important;
+}
+
+/* ============================================================
+   NOTIFICATIONS DROPDOWN (Enhanced)
+   ============================================================ */
+
+/* حاوية القائمة المنسدلة */
+.notif-dropdown {
+    width: 380px !important;
+    border: 1px solid var(--grey-200) !important;
+    border-radius: var(--r-md) !important;
+    box-shadow: var(--shadow-hover) !important;
+    overflow: hidden !important;
+    margin-top: 15px !important;
+    animation: slideUp 0.3s var(--ease);
+}
+
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* الرأس (Header) */
+.notif-head {
+    background: var(--grey-100);
+    padding: 15px 20px;
+    border-bottom: 1px solid var(--grey-200);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.notif-title {
+    font-weight: 700;
+    color: var(--blue-dark);
+    font-size: 0.95rem;
+}
+
+/* العنصر نفسه (Item) */
+.notif-list form {
+    display: block;
+    width: 100%;
+}
+
+.notif-item {
+    display: flex !important;
+    width: 100%;
+    padding: 16px 20px !important;
+    gap: 15px;
+    background: var(--white);
+    border: none;
+    border-bottom: 1px solid var(--grey-100);
+    transition: var(--t);
+    text-align: left;
+    align-items: flex-start;
+}
+
+.notif-item:hover {
+    background: var(--blue-soft);
+}
+
+.notif-item.notif-unread {
+    background: #fdfdfd;
+    position: relative;
+}
+
+/* أيقونة الإشعار */
+.notif-ico-wrap {
+    flex-shrink: 0;
+    width: 42px;
+    height: 42px;
+    border-radius: var(--r-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+}
+
+/* جسم الإشعار (Text content) */
+.notif-body {
+    flex: 1;
+    min-width: 0;
+}
+
+.notif-text {
+    font-size: 0.88rem;
+    color: var(--text);
+    line-height: 1.5;
+    margin: 0 0 4px 0;
+    white-space: normal !important;
+    word-break: break-word;
+    font-weight: 500;
+}
+
+.notif-time {
+    font-size: 0.75rem;
+    color: var(--grey-500);
+    display: block;
+}
+
+/* النقطة الزرقاء للإشعارات غير المقروءة */
+.notif-dot {
+    width: 8px;
+    height: 8px;
+    background: var(--blue);
+    border-radius: 50%;
+    margin-top: 6px;
+    flex-shrink: 0;
+}
+
+/* زرار "Mark all as read" */
+.notif-mark-read {
+    font-size: 0.78rem;
+    color: var(--blue);
+    background: transparent;
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 0;
+}
+
+.notif-mark-read:hover {
+    text-decoration: underline;
+}
+
+/* الفوتر */
+.notif-foot {
+    padding: 12px;
+    text-align: center;
+    background: var(--grey-100);
+    border-top: 1px solid var(--grey-200);
+}
+
+.notif-view-all {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--blue-mid);
+    text-decoration: none;
 }

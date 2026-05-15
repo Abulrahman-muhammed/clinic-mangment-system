@@ -13,6 +13,30 @@
                     <form action="{{ route('admin.invoice.store') }}" method="POST" id="invoiceForm">
                         @csrf
 
+                        {{-- Visit (optional - auto-fills patient & doctor) --}}
+                        <div class="row">
+                            <div class="col-md-12 mb-3">
+                                <label for="visit_id">
+                                    Link to Visit
+                                    <small class="text-muted ml-1">(optional — auto-fills patient & doctor)</small>
+                                </label>
+                                <select name="visit_id" id="visit_id" class="form-control select2">
+                                    <option value="">-- Choose Visit (optional) --</option>
+                                    @foreach($visits as $visit)
+                                        <option value="{{ $visit->id }}"
+                                                data-patient="{{ $visit->patient_id }}"
+                                                data-doctor="{{ $visit->doctor_id }}">
+                                            #{{ $visit->id }} — {{ $visit->patient->name ?? 'N/A' }}
+                                            &nbsp;·&nbsp; Dr. {{ $visit->doctor->user->name ?? 'N/A' }}
+                                            &nbsp;·&nbsp; {{ $visit->created_at->format('d M Y') }}
+                                            &nbsp;
+                                            <span class="text-capitalize">[{{ ucfirst($visit->status) }}]</span>
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label for="patient_id">Select Patient</label>
@@ -53,8 +77,8 @@
                                 <select id="service_id" class="form-control select2">
                                     <option value="">-- Choose Service --</option>
                                     @foreach($services as $service)
-                                        <option value="{{ $service->id }}" 
-                                                data-name="{{ $service->name }}" 
+                                        <option value="{{ $service->id }}"
+                                                data-name="{{ $service->name }}"
                                                 data-price="{{ $service->price }}">
                                             {{ $service->name }} ({{ $service->price }} EGP)
                                         </option>
@@ -73,8 +97,7 @@
                                             <th>Action</th>
                                         </tr>
                                     </thead>
-                                    <tbody>
-                                        </tbody>
+                                    <tbody></tbody>
                                 </table>
                             </div>
                         </div>
@@ -125,7 +148,26 @@ $(document).ready(function() {
 
     $('.select2').select2({ theme: 'bootstrap4', width: '100%' });
 
-    // 1. Fetch Doctor Info via AJAX
+    // ─── Visit selector: auto-fill patient & doctor ───────────────────────────
+    $('#visit_id').on('change', function () {
+        const selected = $(this).find('option:selected');
+        const patientId = selected.data('patient');
+        const doctorId  = selected.data('doctor');
+
+        if (!patientId && !doctorId) return;
+
+        // Set patient dropdown
+        if (patientId) {
+            $('#patient_id').val(patientId).trigger('change');
+        }
+
+        // Set doctor dropdown and trigger info fetch
+        if (doctorId) {
+            $('#doctor_id').val(doctorId).trigger('change');
+        }
+    });
+
+    // ─── Doctor info fetch ────────────────────────────────────────────────────
     $('#doctor_id').on('change', function () {
         const doctorId = $(this).val();
         if (!doctorId) {
@@ -144,10 +186,10 @@ $(document).ready(function() {
         });
     });
 
-    // 2. Add Service to Table
+    // ─── Add service to table ─────────────────────────────────────────────────
     $('#service_id').on('change', function () {
-        const selected = $(this).find('option:selected');
-        const serviceName = selected.data('name');
+        const selected     = $(this).find('option:selected');
+        const serviceName  = selected.data('name');
         const servicePrice = parseFloat(selected.data('price') || 0);
 
         if (!serviceName) return;
@@ -158,22 +200,21 @@ $(document).ready(function() {
                 <td>${servicePrice.toFixed(2)}<input type="hidden" name="services[${serviceIndex}][price]" class="service-price" value="${servicePrice}"></td>
                 <td><button type="button" class="btn btn-sm btn-danger remove-service">Remove</button></td>
             </tr>`;
-        
+
         $('#servicesTable tbody').append(row);
         serviceIndex++;
         updateTotal();
 
-        // Reset the select2 dropdown
         $(this).val(null).trigger('change');
     });
 
-    // 3. Remove Service
+    // ─── Remove service ───────────────────────────────────────────────────────
     $(document).on('click', '.remove-service', function() {
         $(this).closest('tr').remove();
         updateTotal();
     });
 
-    // 4. Calculate Total
+    // ─── Helpers ──────────────────────────────────────────────────────────────
     function updateTotal() {
         let total = consultationFee;
         $('.service-price').each(function() {

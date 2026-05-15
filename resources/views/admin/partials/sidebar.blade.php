@@ -101,6 +101,18 @@
         </ul>
         @endcan
 
+        @can('view_patients')
+        <ul class="navbar-nav flex-fill w-100 mb-2">
+            <li class="nav-item w-100">
+                <a class="nav-link {{ request()->is('admin/visit*') ? 'active' : '' }}" href="{{ route('admin.visit.index') }}">
+                    <i class="fe fe-activity fe-16"></i>
+                    <span class="ml-3 item-text">Visits</span>
+                </a>
+            </li>
+        </ul>
+        @endcan
+
+
         @can('view_appointments')
         <ul class="navbar-nav flex-fill w-100 mb-2">
             <li class="nav-item w-100">

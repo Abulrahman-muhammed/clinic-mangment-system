@@ -48,7 +48,11 @@ class Doctor extends Model
     }
     // invoices
     public function invoices() {
-        return $this->hasMany(Invoice::class);
+        return $this->hasMany(Invoice::class)->withTrashed();
+    }
+    // visits
+    public function visits() {
+        return $this->hasMany(Visit::class)->withTrashed();
     }
     public function user() {
         return $this->belongsTo(User::class)->withTrashed();

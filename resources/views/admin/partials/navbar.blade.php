@@ -91,7 +91,7 @@
                             <div class="flex-grow-1" style="min-width:0;">
                                 <div class="d-flex justify-content-between align-items-start">
                                     <strong class="small text-dark">
-                                        <a href="{{ route('admin.booking.edit', $data['booking_id'] ?? null) ?? '#' }}"
+                                        <a href="{{ $data['url'] ?? '#' }}"
                                            class="text-dark"
                                            style="text-decoration:underline;">
                                             {{ $data['title'] ?? 'No Title' }}

@@ -91,6 +91,14 @@
             
         <ul class="navbar-nav flex-fill w-100 mb-2">
             <li class="nav-item">
+                <a href="{{ route('admin.doctor.myVisits') }}" class="nav-link {{ request()->is('admin/doctor/myVisits*') ? 'active' : '' }}">
+                    <i class="fe fe-calendar fe-16"></i>
+                    <span class="ml-3 item-text">My Visits</span>
+                </a>
+            </li>
+        </ul>
+        <ul class="navbar-nav flex-fill w-100 mb-2">
+            <li class="nav-item">
                 <a href="{{ route('admin.doctor.myBookings') }}" class="nav-link {{ request()->is('admin/doctor/myBookings*') ? 'active' : '' }}">
                     <i class="fe fe-calendar fe-16"></i>
                     <span class="ml-3 item-text">My Appointments</span>

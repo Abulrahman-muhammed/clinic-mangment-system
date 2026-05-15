@@ -344,10 +344,8 @@ How can I help you today?</div>
       <div class="cb-chips">
         <button class="cb-chip" onclick="useSuggestion(this)">💊 Medication info</button>
         <button class="cb-chip" onclick="useSuggestion(this)">🤒 I have a fever</button>
-        <button class="cb-chip" onclick="useSuggestion(this)">🩺 Book a doctor</button>
         <button class="cb-chip" onclick="useSuggestion(this)">😴 Sleep problems</button>
         <button class="cb-chip" onclick="useSuggestion(this)">🥗 Healthy diet tips</button>
-        <button class="cb-chip" onclick="useSuggestion(this)">💉 Vaccine schedule</button>
       </div>
 
       {{-- Input --}}

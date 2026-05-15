@@ -5,13 +5,8 @@
 @section('content')
 
 <style>
-/* ══════════════════════════════════════════════════
-   NOTIFICATIONS PAGE
-══════════════════════════════════════════════════ */
-
 .np-section {
     padding: 2.5rem 0 4rem;
-    min-height: 70vh;
 }
 .np-wrapper {
     max-width: 940px;
@@ -19,7 +14,7 @@
     padding: 0 1.25rem;
 }
 
-/* ── Header ──────────────────────────────────────── */
+/* ── Header ── */
 .np-header {
     display: flex;
     align-items: flex-start;
@@ -39,6 +34,12 @@
     color: #64748b;
     margin: 0;
 }
+.np-header-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+}
 .np-mark-btn {
     display: inline-flex;
     align-items: center;
@@ -50,6 +51,7 @@
     color: #374151;
     font-size: 14px;
     font-weight: 500;
+    cursor: pointer;
     text-decoration: none;
     transition: background .15s, border-color .15s;
     white-space: nowrap;
@@ -60,8 +62,18 @@
     color: #374151;
     text-decoration: none;
 }
+.np-mark-btn--danger {
+    color: #dc2626;
+    border-color: #fecaca;
+    background: #fff;
+}
+.np-mark-btn--danger:hover {
+    background: #fef2f2;
+    border-color: #fca5a5;
+    color: #b91c1c;
+}
 
-/* ── Stats Strip ─────────────────────────────────── */
+/* ── Stats Strip ── */
 .np-stats {
     display: flex;
     align-items: center;
@@ -104,7 +116,7 @@
     flex-shrink: 0;
 }
 
-/* ── Filter Tabs ─────────────────────────────────── */
+/* ── Filter Tabs ── */
 .np-tabs {
     display: flex;
     gap: 6px;
@@ -135,13 +147,12 @@
     border-color: var(--blue, #185FA5);
 }
 
-/* ── Cards List ──────────────────────────────────── */
+/* ── Cards List ── */
 .np-list {
     display: flex;
     flex-direction: column;
     gap: 12px;
 }
-
 .np-card {
     display: flex;
     align-items: center;
@@ -155,14 +166,12 @@
 }
 .np-card:hover {
     border-color: #cbd5e1;
-    box-shadow: 0 2px 14px rgba(0, 0, 0, .06);
+    box-shadow: 0 2px 14px rgba(0,0,0,.06);
 }
 .np-card--unread {
     border-left: 3px solid var(--blue, #185FA5);
     background: #fafcff;
 }
-
-/* Icon circle */
 .np-ico-wrap {
     width: 48px;
     height: 48px;
@@ -172,11 +181,7 @@
     justify-content: center;
     flex-shrink: 0;
 }
-.np-ico-wrap i {
-    font-size: 18px;
-}
-
-/* Message body */
+.np-ico-wrap i { font-size: 18px; }
 .np-body {
     flex: 1;
     min-width: 0;
@@ -187,15 +192,11 @@
     line-height: 1.55;
     margin-bottom: 4px;
 }
-.np-card--unread .np-msg {
-    font-weight: 500;
-}
+.np-card--unread .np-msg { font-weight: 500; }
 .np-time {
     font-size: 12px;
     color: #94a3b8;
 }
-
-/* Unread dot */
 .np-dot {
     width: 9px;
     height: 9px;
@@ -203,8 +204,6 @@
     background: var(--blue, #185FA5);
     flex-shrink: 0;
 }
-
-/* Action buttons */
 .np-actions {
     display: flex;
     align-items: center;
@@ -241,7 +240,7 @@
     color: #b91c1c;
 }
 
-/* ── Empty State ──────────────────────────────────── */
+/* ── Empty State ── */
 .np-empty {
     display: flex;
     flex-direction: column;
@@ -276,18 +275,16 @@
     margin: 0;
 }
 
-/* ── Pagination ───────────────────────────────────── */
+/* ── Pagination ── */
 .np-pagination {
     display: flex;
     justify-content: center;
     margin-top: 1.75rem;
 }
 
-/* ── Responsive ───────────────────────────────────── */
+/* ── Responsive ── */
 @media (max-width: 640px) {
-    .np-card {
-        flex-wrap: wrap;
-    }
+    .np-card { flex-wrap: wrap; }
     .np-actions {
         width: 100%;
         justify-content: flex-end;
@@ -295,37 +292,49 @@
         border-top: 1px solid #f1f5f9;
         margin-top: .25rem;
     }
-    .np-stat-div {
-        display: none;
-    }
-    .np-stats {
-        gap: 1rem .5rem;
-        padding: 1rem;
-    }
+    .np-stat-div { display: none; }
+    .np-stats { gap: 1rem .5rem; padding: 1rem; }
 }
 </style>
 
 <section class="np-section">
   <div class="np-wrapper">
 
-    {{-- ══════════ Header ══════════ --}}
+    {{-- ══════ Header ══════ --}}
     <div class="np-header" data-aos="fade-down">
       <div>
         <h1 class="np-title">Notifications</h1>
         <p class="np-subtitle">Stay up to date with your appointment updates</p>
       </div>
 
-      @if($unreadCount > 0)
-        <form action="{{ route('front.notifications.markAllRead') }}" method="POST" class="m-0">
-          @csrf
-          <button type="submit" class="np-mark-btn">
-            <i class="fa-solid fa-check-double"></i> Mark all as read
-          </button>
-        </form>
-      @endif
+      <div class="np-header-actions">
+
+        @if($unreadCount > 0)
+          <form action="{{ route('front.notifications.markAllRead') }}" method="POST" class="m-0">
+            @csrf
+            <button type="submit" class="np-mark-btn">
+              <i class="fa-solid fa-check-double"></i> Mark all as read
+            </button>
+          </form>
+        @endif
+
+        @if($stats['total'] > 0)
+          <form action="{{ route('front.notifications.destroyAll') }}" method="POST"
+                id="form-delete-all" class="m-0">
+            @csrf
+            @method('DELETE')
+            <button type="button"
+                    class="np-mark-btn np-mark-btn--danger"
+                    onclick="confirmDeleteAll()">
+              <i class="fa-solid fa-trash-can"></i> Delete all
+            </button>
+          </form>
+        @endif
+
+      </div>
     </div>
 
-    {{-- ══════════ Stats Strip ══════════ --}}
+    {{-- ══════ Stats Strip ══════ --}}
     <div class="np-stats" data-aos="fade-up" data-aos-delay="100">
       <div class="np-stat">
         <span class="np-stat-num">{{ $stats['total'] }}</span>
@@ -358,7 +367,7 @@
       </div>
     </div>
 
-    {{-- ══════════ Filter Tabs ══════════ --}}
+    {{-- ══════ Filter Tabs ══════ --}}
     <div class="np-tabs" data-aos="fade-up" data-aos-delay="150">
       @php
         $tabs = [
@@ -379,7 +388,7 @@
       @endforeach
     </div>
 
-    {{-- ══════════ Notifications List ══════════ --}}
+    {{-- ══════ Notifications List ══════ --}}
     @if($notifications->isEmpty())
       <div class="np-empty" data-aos="fade-up">
         <div class="np-empty-icon">
@@ -400,7 +409,7 @@
             $iconMap = [
               'confirmed' => ['fa-circle-check',   '#16a34a', '#dcfce7'],
               'cancelled' => ['fa-circle-xmark',   '#dc2626', '#fee2e2'],
-              'completed' => ['fa-flag-checkered', '#006aff', '#eff4ff'],
+              'completed' => ['fa-flag-checkered', '#185FA5', '#eff4ff'],
               'pending'   => ['fa-clock',          '#d97706', '#fef3c7'],
             ];
             [$ico, $clr, $bg] = $iconMap[$status] ?? ['fa-bell', '#185FA5', '#eff4ff'];
@@ -410,23 +419,19 @@
                data-aos="fade-up"
                data-aos-delay="{{ min($i * 60, 300) }}">
 
-            {{-- Icon --}}
             <div class="np-ico-wrap" style="background: {{ $bg }};">
               <i class="fa-solid {{ $ico }}" style="color: {{ $clr }};"></i>
             </div>
 
-            {{-- Message --}}
             <div class="np-body">
               <p class="np-msg">{{ $message }}</p>
               <span class="np-time">{{ $notification->created_at->diffForHumans() }}</span>
             </div>
 
-            {{-- Unread dot --}}
             @if($isUnread)
               <span class="np-dot"></span>
             @endif
 
-            {{-- Actions --}}
             <div class="np-actions">
 
               @if($isUnread)
@@ -457,7 +462,6 @@
         @endforeach
       </div>
 
-      {{-- Pagination --}}
       @if($notifications->hasPages())
         <div class="np-pagination">
           {{ $notifications->appends(request()->query())->links() }}
@@ -495,6 +499,32 @@ function confirmDeleteNotif(id) {
   }).then((result) => {
     if (result.isConfirmed) {
       document.getElementById('del-notif-' + id).submit();
+    }
+  });
+}
+
+function confirmDeleteAll() {
+  Swal.fire({
+    title: 'Delete All Notifications?',
+    text: 'This will permanently remove all your notifications.',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: '<i class="fa-solid fa-trash-can"></i> Yes, Delete All',
+    cancelButtonText: 'Keep Them',
+    confirmButtonColor: '#dc2626',
+    cancelButtonColor: '#6b7280',
+    reverseButtons: true,
+    focusCancel: true,
+    customClass: {
+      popup:         'swal-custom-popup',
+      title:         'swal-custom-title',
+      htmlContainer: 'swal-custom-text',
+      confirmButton: 'swal-btn-confirm',
+      cancelButton:  'swal-btn-cancel',
+    }
+  }).then((result) => {
+    if (result.isConfirmed) {
+      document.getElementById('form-delete-all').submit();
     }
   });
 }

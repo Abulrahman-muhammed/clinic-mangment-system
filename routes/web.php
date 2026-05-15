@@ -9,6 +9,7 @@ use App\Http\Controllers\user\ServiceController;
 use App\Http\Controllers\user\BookingController;
 use App\Http\Controllers\user\ChatBotController;
 use App\Http\Controllers\user\NotificationController;
+use App\Http\Controllers\user\SocialiteController;
 
 
 /*
@@ -22,6 +23,11 @@ Route::group(['as' => 'front.'], function () {
     // ── Home ──────────────────────────────────────────────────────────────
     Route::get('/',          [HomeController::class, 'index'])->name('home');
     Route::get('/about-us',  [HomeController::class, 'about'])->name('about');
+    // ── Home ──────────────────────────────────────────────────────────────
+    Route::prefix('socialite')->name('socialite.')->controller(SocialiteController::class)->group(function () {
+        Route::get('/{provider}/login',    'redirect')->name('login');
+        Route::get('/{provider}/redirect', 'callback')->name('redirect');
+    });
 
     // ── Services ──────────────────────────────────────────────────────────
     Route::get('/services', [ServiceController::class, 'index'])->name('services.index');
@@ -67,7 +73,7 @@ Route::group(['as' => 'front.'], function () {
         Route::post('/notifications/{id}/mark-as-read', [NotificationController::class, 'markAsRead'])->name('notifications.markAsRead');
         Route::post('/notifications/mark-all-as-read', [NotificationController::class, 'markAllAsRead'])->name('notifications.markAllRead');
         Route::delete('/notifications/{id}', [NotificationController::class, 'destroy'])->name('notifications.destroy');
-
+        Route::delete('/notifications', [NotificationController::class, 'destroyAll'])->name('notifications.destroyAll');
 
     });
 

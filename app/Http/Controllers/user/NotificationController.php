@@ -68,4 +68,12 @@ class NotificationController extends Controller
  
         return back()->with('success', 'Notification deleted.');
     }
+    // ─── Delete all ───────────────────────────────────────────
+    public function destroyAll()
+    {
+        auth()->user()->notifications()->delete();
+
+        return back()->with('success', 'All notifications deleted.');
+    }
+
     }

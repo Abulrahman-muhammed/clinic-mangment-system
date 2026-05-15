@@ -7,10 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 class Invoice extends Model
 {
-    use HasFactory;
-    use SoftDeletes;
+    use HasFactory, SoftDeletes;
     protected $fillable = [
-        'patient_id', 'doctor_id', 'user_id', 'invoice_date', 'status', 'amount', 'notes'
+        'patient_id', 'doctor_id', 'user_id', 'invoice_date', 'status', 'amount', 'notes', 'visit_id'
     ];
 
     // Relationships
@@ -25,6 +24,10 @@ class Invoice extends Model
     public function user()
     {
         return $this->belongsTo(User::class)->withTrashed();   
+    }
+    public function visit()
+    {
+        return $this->belongsTo(Visit::class)->withTrashed();
     }
     public function services()
     {

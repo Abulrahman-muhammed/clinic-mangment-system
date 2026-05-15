@@ -111,6 +111,10 @@ class PatientController extends Controller
             SUM(CASE WHEN payment_status = 'paid' THEN amount ELSE 0 END) as paid_bookings_sum
         ")
         ->first();
+          $visits = $patient->visits()
+                      ->with(['doctor.user', 'doctor.major', 'receptionist'])
+                      ->latest()
+                      ->paginate(5, ['*'], 'visits_page');  // separate page param to avoid conflicts
 
     $invoicesSum = Invoice::where('patient_id', $patient->id)->sum('amount');
     $invoicesCount = Invoice::where('patient_id', $patient->id)->count();
@@ -126,7 +130,7 @@ class PatientController extends Controller
         'total_amount'           => $patientTotalSpent,
     ];
 
-    return view('admin.patients.show', compact('patient', 'appointments', 'invoices', 'stats'));
+    return view('admin.patients.show', compact('patient', 'appointments', 'invoices', 'stats' , 'visits'));
 }
 
     /**

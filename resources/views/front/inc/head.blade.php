@@ -18,8 +18,8 @@
     @stack('style')
 
        <script>
-    window._authUserId = {{ auth()->id() ?? 'null' }};
-    
+    window._authUserId = 'user';
+    window.APP_ROLE  = "{{ auth()->check() ? auth()->user()->getRoleNames()->first() : 'guest' }}";
   </script> 
 
 

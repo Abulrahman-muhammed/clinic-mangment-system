@@ -51,7 +51,7 @@ class BookingController extends Controller
             $query->whereHas('doctor', fn($q) => $q->where('user_id', auth()->id()));
         }
 
-        $bookings = $query->paginate(10)->withQueryString();
+        $bookings = $query->latest()->paginate(10)->withQueryString();
         $doctors  = Doctor::with('user')->get();
 
         return view('admin.bookings.index', compact('bookings', 'doctors'));
