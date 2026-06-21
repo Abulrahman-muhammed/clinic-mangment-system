@@ -13,21 +13,15 @@ use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 class BookingController extends Controller
 {
-    // ─────────────────────────────────────────────
-    //  Show booking form
-    // ─────────────────────────────────────────────
+
     public function create(Doctor $doctor)
     {
         $schedules = $doctor->schedules;
         return view('front.booking.create', compact('doctor', 'schedules'));
     }
 
-    // ─────────────────────────────────────────────
-    //  Store booking
-    // ─────────────────────────────────────────────
 public function store(Request $request, Doctor $doctor)
 {
-    // 1. Pre-fetch existing patient to handle the 'unique' validation rule properly
     $existingPatient = Patient::where('email', $request->patient_email)->first();
 
     $validated = $request->validate([
@@ -39,7 +33,6 @@ public function store(Request $request, Doctor $doctor)
             'required', 
             'email', 
             'max:120',
-            // Allows the current email owner to proceed, but blocks others
             Rule::unique('patients', 'email')->ignore($existingPatient?->id),
         ],
         'patient_dob'        => ['required', 'date', 'before:today'],
@@ -48,12 +41,10 @@ public function store(Request $request, Doctor $doctor)
         'patient_notes'      => ['nullable', 'string', 'max:2000'],
         'payment_method'     => ['required', 'in:card,at_clinic'],
     ], [
-        // English error messages
         'patient_email.unique'      => 'This email is already associated with another patient profile.',
         'appointment_time.required' => 'Please select a preferred time for your appointment.',
     ]);
 
-    // 2. Check slot availability (Excluding cancelled and completed appointments)
     $taken = Booking::where('doctor_id', $doctor->id)
         ->where('appointment_date', $validated['appointment_date'])
         ->where('appointment_time', $validated['appointment_time'])
@@ -66,8 +57,6 @@ public function store(Request $request, Doctor $doctor)
             ->withErrors(['appointment_time' => 'This time slot is already booked. Please choose another.']);
     }
 
-    // 3. Update or Create Patient 
-    // This will update the info (including phone) if the email exists, or create a new row if not
     $patient = Patient::updateOrCreate(
         ['email' => $validated['patient_email']],
         [
@@ -77,12 +66,10 @@ public function store(Request $request, Doctor $doctor)
             'gender'          => $validated['patient_gender'] ?? null,
             'blood_type'      => $validated['patient_blood_type'] ?? null,
             'medical_history' => $validated['patient_notes'] ?? null,
-            // Preserves existing password or generates a random one for new patients
             'password'        => $existingPatient ? $existingPatient->password : bcrypt(Str::random(32)),
         ]
     );
 
-    // 4. Create Booking
     $booking = Booking::create([
         'user_id'          => Auth::id(),
         'doctor_id'        => $doctor->id,
@@ -96,7 +83,6 @@ public function store(Request $request, Doctor $doctor)
         'notes'            => $validated['patient_notes'] ?? null,
     ]);
 
-    // 5. Redirect based on payment method
     if ($validated['payment_method'] === 'card') {
         return redirect()->route('front.booking.fake-checkout', $booking);
     }
@@ -107,9 +93,6 @@ public function store(Request $request, Doctor $doctor)
         ->with('success', 'Booking received! Please pay at the clinic. Your appointment is pending confirmation.');
 }
 
-    // ─────────────────────────────────────────────
-    //  Fake Stripe checkout page
-    // ─────────────────────────────────────────────
     public function fakeCheckout(Booking $booking)
     {
         abort_unless($booking->user_id === Auth::id(), 403);
@@ -118,9 +101,6 @@ public function store(Request $request, Doctor $doctor)
         return view('front.booking.fake-checkout', compact('booking'));
     }
 
-    // ─────────────────────────────────────────────
-    //  Simulate payment result
-    // ─────────────────────────────────────────────
     public function simulatePayment(Request $request, Booking $booking)
     {
         abort_unless($booking->user_id === Auth::id(), 403);
@@ -137,7 +117,6 @@ public function store(Request $request, Doctor $doctor)
                 'card_expiry'    => $request->input('card_expiry', '12/26'),
             ]);
 
-            // ── Create invoice automatically for card payments ──
             Invoice::create([
                 'patient_id'   => $booking->patient_id,
                 'doctor_id'    => $booking->doctor_id,
@@ -154,7 +133,6 @@ public function store(Request $request, Doctor $doctor)
                 ->with('success', 'Payment successful! Your appointment is confirmed and invoice has been generated.');
         }
 
-        // Payment failed
         $booking->update([
             'payment_status' => 'failed',
             'status'         => 'cancelled',
@@ -165,9 +143,6 @@ public function store(Request $request, Doctor $doctor)
             ->with('error', 'Payment failed. Your booking has been cancelled. Please try again.');
     }
 
-    // ─────────────────────────────────────────────
-    //  Result pages
-    // ─────────────────────────────────────────────
     public function success(Booking $booking)
     {
         abort_unless($booking->user_id === Auth::id(), 403);
@@ -180,9 +155,7 @@ public function store(Request $request, Doctor $doctor)
         return view('front.booking.failed', compact('booking'));
     }
 
-    // ─────────────────────────────────────────────
-    //  My appointments list
-    // ─────────────────────────────────────────────
+
     public function appointments(Request $request)
     {
         $query = Booking::where('user_id', Auth::id())
@@ -198,9 +171,7 @@ public function store(Request $request, Doctor $doctor)
         return view('front.booking.appointments', compact('bookings'));
     }
 
-    // ─────────────────────────────────────────────
-    //  Cancel (at_clinic only)
-    // ─────────────────────────────────────────────
+
     public function cancel(Booking $booking)
     {
         abort_unless($booking->user_id === Auth::id(), 403);
@@ -212,10 +183,6 @@ public function store(Request $request, Doctor $doctor)
         return back()->with('success', 'Appointment cancelled successfully.');
     }
 
-    // ─────────────────────────────────────────────
-    //  Soft delete (archive)
-    //  Allowed for: cancelled, completed, or failed-payment bookings
-    // ─────────────────────────────────────────────
     public function destroy(Booking $booking)
     {
         abort_unless($booking->user_id === Auth::id(), 403);

@@ -7,283 +7,725 @@
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 
 <style>
+/* ════════════════════════════════════════
+   DESIGN TOKENS
+════════════════════════════════════════ */
 :root {
-  --blue-deep:  #0d47a1;
-  --blue-mid:   #1a73e8;
-  --blue-light: #4a9ef5;
-  --blue-pale:  #e8f0fe;
-  --blue-glow:  rgba(26,115,232,0.13);
-  --white:      #ffffff;
-  --bg:         #f0f4fb;
-  --border:     #dde6f5;
-  --text:       #1a1f36;
-  --text-muted: #6b7a99;
-  --success:    #34a853;
-  --shadow:     0 8px 48px rgba(13,71,161,0.11);
-  --shadow-btn: 0 4px 18px rgba(26,115,232,0.32);
-  --r-card:     26px;
-  --r-pill:     999px;
-  --font-ui:    'Plus Jakarta Sans', sans-serif;
-  --font-body:  'Nunito', sans-serif;
+  --blue-deep:   #0d47a1;
+  --blue-mid:    #1a73e8;
+  --blue-light:  #4a9ef5;
+  --blue-pale:   #e8f0fe;
+  --blue-glow:   rgba(26,115,232,0.14);
+  --white:       #ffffff;
+  --bg:          #f0f4fb;
+  --surface:     #f7f9ff;
+  --border:      #dde6f5;
+  --text:        #1a1f36;
+  --text-muted:  #6b7a99;
+  --success:     #34a853;
+  --warn-bg:     #fff8e1;
+  --warn-border: #f9a825;
+  --warn-text:   #e65100;
+  --danger-bg:   #ffebee;
+  --danger-brd:  #ef9a9a;
+  --danger-text: #b71c1c;
+  --shadow-card: 0 4px 32px rgba(13,71,161,0.10), 0 1px 4px rgba(13,71,161,0.06);
+  --shadow-btn:  0 4px 16px rgba(26,115,232,0.35);
+  --r-xl:        28px;
+  --r-lg:        18px;
+  --r-md:        12px;
+  --r-sm:        8px;
+  --r-pill:      999px;
+  --font-ui:     'Plus Jakarta Sans', sans-serif;
+  --font-body:   'Nunito', sans-serif;
+  --speed:       0.22s;
 }
 
-/* ── PAGE ── */
+/* ════════════════════════════════════════
+   PAGE SHELL
+════════════════════════════════════════ */
 .cb-page {
   min-height: 100vh;
   background: var(--bg);
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 36px 20px;
+  padding: 32px 16px;
   font-family: var(--font-body);
   position: relative;
+  overflow: hidden;
+}
+.cb-page::before,
+.cb-page::after {
+  content: '';
+  position: fixed;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0;
 }
 .cb-page::before {
-  content: '';
-  position: fixed; inset: 0;
-  background:
-    radial-gradient(ellipse 80% 50% at 0% 0%,    rgba(26,115,232,0.08) 0%, transparent 55%),
-    radial-gradient(ellipse 60% 60% at 100% 100%, rgba(13,71,161,0.07) 0%, transparent 55%);
-  pointer-events: none; z-index: 0;
+  width: 700px; height: 700px;
+  background: radial-gradient(circle, rgba(26,115,232,0.07) 0%, transparent 70%);
+  top: -200px; left: -200px;
+}
+.cb-page::after {
+  width: 500px; height: 500px;
+  background: radial-gradient(circle, rgba(13,71,161,0.06) 0%, transparent 70%);
+  bottom: -150px; right: -150px;
 }
 
-/* ── WRAP ── */
 .cb-wrap {
-  position: relative; z-index: 1;
-  width: 100%; max-width: 960px;   /* wider */
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 980px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
 }
 
-/* ── EYEBROW ── */
+/* ════════════════════════════════════════
+   EYEBROW
+════════════════════════════════════════ */
 .cb-eyebrow {
-  display: flex; align-items: center; gap: 14px;
-  margin-bottom: 18px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 4px;
 }
-.cb-eyebrow hr { flex: 1; border: none; border-top: 1px solid var(--border); margin: 0; }
+.cb-eyebrow hr {
+  flex: 1;
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 0;
+}
 .cb-eyebrow-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   font-family: var(--font-ui);
-  font-size: 0.72rem; font-weight: 700;
-  letter-spacing: 0.13em; text-transform: uppercase;
-  color: var(--blue-mid); white-space: nowrap;
-}
-.cb-online-dot {
-  width: 8px; height: 8px; border-radius: 50%;
-  background: var(--success);
-  box-shadow: 0 0 0 3px rgba(52,168,83,0.22);
-  animation: blink 2.2s infinite; flex-shrink: 0;
-}
-@keyframes blink {
-  0%,100% { box-shadow: 0 0 0 3px rgba(52,168,83,0.22); }
-  50%      { box-shadow: 0 0 0 7px rgba(52,168,83,0.07); }
+  font-size: 0.70rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--blue-mid);
+  white-space: nowrap;
 }
 
-/* ── CARD ── */
+/* ════════════════════════════════════════
+   ANIMATED DOT
+════════════════════════════════════════ */
+.cb-pulse {
+  position: relative;
+  width: 8px; height: 8px;
+  flex-shrink: 0;
+}
+.cb-pulse-core {
+  position: absolute; inset: 0;
+  border-radius: 50%;
+  background: var(--success);
+}
+.cb-pulse-ring {
+  position: absolute; inset: -3px;
+  border-radius: 50%;
+  border: 2px solid var(--success);
+  opacity: 0;
+  animation: pulse-ring 2.4s ease-out infinite;
+}
+@keyframes pulse-ring {
+  0%   { transform: scale(0.7); opacity: 0.6; }
+  100% { transform: scale(1.8); opacity: 0; }
+}
+
+/* ════════════════════════════════════════
+   MAIN CARD
+════════════════════════════════════════ */
 .cb-card {
   background: var(--white);
-  border-radius: var(--r-card);
-  box-shadow: var(--shadow);
+  border-radius: var(--r-xl);
+  box-shadow: var(--shadow-card);
   border: 1px solid var(--border);
-  display: flex; flex-direction: column;
-  height: 82vh;          /* taller */
-  max-height: 860px;     /* taller */
+  display: flex;
+  flex-direction: column;
+  height: 80vh;
+  max-height: 840px;
+  min-height: 500px;
   overflow: hidden;
 }
 
-/* ── HEADER ── */
+/* ════════════════════════════════════════
+   HEADER
+════════════════════════════════════════ */
 .cb-header {
-  background: linear-gradient(120deg, var(--blue-deep) 0%, var(--blue-mid) 100%);
-  padding: 24px 32px;    /* more padding */
-  display: flex; align-items: center; gap: 16px;
-  flex-shrink: 0; position: relative; overflow: hidden;
+  background: linear-gradient(118deg, var(--blue-deep) 0%, #1565c0 50%, var(--blue-mid) 100%);
+  padding: 20px 28px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-shrink: 0;
+  position: relative;
+  overflow: hidden;
 }
-.cb-header::before {
-  content: ''; position: absolute;
-  width: 200px; height: 200px; border-radius: 50%;
-  background: rgba(255,255,255,0.05);
-  right: -50px; top: -70px;
+.cb-header-orb {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.06);
+  pointer-events: none;
 }
-.cb-header::after {
-  content: ''; position: absolute;
-  width: 110px; height: 110px; border-radius: 50%;
-  background: rgba(255,255,255,0.04);
-  right: 80px; bottom: -45px;
-}
+.cb-header-orb-1 { width: 220px; height: 220px; right: -60px; top: -90px; }
+.cb-header-orb-2 { width: 130px; height: 130px; right: 110px; bottom: -60px; }
+.cb-header-orb-3 { width: 60px;  height: 60px;  left: 40%;   top: -20px; }
+
 .cb-hdr-avatar {
-  width: 54px; height: 54px;   /* bigger */
+  width: 52px; height: 52px;
   border-radius: 16px;
   background: rgba(255,255,255,0.15);
-  border: 1px solid rgba(255,255,255,0.22);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 24px; color: #fff;   /* bigger icon */
-  flex-shrink: 0; position: relative; z-index: 1;
+  border: 1.5px solid rgba(255,255,255,0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  color: #fff;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 1;
 }
-.cb-hdr-info { position: relative; z-index: 1; }
+.cb-hdr-info {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  min-width: 0;
+}
 .cb-hdr-info h2 {
   font-family: var(--font-ui);
-  font-size: 1.20rem; font-weight: 700;  /* bigger */
-  color: #fff; margin: 0 0 3px;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #fff;
+  margin: 0 0 3px;
+  line-height: 1.2;
 }
-.cb-hdr-info span {
-  font-size: 0.80rem;   /* bigger */
-  color: rgba(255,255,255,0.68);
+.cb-hdr-info p {
+  font-size: 0.78rem;
+  color: rgba(255,255,255,0.65);
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
-.cb-hdr-badge {
-  margin-left: auto;
-  display: flex; align-items: center; gap: 6px;
-  background: rgba(255,255,255,0.12);
-  border: 1px solid rgba(255,255,255,0.18);
+.cb-hdr-live {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  background: rgba(255,255,255,0.13);
+  border: 1px solid rgba(255,255,255,0.20);
   border-radius: var(--r-pill);
-  padding: 6px 16px;
-  font-size: 0.74rem; font-weight: 600;
+  padding: 7px 16px;
   font-family: var(--font-ui);
+  font-size: 0.75rem;
+  font-weight: 600;
   color: rgba(255,255,255,0.92);
-  flex-shrink: 0; position: relative; z-index: 1;
+  flex-shrink: 0;
+  backdrop-filter: blur(4px);
 }
 
-/* ── MESSAGES ── */
+/* ════════════════════════════════════════
+   MESSAGES AREA
+════════════════════════════════════════ */
 .cb-messages {
-  flex: 1; overflow-y: auto;
-  padding: 30px 28px;   /* more breathing room */
-  display: flex; flex-direction: column;
-  gap: 20px; scroll-behavior: smooth;
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px 24px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  scroll-behavior: smooth;
 }
-.cb-messages::-webkit-scrollbar { width: 4px; }
-.cb-messages::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; }
+.cb-messages::-webkit-scrollbar { width: 3px; }
+.cb-messages::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 99px;
+}
 
+/* ════════════════════════════════════════
+   MESSAGE ROW
+════════════════════════════════════════ */
 .cb-row {
-  display: flex; align-items: flex-end; gap: 10px;
-  animation: pop-in 0.28s cubic-bezier(0.34,1.56,0.64,1) both;
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  animation: msg-in 0.28s cubic-bezier(0.34,1.4,0.64,1) both;
 }
 .cb-row.user { flex-direction: row-reverse; }
-@keyframes pop-in {
-  from { opacity: 0; transform: translateY(10px) scale(0.97); }
+
+@keyframes msg-in {
+  from { opacity: 0; transform: translateY(12px) scale(0.97); }
   to   { opacity: 1; transform: none; }
 }
 
+/* avatar */
 .cb-av {
-  width: 36px; height: 36px;   /* bigger */
+  width: 34px; height: 34px;
   border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 15px; flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  flex-shrink: 0;
+  align-self: flex-end;
 }
-.cb-row.bot  .cb-av { background: var(--blue-pale); color: var(--blue-mid); }
-.cb-row.user .cb-av { background: #e8eaf6; color: var(--blue-deep); }
-
-.cb-bubble {
-  max-width: 68%;
-  padding: 14px 20px;      /* more padding */
-  border-radius: 20px;
-  font-size: 1rem;         /* bigger — was 0.875 */
-  line-height: 1.70;
-  word-wrap: break-word; white-space: pre-wrap;
-  font-family: var(--font-body);
-}
-.cb-row.bot .cb-bubble {
-  background: var(--bg); color: var(--text);
+.cb-row.bot  .cb-av {
+  background: var(--blue-pale);
+  color: var(--blue-mid);
   border: 1px solid var(--border);
-  border-bottom-left-radius: 4px;
 }
-.cb-row.user .cb-bubble {
+.cb-row.user .cb-av {
   background: linear-gradient(135deg, var(--blue-mid), var(--blue-deep));
   color: #fff;
-  border-bottom-right-radius: 4px;
 }
 
-/* ── TYPING ── */
-.cb-typing { display: none; align-items: flex-end; gap: 10px; }
+/* bubble wrapper (holds bubble + timestamp) */
+.cb-bubble-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-width: 70%;
+}
+.cb-row.bot  .cb-bubble-wrap { align-items: flex-start; }
+.cb-row.user .cb-bubble-wrap { align-items: flex-end; }
+.cb-bubble-wrap.wide { max-width: 88%; }
+
+/* bubble itself */
+.cb-bubble {
+  padding: 13px 17px;
+  border-radius: 20px;
+  font-size: 0.97rem;
+  line-height: 1.72;
+  word-wrap: break-word;
+  font-family: var(--font-body);
+  width: fit-content;
+}
+.cb-row.bot .cb-bubble {
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-bottom-left-radius: 5px;
+}
+.cb-row.user .cb-bubble {
+  background: linear-gradient(135deg, var(--blue-mid) 0%, var(--blue-deep) 100%);
+  color: #fff;
+  border-bottom-right-radius: 5px;
+}
+
+/* timestamp */
+.cb-time {
+  font-size: 0.67rem;
+  color: var(--text-muted);
+  opacity: 0.5;
+  font-family: var(--font-ui);
+  padding: 0 3px;
+}
+
+/* ════════════════════════════════════════
+   MARKDOWN CONTENT
+════════════════════════════════════════ */
+.cb-md { white-space: normal; }
+.cb-md > *:first-child { margin-top: 0; }
+.cb-md > *:last-child  { margin-bottom: 0; }
+.cb-md p  { margin: 0 0 8px; }
+.cb-md ul,
+.cb-md ol { margin: 4px 0 8px 18px; padding: 0; }
+.cb-md li { margin-bottom: 4px; line-height: 1.6; }
+.cb-md strong { font-weight: 700; }
+.cb-md em     { font-style: italic; }
+.cb-md code {
+  background: rgba(26,115,232,0.10);
+  border-radius: 5px;
+  padding: 1px 6px;
+  font-size: 0.87em;
+  font-family: 'Courier New', monospace;
+}
+.cb-md pre {
+  background: rgba(26,115,232,0.06);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  padding: 10px 12px;
+  overflow-x: auto;
+  font-size: 0.85em;
+  margin: 8px 0;
+}
+.cb-md h1, .cb-md h2, .cb-md h3 {
+  font-family: var(--font-ui);
+  font-weight: 700;
+  margin: 10px 0 4px;
+  color: var(--text);
+}
+.cb-md h1 { font-size: 1.05rem; }
+.cb-md h2 { font-size: 0.97rem; }
+.cb-md h3 { font-size: 0.90rem; }
+.cb-md a  { color: var(--blue-mid); text-decoration: underline; }
+.cb-md blockquote {
+  border-left: 3px solid var(--blue-light);
+  border-radius: 0;
+  padding: 4px 12px;
+  margin: 8px 0;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+/* ════════════════════════════════════════
+   TYPEWRITER CURSOR
+════════════════════════════════════════ */
+.cb-cursor {
+  display: inline-block;
+  width: 2px; height: 1em;
+  background: var(--blue-mid);
+  vertical-align: text-bottom;
+  margin-left: 2px;
+  border-radius: 1px;
+  animation: cur-blink 0.65s steps(1) infinite;
+}
+@keyframes cur-blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+
+/* ════════════════════════════════════════
+   URGENCY + MAJOR BADGES
+════════════════════════════════════════ */
+.cb-meta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 10px;
+}
+.cb-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border-radius: var(--r-pill);
+  padding: 4px 11px;
+  font-size: 0.71rem;
+  font-weight: 700;
+  font-family: var(--font-ui);
+  line-height: 1;
+}
+.cb-badge.low    { background: #e8f5e9; color: #2e7d32; }
+.cb-badge.medium { background: var(--warn-bg); color: var(--warn-text); border: 1px solid #ffe082; }
+.cb-badge.high   { background: var(--danger-bg); color: var(--danger-text); border: 1px solid var(--danger-brd); }
+.cb-badge.major  { background: var(--blue-pale); color: var(--blue-deep); }
+
+/* ════════════════════════════════════════
+   EMERGENCY BUBBLE OVERRIDE
+════════════════════════════════════════ */
+.cb-bubble.emergency {
+  border: 1px solid var(--danger-brd) !important;
+  border-left: 4px solid #e53935 !important;
+  border-radius: 20px !important;
+  border-bottom-left-radius: 5px !important;
+  background: #fff8f8 !important;
+  animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+}
+@keyframes shake {
+  10%, 90%        { transform: translateX(-2px); }
+  20%, 80%        { transform: translateX(3px);  }
+  30%, 50%, 70%   { transform: translateX(-3px); }
+  40%, 60%        { transform: translateX(3px);  }
+}
+
+/* ── EMERGENCY BANNER ── */
+.cb-emg-banner {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  background: var(--danger-bg);
+  border: 1px solid var(--danger-brd);
+  border-left: 4px solid #e53935;
+  border-radius: var(--r-md);
+  border-bottom-left-radius: 0;
+  padding: 10px 14px;
+  margin-bottom: 8px;
+  font-family: var(--font-ui);
+  font-size: 0.80rem;
+  font-weight: 700;
+  color: var(--danger-text);
+  animation: fade-slide 0.35s ease both;
+}
+.cb-emg-banner i { font-size: 15px; flex-shrink: 0; }
+@keyframes fade-slide {
+  from { opacity: 0; transform: translateY(-5px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* ════════════════════════════════════════
+   DOCTOR CARDS
+════════════════════════════════════════ */
+.cb-doctors {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 12px;
+}
+.cb-doc-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 11px 13px;
+  transition: border-color var(--speed), box-shadow var(--speed);
+}
+.cb-doc-card:hover {
+  border-color: var(--blue-light);
+  box-shadow: 0 2px 12px var(--blue-glow);
+}
+.cb-doc-av {
+  width: 44px; height: 44px;
+  border-radius: var(--r-md);
+  background: var(--blue-pale);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+.cb-doc-av img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  border-radius: calc(var(--r-md) - 1px);
+}
+.cb-doc-info { flex: 1; min-width: 0; }
+.cb-doc-name {
+  font-weight: 700;
+  font-size: 0.87rem;
+  color: var(--text);
+  margin: 0 0 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.cb-doc-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+.cb-doc-meta span {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+.cb-doc-meta i { font-size: 11px; }
+.cb-doc-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+  flex-shrink: 0;
+}
+.cb-doc-fee {
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: var(--blue-mid);
+  white-space: nowrap;
+}
+.cb-book-btn {
+  padding: 6px 14px;
+  border-radius: var(--r-sm);
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-ui);
+  font-size: 0.75rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--blue-mid), var(--blue-deep));
+  color: #fff;
+  white-space: nowrap;
+  transition: transform 0.15s, box-shadow 0.15s;
+  box-shadow: 0 2px 8px rgba(26,115,232,0.28);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.cb-book-btn:hover  { transform: scale(1.04); box-shadow: var(--shadow-btn); color: #fff; }
+.cb-book-btn:active { transform: scale(0.96); }
+
+/* ════════════════════════════════════════
+   TYPING INDICATOR
+════════════════════════════════════════ */
+.cb-typing {
+  display: none;
+  align-items: flex-end;
+  gap: 10px;
+}
 .cb-typing-dots {
-  background: var(--bg); border: 1px solid var(--border);
-  border-radius: 20px; border-bottom-left-radius: 4px;
-  padding: 14px 18px; display: flex; gap: 5px; align-items: center;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  border-bottom-left-radius: 5px;
+  padding: 13px 17px;
+  display: flex;
+  gap: 5px;
+  align-items: center;
 }
 .cb-dot {
-  width: 7px; height: 7px; border-radius: 50%;
+  width: 6px; height: 6px;
+  border-radius: 50%;
   background: var(--blue-light);
-  animation: bounce-dot 1.2s infinite ease-in-out;
+  animation: dot-bounce 1.3s infinite ease-in-out;
 }
-.cb-dot:nth-child(2) { animation-delay: 0.16s; }
-.cb-dot:nth-child(3) { animation-delay: 0.32s; }
-@keyframes bounce-dot {
-  0%,80%,100% { transform: translateY(0); opacity: 0.4; }
-  40%         { transform: translateY(-8px); opacity: 1; }
+.cb-dot:nth-child(2) { animation-delay: 0.18s; }
+.cb-dot:nth-child(3) { animation-delay: 0.36s; }
+@keyframes dot-bounce {
+  0%, 80%, 100% { transform: translateY(0); opacity: 0.35; }
+  40%           { transform: translateY(-7px); opacity: 1; }
 }
 
-/* ── SEPARATOR ── */
-.cb-sep { height: 1px; background: var(--border); flex-shrink: 0; }
+/* ════════════════════════════════════════
+   DIVIDER
+════════════════════════════════════════ */
+.cb-divider { height: 1px; background: var(--border); flex-shrink: 0; }
 
-/* ── CHIPS ── */
+/* ════════════════════════════════════════
+   SUGGESTION CHIPS
+════════════════════════════════════════ */
 .cb-chips {
-  display: flex; gap: 8px;
-  padding: 12px 28px 6px;
-  overflow-x: auto; flex-shrink: 0;
+  display: flex;
+  gap: 7px;
+  padding: 10px 24px 4px;
+  overflow-x: auto;
+  flex-shrink: 0;
 }
 .cb-chips::-webkit-scrollbar { display: none; }
 .cb-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
   white-space: nowrap;
-  background: var(--blue-pale);
-  border: 1.5px solid transparent;
-  color: var(--blue-deep);
+  background: var(--white);
+  border: 1.5px solid var(--border);
+  color: var(--text);
   border-radius: var(--r-pill);
-  padding: 7px 16px;
-  font-size: 0.82rem; font-weight: 600;  /* bigger */
+  padding: 7px 15px;
+  font-size: 0.80rem;
+  font-weight: 600;
   font-family: var(--font-ui);
-  cursor: pointer; transition: all 0.18s; flex-shrink: 0;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all var(--speed);
 }
-.cb-chip:hover { background: var(--blue-mid); color: #fff; border-color: var(--blue-mid); }
+.cb-chip:hover {
+  background: var(--blue-mid);
+  color: #fff;
+  border-color: var(--blue-mid);
+  transform: translateY(-1px);
+  box-shadow: 0 3px 10px var(--blue-glow);
+}
+.cb-chip:active { transform: translateY(0); }
 
-/* ── INPUT ── */
+/* ════════════════════════════════════════
+   INPUT ROW
+════════════════════════════════════════ */
 .cb-input-row {
-  display: flex; align-items: flex-end; gap: 12px;
-  padding: 14px 28px 22px; flex-shrink: 0;
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  padding: 10px 20px 18px;
+  flex-shrink: 0;
+}
+.cb-input-wrap {
+  flex: 1;
+  position: relative;
+  display: flex;
+  align-items: flex-end;
 }
 #cbInput {
-  flex: 1;
-  background: var(--bg);
+  width: 100%;
+  background: var(--surface);
   border: 1.5px solid var(--border);
-  border-radius: 16px;
-  padding: 13px 18px;
-  font-size: 1rem;        /* bigger */
+  border-radius: 18px;
+  padding: 12px 16px;
+  font-size: 0.97rem;
   font-family: var(--font-body);
   color: var(--text);
-  resize: none; outline: none;
-  max-height: 120px; overflow-y: auto;
+  resize: none;
+  outline: none;
+  max-height: 120px;
+  overflow-y: auto;
   line-height: 1.55;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  transition: border-color var(--speed), box-shadow var(--speed), background var(--speed);
+  box-sizing: border-box;
 }
-#cbInput::placeholder { color: var(--text-muted); opacity: 0.6; }
+#cbInput::placeholder { color: var(--text-muted); opacity: 0.55; }
 #cbInput:focus {
   border-color: var(--blue-mid);
   box-shadow: 0 0 0 3px var(--blue-glow);
-  background: #fff;
+  background: var(--white);
 }
+#cbInput::-webkit-scrollbar { width: 3px; }
+#cbInput::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; }
+
+.cb-char-count {
+  position: absolute;
+  bottom: 10px; right: 12px;
+  font-size: 0.65rem;
+  font-family: var(--font-ui);
+  color: var(--text-muted);
+  opacity: 0;
+  transition: opacity var(--speed);
+  pointer-events: none;
+}
+#cbInput:focus ~ .cb-char-count { opacity: 0.55; }
+
 .cb-send {
-  width: 48px; height: 48px;   /* bigger */
+  width: 46px; height: 46px;
   border-radius: 14px;
   background: linear-gradient(135deg, var(--blue-mid), var(--blue-deep));
-  color: #fff; border: none;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 17px; cursor: pointer;
+  color: #fff;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  cursor: pointer;
+  flex-shrink: 0;
   transition: transform 0.15s, box-shadow 0.15s, opacity 0.15s;
-  box-shadow: var(--shadow-btn); flex-shrink: 0;
+  box-shadow: var(--shadow-btn);
 }
-.cb-send:hover  { transform: scale(1.07); }
+.cb-send:hover  { transform: scale(1.06); }
 .cb-send:active { transform: scale(0.93); }
-.cb-send:disabled { opacity: 0.38; cursor: default; transform: none; box-shadow: none; }
+.cb-send:disabled { opacity: 0.35; cursor: default; transform: none; box-shadow: none; }
 
-/* ── FOOTER NOTE ── */
+/* ════════════════════════════════════════
+   FOOTER NOTE
+════════════════════════════════════════ */
 .cb-note {
   text-align: center;
-  font-size: 0.72rem; color: var(--text-muted); opacity: 0.5;
-  padding: 0 28px 14px; flex-shrink: 0;
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  opacity: 0.45;
+  padding: 0 20px 12px;
+  flex-shrink: 0;
   font-family: var(--font-ui);
 }
 
-/* ── RESPONSIVE ── */
+/* ════════════════════════════════════════
+   RESPONSIVE
+════════════════════════════════════════ */
 @media (max-width: 640px) {
   .cb-page  { padding: 0; }
-  .cb-wrap  { max-width: 100%; }
+  .cb-wrap  { gap: 0; }
   .cb-card  { border-radius: 0; height: 100dvh; max-height: none; }
   .cb-eyebrow { display: none; }
-  .cb-bubble  { max-width: 82%; font-size: 0.95rem; }
+  .cb-bubble-wrap    { max-width: 84%; }
+  .cb-bubble-wrap.wide { max-width: 95%; }
+  .cb-doc-card { flex-wrap: wrap; }
+  .cb-doc-right { flex-direction: row; align-items: center; width: 100%; }
 }
 </style>
 @endpush
@@ -292,162 +734,469 @@
 <div class="cb-page">
   <div class="cb-wrap">
 
-    {{-- Eyebrow --}}
+    {{-- ── EYEBROW ── --}}
     <div class="cb-eyebrow">
       <hr>
-      <div class="cb-online-dot"></div>
-      <span class="cb-eyebrow-label">AI Health Assistant &middot; Online 24/7</span>
+      <div class="cb-eyebrow-label">
+        <div class="cb-pulse">
+          <div class="cb-pulse-core"></div>
+          <div class="cb-pulse-ring"></div>
+        </div>
+        AI Health Assistant &middot; Online 24/7
+      </div>
       <hr>
     </div>
 
+    {{-- ── MAIN CARD ── --}}
     <div class="cb-card">
 
       {{-- Header --}}
       <div class="cb-header">
-        <div class="cb-hdr-avatar"><i class="fa-solid fa-robot"></i></div>
+        <div class="cb-header-orb cb-header-orb-1"></div>
+        <div class="cb-header-orb cb-header-orb-2"></div>
+        <div class="cb-header-orb cb-header-orb-3"></div>
+
+        <div class="cb-hdr-avatar">
+          <i class="fa-solid fa-robot"></i>
+        </div>
+
         <div class="cb-hdr-info">
           <h2>Health Assistant</h2>
-          <span>Powered by Gemini AI &middot; Medical guidance at your fingertips</span>
+          <p>Powered by Gemini AI &middot; Medical guidance at your fingertips</p>
         </div>
-        <div class="cb-hdr-badge">
-          <div class="cb-online-dot"></div>
+
+        <div class="cb-hdr-live">
+          <div class="cb-pulse">
+            <div class="cb-pulse-core"></div>
+            <div class="cb-pulse-ring"></div>
+          </div>
           Live
         </div>
       </div>
 
       {{-- Messages --}}
       <div class="cb-messages" id="cbMessages">
-        <div class="cb-row bot">
+
+        {{-- Welcome message --}}
+        <div class="cb-row bot" style="margin-bottom:8px;">
           <div class="cb-av"><i class="fa-solid fa-robot"></i></div>
-          <div class="cb-bubble">👋 Hello! I'm your AI Health Assistant.
-
-I can help with general health questions, symptoms, medications, and wellness advice.
-
-⚠️ My answers are informational only and don't replace professional medical advice. For emergencies, call your local emergency number immediately.
-
-How can I help you today?</div>
+          <div class="cb-bubble-wrap">
+            <div class="cb-bubble cb-md">
+              <p>👋 Hello! I'm your <strong>AI Health Assistant</strong>.</p>
+              <p>Describe your symptoms and I'll analyze them to guide you to the <strong>right medical specialty</strong> and suggest <strong>available doctors</strong> you can book instantly.</p>
+              <p>⚠️ My answers are informational only and do not replace professional medical advice. For emergencies, call your local emergency number immediately.</p>
+              <p style="margin-bottom:0">What symptoms are you experiencing, or which specialty are you looking for?</p>
+            </div>
+            <div class="cb-time" id="cbWelcomeTime"></div>
+          </div>
         </div>
 
+        {{-- Typing indicator --}}
         <div class="cb-typing" id="cbTyping">
-          <div class="cb-av" style="background:var(--blue-pale);color:var(--blue-mid);">
+          <div class="cb-av" style="background:var(--blue-pale);color:var(--blue-mid);border:1px solid var(--border);">
             <i class="fa-solid fa-robot"></i>
           </div>
           <div class="cb-typing-dots">
-            <div class="cb-dot"></div><div class="cb-dot"></div><div class="cb-dot"></div>
+            <div class="cb-dot"></div>
+            <div class="cb-dot"></div>
+            <div class="cb-dot"></div>
           </div>
         </div>
-      </div>
 
-      <div class="cb-sep"></div>
+      </div>{{-- /cb-messages --}}
 
-      {{-- Chips --}}
+      <div class="cb-divider"></div>
+
+      {{-- Suggestion chips --}}
       <div class="cb-chips">
-        <button class="cb-chip" onclick="useSuggestion(this)">💊 Medication info</button>
-        <button class="cb-chip" onclick="useSuggestion(this)">🤒 I have a fever</button>
-        <button class="cb-chip" onclick="useSuggestion(this)">😴 Sleep problems</button>
-        <button class="cb-chip" onclick="useSuggestion(this)">🥗 Healthy diet tips</button>
+        <button class="cb-chip" onclick="useSuggestion(this)">🧠 Persistent headache and dizziness</button>
+        <button class="cb-chip" onclick="useSuggestion(this)">🦴 Severe knee and joint pain</button>
+        <button class="cb-chip" onclick="useSuggestion(this)">❤️ Irregular heartbeat</button>
+        <button class="cb-chip" onclick="useSuggestion(this)">👶 Book a pediatrician</button>
+        <button class="cb-chip" onclick="useSuggestion(this)">🔍 Book an internal medicine doctor</button>
+        <button class="cb-chip" onclick="useSuggestion(this)">👁️ Eye pain and blurred vision</button>
       </div>
 
-      {{-- Input --}}
+      {{-- Input row --}}
       <div class="cb-input-row">
-        <textarea id="cbInput" rows="1" placeholder="Ask a health question…" maxlength="1000" aria-label="Your message"></textarea>
-        <button class="cb-send" id="cbSend" onclick="sendMessage()" aria-label="Send">
+        <div class="cb-input-wrap">
+          <textarea
+            id="cbInput"
+            rows="1"
+            placeholder="Describe your symptoms or the specialty you're looking for…"
+            maxlength="1000"
+            aria-label="Your message"
+          ></textarea>
+          <span class="cb-char-count" id="cbCharCount">0 / 1000</span>
+        </div>
+        <button class="cb-send" id="cbSend" onclick="sendMessage()" aria-label="Send message">
           <i class="fa-solid fa-paper-plane"></i>
         </button>
       </div>
 
       <div class="cb-note">For emergencies please call your local emergency services immediately.</div>
 
-    </div>
-  </div>
-</div>
+    </div>{{-- /cb-card --}}
+  </div>{{-- /cb-wrap --}}
+</div>{{-- /cb-page --}}
 @endsection
 
+
 @push('scripts')
+{{-- Markdown renderer --}}
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+{{-- XSS sanitizer --}}
+<script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.6/dist/purify.min.js"></script>
+
 <script>
 (function () {
+  /* ── Config ── */
   const CSRF     = '{{ csrf_token() }}';
   const SEND_URL = '{{ route("front.chatbot.send") }}';
+  const TYPEWRITER_SPEED = 16; // ms per char
+
+  /* ── DOM refs ── */
   const msgEl    = document.getElementById('cbMessages');
   const inputEl  = document.getElementById('cbInput');
   const sendBtn  = document.getElementById('cbSend');
   const typingEl = document.getElementById('cbTyping');
-  let   history  = [];
+  const charEl   = document.getElementById('cbCharCount');
 
+  /* ── State ── */
+  let history  = [];
+  let isTyping = false;
+
+  /* ── Marked config ── */
+  marked.setOptions({ breaks: true, gfm: true });
+
+  /* ── Helpers ── */
+  function now() {
+    return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  }
+
+  function sanitizeHtml(raw) {
+    const html = marked.parse(raw);
+    return DOMPurify.sanitize(html, {
+      ALLOWED_TAGS: ['p','strong','em','b','i','ul','ol','li',
+                     'code','pre','h1','h2','h3','br','a','blockquote','hr'],
+      ALLOWED_ATTR: ['href','target','rel'],
+    });
+  }
+
+  function scrollDown() {
+    msgEl.scrollTo({ top: msgEl.scrollHeight, behavior: 'smooth' });
+  }
+
+  /* ── Welcome timestamp ── */
+  document.getElementById('cbWelcomeTime').textContent = now();
+
+  /* ── Textarea auto-resize + char count ── */
   inputEl.addEventListener('input', () => {
     inputEl.style.height = 'auto';
     inputEl.style.height = Math.min(inputEl.scrollHeight, 120) + 'px';
+    charEl.textContent = inputEl.value.length + ' / 1000';
   });
 
   inputEl.addEventListener('keydown', e => {
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
   });
 
-  window.useSuggestion = btn => {
-    inputEl.value = btn.textContent.trim().replace(/^[\p{Emoji}\s]+/u, '').trim();
+  /* ── Chip click ── */
+  window.useSuggestion = function(btn) {
+    // شيل الـ emoji من أول النص
+    const text = btn.textContent.trim().replace(/^[\p{Emoji_Presentation}\p{Extended_Pictographic}\s]+/u, '').trim();
+    inputEl.value = text;
+    inputEl.dispatchEvent(new Event('input'));
     sendMessage();
   };
 
+  /* ════════════════════════════════════════
+     TYPEWRITER ENGINE
+  ════════════════════════════════════════ */
+  function typewrite(el, rawText, speedMs, onDone) {
+    el.classList.add('cb-md');
+    el.innerHTML = sanitizeHtml(rawText);
+
+    const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+    const nodes  = [];
+    let n;
+    while ((n = walker.nextNode())) nodes.push(n);
+
+    const originals = nodes.map(nd => {
+      const t = nd.textContent;
+      nd.textContent = '';
+      return t;
+    });
+
+    const cursor = document.createElement('span');
+    cursor.className = 'cb-cursor';
+    el.appendChild(cursor);
+
+    let ni = 0, ci = 0;
+
+    function tick() {
+      if (ni >= nodes.length) {
+        cursor.remove();
+        if (onDone) onDone();
+        return;
+      }
+      nodes[ni].textContent += originals[ni][ci];
+      ci++;
+      if (ci >= originals[ni].length) { ni++; ci = 0; }
+      scrollDown();
+      setTimeout(tick, speedMs);
+    }
+
+    tick();
+  }
+
+  /* ════════════════════════════════════════
+     SEND MESSAGE
+  ════════════════════════════════════════ */
   window.sendMessage = async function () {
     const text = inputEl.value.trim();
-    if (!text || sendBtn.disabled) return;
+    if (!text || sendBtn.disabled || isTyping) return;
 
     sendBtn.disabled = true;
     inputEl.value = '';
     inputEl.style.height = 'auto';
+    charEl.textContent = '0 / 1000';
 
-    addBubble('user', text);
+    addUserBubble(text);
     typingEl.style.display = 'flex';
     scrollDown();
 
     try {
-      const res  = await fetch(SEND_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': CSRF },
+      const res = await fetch(SEND_URL, {
+        method:  'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-TOKEN': CSRF,
+        },
         body: JSON.stringify({ message: text, history }),
       });
+
+      // ✅ تعامل مع كل حالات الـ HTTP errors
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.error || 'Server error (' + res.status + ')');
+      }
+
       const data = await res.json();
       typingEl.style.display = 'none';
 
-      const reply = data.error ? '⚠️ ' + data.error : data.reply;
-      addBubble('bot', reply);
-
-      if (!data.error) {
+      if (data.error) {
+        addBotBubble('⚠️ ' + data.error, null, null, []);
+      } else {
+        addBotBubble(data.reply, data.urgency, data.major, data.doctors || []);
+        // ✅ بنحتفظ بآخر 10 رسايل بس (5 exchanges) في الـ frontend كمان
         history.push({ role: 'user',      content: text });
         history.push({ role: 'assistant', content: data.reply });
-        if (history.length > 40) history = history.slice(-40);
+        if (history.length > 10) history = history.slice(-10);
       }
-    } catch {
-      typingEl.style.display = 'none';
-      addBubble('bot', '⚠️ Network error. Please check your connection and try again.');
-    }
 
-    sendBtn.disabled = false;
-    inputEl.focus();
-    scrollDown();
+    } catch (err) {
+      typingEl.style.display = 'none';
+      addBotBubble('⚠️ ' + (err.message || 'Network error. Please check your connection and try again.'), null, null, []);
+    } finally {
+      // ✅ always re-enable the button even if typewriter runs (typewriter handles its own disable)
+      if (!isTyping) {
+        sendBtn.disabled = false;
+      }
+      inputEl.focus();
+    }
   };
 
-  function addBubble(role, content) {
-    const row = document.createElement('div');
-    row.className = `cb-row ${role}`;
+  /* ════════════════════════════════════════
+     USER BUBBLE
+  ════════════════════════════════════════ */
+  function addUserBubble(text) {
+    const row  = document.createElement('div');
+    row.className = 'cb-row user';
 
     const av = document.createElement('div');
     av.className = 'cb-av';
-    av.innerHTML = role === 'bot'
-      ? '<i class="fa-solid fa-robot"></i>'
-      : '<i class="fa-solid fa-user"></i>';
+    av.innerHTML = '<i class="fa-solid fa-user"></i>';
+
+    const wrap = document.createElement('div');
+    wrap.className = 'cb-bubble-wrap';
 
     const bubble = document.createElement('div');
     bubble.className = 'cb-bubble';
-    bubble.textContent = content;
+    bubble.textContent = text; // textContent بدل innerHTML عشان نتجنب XSS
 
-    row.appendChild(av);
-    row.appendChild(bubble);
+    const time = document.createElement('div');
+    time.className = 'cb-time';
+    time.textContent = now();
+
+    wrap.append(bubble, time);
+    row.append(wrap, av);
     msgEl.insertBefore(row, typingEl);
     scrollDown();
   }
 
-  function scrollDown() { msgEl.scrollTop = msgEl.scrollHeight; }
+  /* ════════════════════════════════════════
+     BOT BUBBLE
+  ════════════════════════════════════════ */
+  function addBotBubble(reply, urgency, major, doctors) {
+    const isHigh     = urgency === 'high';
+    const hasDoctors = doctors && doctors.length > 0;
+
+    const row = document.createElement('div');
+    row.className = 'cb-row bot';
+
+    const av = document.createElement('div');
+    av.className = 'cb-av';
+    av.innerHTML = '<i class="fa-solid fa-robot"></i>';
+
+    const wrap = document.createElement('div');
+    wrap.className = 'cb-bubble-wrap' + (hasDoctors ? ' wide' : '');
+
+    if (isHigh) {
+      const banner = document.createElement('div');
+      banner.className = 'cb-emg-banner';
+      banner.innerHTML =
+        '<i class="fa-solid fa-triangle-exclamation"></i>' +
+        '<span>Emergency — Call your local emergency services immediately.</span>';
+      wrap.appendChild(banner);
+    }
+
+    const bubble = document.createElement('div');
+    bubble.className = 'cb-bubble' + (isHigh ? ' emergency' : '');
+
+    const contentEl = document.createElement('div');
+    bubble.appendChild(contentEl);
+
+    const time = document.createElement('div');
+    time.className = 'cb-time';
+    time.textContent = now();
+
+    wrap.append(bubble, time);
+    row.append(av, wrap);
+    msgEl.insertBefore(row, typingEl);
+    scrollDown();
+
+    /* typewriter */
+    isTyping = true;
+    sendBtn.disabled = true;
+
+    typewrite(contentEl, reply, TYPEWRITER_SPEED, function onDone() {
+      isTyping = false;
+      sendBtn.disabled = false;
+
+      /* badges */
+      if (urgency) {
+        const metaRow = document.createElement('div');
+        metaRow.className = 'cb-meta-row';
+
+        const urgencyMap = {
+          low:    { icon: '●', label: 'Routine',           cls: 'low'    },
+          medium: { icon: '⚠', label: 'See a doctor soon', cls: 'medium' },
+          high:   { icon: '🚨', label: 'Emergency',         cls: 'high'   },
+        };
+        const u = urgencyMap[urgency] || { icon: '●', label: urgency, cls: 'low' };
+
+        const ub = document.createElement('span');
+        ub.className = 'cb-badge ' + u.cls;
+        ub.textContent = u.icon + ' ' + u.label;
+        metaRow.appendChild(ub);
+
+        if (major) {
+          const mc = document.createElement('span');
+          mc.className = 'cb-badge major';
+          mc.textContent = '🏥 ' + major;
+          metaRow.appendChild(mc);
+        }
+
+        bubble.appendChild(metaRow);
+      }
+
+      if (hasDoctors) {
+        bubble.appendChild(buildDoctorsStrip(doctors));
+      }
+
+      scrollDown();
+    });
+  }
+
+  /* ════════════════════════════════════════
+     DOCTOR CARDS BUILDER
+  ════════════════════════════════════════ */
+  function buildDoctorsStrip(doctors) {
+    const strip = document.createElement('div');
+    strip.className = 'cb-doctors';
+
+    doctors.forEach(function(doc) {
+      const card = document.createElement('div');
+      card.className = 'cb-doc-card';
+
+      /* avatar */
+      const av = document.createElement('div');
+      av.className = 'cb-doc-av';
+      if (doc.image) {
+        const img = document.createElement('img');
+        img.src   = doc.image;
+        img.alt   = doc.name;
+        // ✅ fallback لو الصورة اتعطلت
+        img.onerror = function() {
+          av.removeChild(img);
+          av.textContent = '🩺';
+        };
+        av.appendChild(img);
+      } else {
+        av.textContent = '🩺';
+      }
+
+      /* info */
+      const info = document.createElement('div');
+      info.className = 'cb-doc-info';
+
+      const name = document.createElement('div');
+      name.className  = 'cb-doc-name';
+      name.textContent = doc.name;
+      info.appendChild(name);
+
+      const meta = document.createElement('div');
+      meta.className = 'cb-doc-meta';
+
+      if (doc.experience) {
+        const exp = document.createElement('span');
+        exp.innerHTML = '<i class="fa-solid fa-briefcase-medical"></i> ' + doc.experience + ' yrs';
+        meta.appendChild(exp);
+      }
+      if (doc.schedule) {
+        const sch = document.createElement('span');
+        sch.innerHTML = '<i class="fa-regular fa-calendar"></i> ' + doc.schedule;
+        meta.appendChild(sch);
+      }
+      info.appendChild(meta);
+
+      /* right: fee + book */
+      const right = document.createElement('div');
+      right.className = 'cb-doc-right';
+
+      if (doc.consultation_fee) {
+        const fee = document.createElement('div');
+        fee.className   = 'cb-doc-fee';
+        fee.textContent = doc.consultation_fee + ' EGP';
+        right.appendChild(fee);
+      }
+
+      // ✅ استخدام <a> بدل <button> عشان الـ booking_url يجي من الـ backend
+      const btn = document.createElement('a');
+      btn.className = 'cb-book-btn';
+      btn.href      = doc.booking_url || '#';
+      btn.innerHTML = '<i class="fa-solid fa-calendar-check"></i> Book Now';
+      // افتح في نفس التاب
+      right.appendChild(btn);
+
+      card.append(av, info, right);
+      strip.appendChild(card);
+    });
+
+    return strip;
+  }
+
 })();
 </script>
 @endpush

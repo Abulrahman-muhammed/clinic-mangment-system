@@ -10,17 +10,13 @@ use Illuminate\Support\Facades\DB;
 
 class BookingController extends Controller
 {
-    // الـ Status Transitions المسموح بيها
     private const ALLOWED_TRANSITIONS = [
         'pending'   => ['confirmed', 'cancelled'],
         'confirmed' => ['completed', 'cancelled'],
-        'completed' => [],   // نهائي - مينفعش يتغير
-        'cancelled' => [],   // نهائي - مينفعش يتغير
+        'completed' => [],       
+        'cancelled' => [],       
     ];
 
-    // ─────────────────────────────────────────────
-    //  Index
-    // ─────────────────────────────────────────────
     public function index(Request $request)
     {
         $query = Booking::with(['patient', 'doctor.user', 'doctor.major'])
@@ -30,8 +26,8 @@ class BookingController extends Controller
             $search = $request->search;
             $query->whereHas('patient', function ($q) use ($search) {
                 $q->where('name',  'LIKE', "%{$search}%")
-                  ->orWhere('email', 'LIKE', "%{$search}%")
-                  ->orWhere('phone', 'LIKE', "%{$search}%");
+                    ->orWhere('email', 'LIKE', "%{$search}%")
+                    ->orWhere('phone', 'LIKE', "%{$search}%");
             });
         }
 
@@ -57,14 +53,10 @@ class BookingController extends Controller
         return view('admin.bookings.index', compact('bookings', 'doctors'));
     }
 
-    // ─────────────────────────────────────────────
-    //  Edit
-    // ─────────────────────────────────────────────
     public function edit($id)
     {
         $booking = Booking::with(['patient', 'doctor.user'])->findOrFail($id);
 
-        // ✅ Authorization: Doctor يشوف بس bookings بتاعته
         if (auth()->user()->hasRole('doctor')) {
             abort_if($booking->doctor->user_id !== auth()->id(), 403);
         }
@@ -73,21 +65,14 @@ class BookingController extends Controller
 
         return view('admin.bookings.edit', compact('booking', 'doctors'));
     }
-
-    // ─────────────────────────────────────────────
-    //  Update - مع Transaction + Validation منطقي
-    // ─────────────────────────────────────────────
     public function update(Request $request, $id)
     {
-        // ✅ Lock the row لمنع Race Condition
         $booking = Booking::lockForUpdate()->findOrFail($id);
 
-        // ✅ Authorization
         if (auth()->user()->hasRole('doctor')) {
             abort_if($booking->doctor->user_id !== auth()->id(), 403);
         }
 
-        // ✅ Basic validation
         $request->validate([
             'status' => 'required|in:pending,confirmed,completed,cancelled',
         ]);
@@ -95,7 +80,6 @@ class BookingController extends Controller
         $newStatus     = $request->status;
         $currentStatus = $booking->status;
 
-        // ✅ App-level: منع تغيير Status بشكل غير منطقي
         if ($newStatus !== $currentStatus) {
             $allowed = self::ALLOWED_TRANSITIONS[$currentStatus] ?? [];
 
@@ -106,7 +90,6 @@ class BookingController extends Controller
             }
         }
 
-        // ✅ Transaction: كل العمليات تنجح أو كلها تفشل
         DB::transaction(function () use ($booking, $newStatus) {
             $updateData = ['status' => $newStatus];
 
@@ -125,12 +108,9 @@ class BookingController extends Controller
             ->with('success', 'Appointment status updated successfully.');
     }
 
-    // ─────────────────────────────────────────────
-    //  Destroy - مع Authorization
-    // ─────────────────────────────────────────────
+
     public function destroy(Booking $booking)
     {
-        // ✅ Doctor ميحذفش غير bookings بتاعته
         if (auth()->user()->hasRole('doctor')) {
             abort_if($booking->doctor->user_id !== auth()->id(), 403);
         }
@@ -141,9 +121,6 @@ class BookingController extends Controller
             ->with('success', 'Appointment archived successfully.');
     }
 
-    // ─────────────────────────────────────────────
-    //  Trashed
-    // ─────────────────────────────────────────────
     public function trashed(Request $request)
     {
         $query = Booking::onlyTrashed()
@@ -154,8 +131,8 @@ class BookingController extends Controller
             $search = $request->search;
             $query->whereHas('patient', function ($q) use ($search) {
                 $q->where('name',  'LIKE', "%{$search}%")
-                  ->orWhere('email', 'LIKE', "%{$search}%")
-                  ->orWhere('phone', 'LIKE', "%{$search}%");
+                    ->orWhere('email', 'LIKE', "%{$search}%")
+                    ->orWhere('phone', 'LIKE', "%{$search}%");
             });
         }
 
@@ -173,14 +150,10 @@ class BookingController extends Controller
         return view('admin.bookings.trashed', compact('bookings', 'doctors'));
     }
 
-    // ─────────────────────────────────────────────
-    //  Restore - مع Authorization
-    // ─────────────────────────────────────────────
     public function restore($id)
     {
         $booking = Booking::withTrashed()->findOrFail($id);
 
-        // ✅ Doctor ميعملش restore لـ bookings مش بتاعته
         if (auth()->user()->hasRole('doctor')) {
             abort_if($booking->doctor->user_id !== auth()->id(), 403);
         }
